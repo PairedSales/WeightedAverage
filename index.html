@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Weighted average calculator for appraisal comparable sales with a report-ready preview."
+    />
+    <title>Weighted Average Report Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero__content">
+          <p class="hero__eyebrow">GitHub Pages Ready</p>
+          <h1>Weighted Average Report Builder</h1>
+          <p class="hero__copy">
+            Create a polished weighted-average table for appraisal reports with
+            a clean, clipboard-friendly presentation.
+          </p>
+        </div>
+        <div class="hero__status-card" aria-label="Application roadmap status">
+          <span class="status-pill status-pill--active">Step 1 In Progress</span>
+          <h2>Foundation &amp; Layout</h2>
+          <p>
+            The project skeleton is in place with a modern interface, report
+            preview, and placeholders for calculator logic.
+          </p>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="panel controls-panel" aria-labelledby="controls-title">
+          <div class="panel__header">
+            <div>
+              <p class="panel__eyebrow">Configuration</p>
+              <h2 id="controls-title">Calculator Controls</h2>
+            </div>
+            <span class="badge">Skeleton</span>
+          </div>
+
+          <form class="controls-grid">
+            <label class="field">
+              <span class="field__label">Comparable count</span>
+              <select name="comparableCount" aria-label="Comparable count">
+                <option>3 comparables</option>
+                <option>4 comparables</option>
+                <option>5 comparables</option>
+                <option>6 comparables</option>
+                <option>7 comparables</option>
+                <option>8 comparables</option>
+                <option>9 comparables</option>
+                <option>10 comparables</option>
+              </select>
+            </label>
+
+            <fieldset class="field fieldset">
+              <legend class="field__label">Decimal display</legend>
+              <div class="segmented-control" role="radiogroup" aria-label="Decimal display options">
+                <label>
+                  <input type="radio" name="decimals" checked />
+                  <span>No decimals</span>
+                </label>
+                <label>
+                  <input type="radio" name="decimals" />
+                  <span>1 decimal</span>
+                </label>
+                <label>
+                  <input type="radio" name="decimals" />
+                  <span>2 decimals</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="field field--full">
+              <span class="field__label">Actions</span>
+              <div class="action-row">
+                <button type="button" class="button button--primary" disabled>
+                  Copy to Clipboard
+                </button>
+                <button type="button" class="button button--secondary" disabled>
+                  Reset Values
+                </button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel report-panel" aria-labelledby="preview-title">
+          <div class="panel__header">
+            <div>
+              <p class="panel__eyebrow">Preview</p>
+              <h2 id="preview-title">Report Output</h2>
+            </div>
+            <span class="badge badge--subtle">Ready for calculation layer</span>
+          </div>
+
+          <div class="report-preview" id="report-preview">
+            <div class="report-preview__title-row">
+              <div>
+                <p class="report-preview__eyebrow">Appraisal Support Tool</p>
+                <h3>Weighted Average of Comparable Sales</h3>
+              </div>
+              <p class="report-preview__meta">Prepared for clipboard export</p>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Comparable</th>
+                    <th scope="col">Weight</th>
+                    <th scope="col">Adjusted Sale Price</th>
+                    <th scope="col">Weighted Contribution</th>
+                  </tr>
+                </thead>
+                <tbody id="comparable-rows"></tbody>
+                <tfoot>
+                  <tr>
+                    <th scope="row" colspan="1">Total Weight</th>
+                    <td>—</td>
+                    <td class="muted">Awaiting inputs</td>
+                    <td>—</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" colspan="3">Weighted Average</th>
+                    <td class="result-cell">$0</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="row-template">
+      <tr>
+        <th scope="row"></th>
+        <td><span class="placeholder-chip">Weight input</span></td>
+        <td><span class="placeholder-chip">Adjusted price input</span></td>
+        <td><span class="placeholder-chip placeholder-chip--muted">Auto-calculated</span></td>
+      </tr>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
