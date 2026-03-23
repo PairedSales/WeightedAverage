@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Weighted average calculator for appraisal comparable sales with a report-ready preview."
+    />
+    <title>Weighted Average Report Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero__content">
+          <p class="hero__eyebrow">Weighted Average Tool</p>
+          <h1>Working calculator for appraisal report tables.</h1>
+          <p class="hero__copy">
+            Enter weights and adjusted sale prices for 3 to 10 comparable sales,
+            review the weighted average instantly, and copy a polished table for
+            pasting into your appraisal report.
+          </p>
+        </div>
+        <div class="hero__status-card" aria-label="Application status">
+          <span class="status-pill status-pill--active">Live calculator</span>
+          <h2>Ready for GitHub Pages</h2>
+          <p>
+            This version includes working weighted-average math, decimal display
+            controls, sample data, reset actions, and image export.
+          </p>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="panel controls-panel" aria-labelledby="controls-title">
+          <div class="panel__header">
+            <div>
+              <p class="panel__eyebrow">Setup</p>
+              <h2 id="controls-title">Calculator Controls</h2>
+            </div>
+            <span class="badge">Step 2</span>
+          </div>
+
+          <form class="controls-grid" id="controls-form">
+            <label class="field">
+              <span class="field__label">Comparable count</span>
+              <select id="comparable-count" name="comparableCount" aria-label="Comparable count">
+                <option value="3" selected>3 comparables</option>
+                <option value="4">4 comparables</option>
+                <option value="5">5 comparables</option>
+                <option value="6">6 comparables</option>
+                <option value="7">7 comparables</option>
+                <option value="8">8 comparables</option>
+                <option value="9">9 comparables</option>
+                <option value="10">10 comparables</option>
+              </select>
+            </label>
+
+            <fieldset class="field fieldset">
+              <legend class="field__label">Decimal display</legend>
+              <div class="segmented-control" role="radiogroup" aria-label="Decimal display options">
+                <label>
+                  <input type="radio" name="decimals" value="0" checked />
+                  <span>No decimals</span>
+                </label>
+                <label>
+                  <input type="radio" name="decimals" value="1" />
+                  <span>1 decimal</span>
+                </label>
+                <label>
+                  <input type="radio" name="decimals" value="2" />
+                  <span>2 decimals</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="field field--full callout">
+              <span class="field__label">How to use</span>
+              <ul class="instruction-list">
+                <li>Enter a weight and adjusted sale price for each comparable.</li>
+                <li>The weighted contribution and final weighted average update automatically.</li>
+                <li>Use Copy as Image to paste the report table into your appraisal form.</li>
+              </ul>
+            </div>
+
+            <div class="field field--full">
+              <span class="field__label">Actions</span>
+              <div class="action-row">
+                <button type="button" class="button button--primary" id="copy-button">
+                  Copy as Image
+                </button>
+                <button type="button" class="button button--secondary" id="sample-button">
+                  Load Sample Data
+                </button>
+                <button type="button" class="button button--ghost" id="reset-button">
+                  Reset Values
+                </button>
+              </div>
+            </div>
+
+            <p class="status-message" id="status-message" role="status" aria-live="polite">
+              Enter your comparable data to calculate the weighted average.
+            </p>
+          </form>
+        </section>
+
+        <section class="panel report-panel" aria-labelledby="preview-title">
+          <div class="panel__header panel__header--stacked">
+            <div>
+              <p class="panel__eyebrow">Preview</p>
+              <h2 id="preview-title">Report Output</h2>
+            </div>
+            <p class="panel__description">
+              The preview below is the exact area copied during image export.
+            </p>
+          </div>
+
+          <div class="report-preview" id="report-preview">
+            <div class="report-preview__title-row">
+              <div>
+                <p class="report-preview__eyebrow">Appraisal Support Tool</p>
+                <h3>Weighted Average of Comparable Sales</h3>
+              </div>
+              <div class="report-preview__meta-group">
+                <p class="report-preview__meta">3 to 10 comparable sales supported</p>
+                <p class="report-preview__meta" id="precision-label">Display precision: 0 decimals</p>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Comparable</th>
+                    <th scope="col">Weight</th>
+                    <th scope="col">Adjusted Sale Price</th>
+                    <th scope="col">Weighted Contribution</th>
+                  </tr>
+                </thead>
+                <tbody id="comparable-rows"></tbody>
+                <tfoot>
+                  <tr>
+                    <th scope="row">Total Weight</th>
+                    <td id="total-weight-cell">0</td>
+                    <td class="muted">Weighted inputs complete as you type</td>
+                    <td id="total-contribution-cell">$0</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" colspan="3">Weighted Average</th>
+                    <td class="result-cell" id="weighted-average-cell">$0</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="row-template">
+      <tr>
+        <th scope="row" data-role="label"></th>
+        <td>
+          <label class="table-input__label">
+            <span class="sr-only">Weight</span>
+            <input
+              class="table-input"
+              type="number"
+              min="0"
+              step="0.01"
+              inputmode="decimal"
+              data-field="weight"
+              placeholder="0"
+            />
+          </label>
+        </td>
+        <td>
+          <label class="table-input__label">
+            <span class="sr-only">Adjusted sale price</span>
+            <input
+              class="table-input"
+              type="number"
+              min="0"
+              step="0.01"
+              inputmode="decimal"
+              data-field="price"
+              placeholder="0"
+            />
+          </label>
+        </td>
+        <td>
+          <span class="value-chip" data-role="contribution">$0</span>
+        </td>
+      </tr>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
