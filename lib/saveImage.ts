@@ -1,4 +1,5 @@
 import { toCanvas } from "html-to-image";
+import { getHtmlToImageBaseOptions } from "./exportSnapshot";
 
 const DB_NAME = "wa-filehandles";
 const STORE_NAME = "handles";
@@ -90,18 +91,9 @@ function supportsDirectoryPicker(): boolean {
 
 // ── Render the element to a WebP blob ────────────────────────────
 
-const exportFilter = (node: Node) => {
-  if (node instanceof HTMLElement && node.hasAttribute("data-exclude-export")) {
-    return false;
-  }
-  return true;
-};
-
 async function renderToWebpBlob(element: HTMLElement): Promise<Blob> {
   const canvas = await toCanvas(element, {
-    pixelRatio: 2,
-    backgroundColor: "#ffffff",
-    filter: exportFilter,
+    ...getHtmlToImageBaseOptions(),
   });
 
   return new Promise((resolve, reject) => {

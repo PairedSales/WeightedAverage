@@ -1,18 +1,12 @@
 import { toPng } from "html-to-image";
+import { getHtmlToImageBaseOptions } from "./exportSnapshot";
 
 export async function copyGridAsImage(
   element: HTMLElement
 ): Promise<boolean> {
   try {
     const dataUrl = await toPng(element, {
-      pixelRatio: 2,
-      backgroundColor: "#ffffff",
-      filter: (node) => {
-        if (node instanceof HTMLElement && node.hasAttribute("data-exclude-export")) {
-          return false;
-        }
-        return true;
-      },
+      ...getHtmlToImageBaseOptions(),
     });
 
     const res = await fetch(dataUrl);
