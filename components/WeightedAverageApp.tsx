@@ -45,7 +45,9 @@ export default function WeightedAverageApp() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [rememberLocation, setRememberLocationState] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const [saveMenuOpen, setSaveMenuOpen] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
+  const saveMenuRef = useRef<HTMLDivElement>(null);
 
   // Hydrate from localStorage on mount
   useEffect(() => {
@@ -78,6 +80,17 @@ export default function WeightedAverageApp() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [undo, redo]);
+
+  useEffect(() => {
+    if (!saveMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (saveMenuRef.current && !saveMenuRef.current.contains(e.target as Node)) {
+        setSaveMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [saveMenuOpen]);
 
   const { templates, saveTemplate, deleteTemplate, getTemplate } = useTemplates();
 
@@ -200,7 +213,7 @@ export default function WeightedAverageApp() {
       {/* Toolbar */}
       <div className="flex items-center justify-end gap-1.5 mb-3">
         {/* Undo / Redo */}
-        <div className="flex items-center mr-auto">
+        <div className="flex items-center">
           <button
             onClick={undo}
             disabled={!canUndo}
@@ -223,55 +236,84 @@ export default function WeightedAverageApp() {
           </button>
         </div>
 
-        {/* Save Image */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleSave}
-            disabled={saveStatus === "saving"}
-            className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-lg transition-all ${
-              saveStatus === "done"
-                ? "bg-emerald-600 text-white"
-                : saveStatus === "error"
-                ? "bg-red-600 text-white"
-                : "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:border-slate-400 shadow-sm"
-            }`}
-          >
-            {saveStatus === "saving" ? (
-              <>
-                <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Saving...
-              </>
-            ) : saveStatus === "done" ? (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
-                  <path fillRule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clipRule="evenodd" />
-                </svg>
-                Saved!
-              </>
-            ) : saveStatus === "error" ? (
-              "Failed — try again"
-            ) : (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
-                  <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z" />
-                  <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
-                </svg>
-                Save Image
-              </>
-            )}
-          </button>
-          <label className="flex items-center gap-1.5 text-xs text-slate-500 cursor-pointer select-none" title="When checked, saves overwrite the same file without prompting">
-            <input
-              type="checkbox"
-              checked={rememberLocation}
-              onChange={(e) => toggleRemember(e.target.checked)}
-              className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5"
-            />
-            Remember location
-          </label>
+        {/* Save Image — split button with dropdown */}
+        <div className="relative" ref={saveMenuRef}>
+          <div className="flex items-center">
+            <button
+              onClick={handleSave}
+              disabled={saveStatus === "saving"}
+              className={`flex items-center gap-1.5 text-sm font-medium pl-3.5 pr-2.5 py-2 rounded-l-lg border-r-0 transition-all ${
+                saveStatus === "done"
+                  ? "bg-emerald-600 text-white"
+                  : saveStatus === "error"
+                  ? "bg-red-600 text-white"
+                  : "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:border-slate-400 shadow-sm"
+              }`}
+            >
+              {saveStatus === "saving" ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Saving...
+                </>
+              ) : saveStatus === "done" ? (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                    <path fillRule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clipRule="evenodd" />
+                  </svg>
+                  Saved!
+                </>
+              ) : saveStatus === "error" ? (
+                "Failed — try again"
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                    <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z" />
+                    <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
+                  </svg>
+                  Save Image
+                  {rememberLocation && (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 text-indigo-500">
+                      <path fillRule="evenodd" d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.291 5.597a15.591 15.591 0 0 0 2.236 2.235l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => setSaveMenuOpen((o) => !o)}
+              className={`flex items-center py-2 px-1.5 rounded-r-lg border-l transition-all ${
+                saveStatus === "done"
+                  ? "bg-emerald-600 text-white border-emerald-500"
+                  : saveStatus === "error"
+                  ? "bg-red-600 text-white border-red-500"
+                  : "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:border-slate-400 shadow-sm"
+              }`}
+              title="Save options"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
+                <path fillRule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+          {saveMenuOpen && (
+            <div className="absolute right-0 top-full mt-1 z-50 bg-white rounded-lg border border-slate-200 shadow-lg p-3 min-w-[200px]">
+              <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberLocation}
+                  onChange={(e) => toggleRemember(e.target.checked)}
+                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                />
+                Remember location
+              </label>
+              <p className="text-xs text-slate-400 mt-1.5 ml-6">
+                Overwrite the same file without prompting
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Copy to Clipboard */}

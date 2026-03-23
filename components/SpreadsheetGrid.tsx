@@ -121,7 +121,7 @@ function VerticalGrid({
             const weightRatio = comp.weight / maxWeight;
             return (
               <tr key={comp.id} className="group hover:bg-slate-50/60 transition-colors">
-                <td className="border border-slate-300 px-3 py-1.5 font-medium text-slate-700 bg-slate-50">
+                <td className="border border-slate-300 px-3 py-1.5 font-medium text-slate-700 bg-slate-50 text-center">
                   {comp.label}
                 </td>
                 <td className="border border-slate-300 p-0">
@@ -129,6 +129,7 @@ function VerticalGrid({
                     value={comp.salePrice}
                     formatted={formatCurrency(comp.salePrice, decimals)}
                     onChange={(v) => onUpdateComp(comp.id, "salePrice", v)}
+                    type="currency"
                     placeholder="Enter price"
                   />
                 </td>
@@ -139,6 +140,7 @@ function VerticalGrid({
                       value={comp.weight}
                       formatted={formatPercent(comp.weight, decimals)}
                       onChange={(v) => onUpdateComp(comp.id, "weight", v)}
+                      type="percent"
                       placeholder="0%"
                     />
                   </div>
@@ -266,6 +268,7 @@ function HorizontalGrid({
                   value={comp.salePrice}
                   formatted={formatCurrency(comp.salePrice, decimals)}
                   onChange={(v) => onUpdateComp(comp.id, "salePrice", v)}
+                  type="currency"
                   placeholder="Enter price"
                 />
               </td>
@@ -293,6 +296,7 @@ function HorizontalGrid({
                       value={comp.weight}
                       formatted={formatPercent(comp.weight, decimals)}
                       onChange={(v) => onUpdateComp(comp.id, "weight", v)}
+                      type="percent"
                       placeholder="0%"
                     />
                   </div>

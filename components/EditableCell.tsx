@@ -1,21 +1,46 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { parseNumericInput } from "@/lib/formatting";
+import {
+  parseNumericInput,
+  formatCurrencyLive,
+  formatPercentLive,
+} from "@/lib/formatting";
+
+type CellType = "currency" | "percent";
 
 interface EditableCellProps {
   value: number;
   formatted: string;
   onChange: (value: number) => void;
+  type: CellType;
   placeholder?: string;
   className?: string;
   align?: "left" | "right";
+}
+
+function countDigitsBefore(str: string, pos: number): number {
+  let count = 0;
+  for (let i = 0; i < pos && i < str.length; i++) {
+    if (/[0-9.]/.test(str[i])) count++;
+  }
+  return count;
+}
+
+function cursorPosForDigitCount(str: string, digitCount: number): number {
+  let count = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (/[0-9.]/.test(str[i])) count++;
+    if (count === digitCount) return i + 1;
+  }
+  return str.length;
 }
 
 export default function EditableCell({
   value,
   formatted,
   onChange,
+  type,
   placeholder = "0",
   className = "",
   align = "right",
@@ -23,6 +48,7 @@ export default function EditableCell({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const cursorRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -31,10 +57,26 @@ export default function EditableCell({
     }
   }, [editing]);
 
+  useEffect(() => {
+    if (cursorRef.current !== null && inputRef.current) {
+      inputRef.current.setSelectionRange(
+        cursorRef.current,
+        cursorRef.current
+      );
+      cursorRef.current = null;
+    }
+  });
+
+  const formatLive = type === "currency" ? formatCurrencyLive : formatPercentLive;
+
   const startEditing = useCallback(() => {
-    setDraft(value === 0 ? "" : String(value));
+    if (value === 0) {
+      setDraft("");
+    } else {
+      setDraft(formatLive(String(value)));
+    }
     setEditing(true);
-  }, [value]);
+  }, [value, formatLive]);
 
   const commit = useCallback(() => {
     const parsed = parseNumericInput(draft);
@@ -53,36 +95,48 @@ export default function EditableCell({
     [commit]
   );
 
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = e.target.value;
+      const caretPos = e.target.selectionStart ?? raw.length;
+      const digitsBefore = countDigitsBefore(raw, caretPos);
+      const newFormatted = formatLive(raw);
+      const newCaret = cursorPosForDigitCount(newFormatted, digitsBefore);
+      cursorRef.current = newCaret;
+      setDraft(newFormatted);
+    },
+    [formatLive]
+  );
+
   const textAlign = align === "right" ? "text-right" : "text-left";
-
-  if (editing) {
-    return (
-      <input
-        ref={inputRef}
-        type="text"
-        inputMode="decimal"
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onBlur={commit}
-        onKeyDown={handleKeyDown}
-        className={`w-full bg-white outline-none ring-2 ring-indigo-400 rounded-sm px-2 py-1.5 tabular-nums font-medium ${textAlign} ${className}`}
-        placeholder={placeholder}
-      />
-    );
-  }
-
   const isEmpty = value === 0;
 
+  const displayValue = editing
+    ? draft
+    : isEmpty
+    ? ""
+    : formatted;
+
   return (
-    <span
-      onClick={startEditing}
-      onFocus={startEditing}
-      tabIndex={0}
-      className={`block w-full cursor-text px-2 py-1.5 tabular-nums font-medium select-none ${textAlign} ${
-        isEmpty ? "text-slate-400 italic" : "text-slate-800"
+    <input
+      ref={inputRef}
+      type="text"
+      inputMode="decimal"
+      readOnly={!editing}
+      value={displayValue}
+      onClick={() => !editing && startEditing()}
+      onFocus={() => !editing && startEditing()}
+      onChange={handleChange}
+      onBlur={commit}
+      onKeyDown={handleKeyDown}
+      placeholder={placeholder}
+      className={`w-full outline-none tabular-nums font-medium px-2 py-1.5 ${textAlign} ${
+        editing
+          ? "bg-white ring-2 ring-indigo-400 rounded-sm"
+          : isEmpty
+          ? "bg-transparent text-slate-400 italic cursor-text"
+          : "bg-transparent text-slate-800 cursor-text"
       } ${className}`}
-    >
-      {isEmpty ? placeholder : formatted}
-    </span>
+    />
   );
 }
