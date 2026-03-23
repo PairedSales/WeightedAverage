@@ -1,6 +1,7 @@
 "use client";
 
 import type { AppState, DecimalPrecision, LayoutMode, Template } from "@/lib/types";
+import { themePresets, type ThemeState } from "@/lib/themes";
 import TemplateManager from "./TemplateManager";
 
 interface OptionsDrawerProps {
@@ -14,6 +15,8 @@ interface OptionsDrawerProps {
   onLoadTemplate: (template: Template) => void;
   onDeleteTemplate: (id: string) => void;
   currentState: AppState;
+  themeState: ThemeState;
+  onThemeChange: (theme: ThemeState) => void;
 }
 
 export default function OptionsDrawer({
@@ -27,6 +30,8 @@ export default function OptionsDrawer({
   onLoadTemplate,
   onDeleteTemplate,
   currentState,
+  themeState,
+  onThemeChange,
 }: OptionsDrawerProps) {
   return (
     <div
@@ -48,7 +53,7 @@ export default function OptionsDrawer({
                     onClick={() => onDecimalsChange(d)}
                     className={`flex-1 py-1.5 px-4 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ${
                       decimals === d
-                        ? "bg-white text-blue-700 shadow-sm"
+                        ? "bg-white text-accent-700 shadow-sm"
                         : "text-slate-500 hover:text-slate-700"
                     }`}
                   >
@@ -68,7 +73,7 @@ export default function OptionsDrawer({
                   onClick={() => onLayoutChange("vertical")}
                   className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer ${
                     layout === "vertical"
-                      ? "bg-white text-blue-700 shadow-sm"
+                      ? "bg-white text-accent-700 shadow-sm"
                       : "text-slate-500 hover:text-slate-700"
                   }`}
                 >
@@ -81,7 +86,7 @@ export default function OptionsDrawer({
                   onClick={() => onLayoutChange("horizontal")}
                   className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer ${
                     layout === "horizontal"
-                      ? "bg-white text-blue-700 shadow-sm"
+                      ? "bg-white text-accent-700 shadow-sm"
                       : "text-slate-500 hover:text-slate-700"
                   }`}
                 >
@@ -90,6 +95,63 @@ export default function OptionsDrawer({
                   </svg>
                   Horizontal
                 </button>
+              </div>
+            </div>
+
+            {/* Theme */}
+            <div className="min-w-[200px]">
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2.5">
+                Theme
+              </p>
+              <div className="flex items-center gap-2">
+                {themePresets.map((preset) => {
+                  const isSelected = themeState.preset === preset.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      onClick={() => onThemeChange({ preset: preset.id, customColor: themeState.customColor })}
+                      className={`w-7 h-7 rounded-full transition-all duration-200 cursor-pointer ${
+                        isSelected ? "scale-110" : "hover:scale-105"
+                      }`}
+                      style={{
+                        backgroundColor: preset.swatch,
+                        boxShadow: isSelected
+                          ? `0 0 0 2px white, 0 0 0 4px ${preset.swatch}`
+                          : "none",
+                      }}
+                      title={preset.name}
+                      aria-label={`${preset.name} theme`}
+                    />
+                  );
+                })}
+
+                {/* Custom color picker */}
+                <label
+                  className={`w-7 h-7 rounded-full cursor-pointer relative flex items-center justify-center transition-all duration-200 overflow-hidden ${
+                    themeState.preset === "custom" ? "scale-110" : "hover:scale-105"
+                  }`}
+                  style={{
+                    backgroundColor: themeState.preset === "custom" ? themeState.customColor : undefined,
+                    boxShadow: themeState.preset === "custom"
+                      ? `0 0 0 2px white, 0 0 0 4px ${themeState.customColor}`
+                      : "none",
+                    border: themeState.preset !== "custom" ? "2px dashed #94a3b8" : "none",
+                  }}
+                  title="Custom color"
+                  aria-label="Custom theme color"
+                >
+                  {themeState.preset !== "custom" && (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 text-slate-400">
+                      <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
+                    </svg>
+                  )}
+                  <input
+                    type="color"
+                    value={themeState.customColor}
+                    onChange={(e) => onThemeChange({ preset: "custom", customColor: e.target.value })}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </label>
               </div>
             </div>
 

@@ -113,7 +113,7 @@ function AddButton({ onClick }: { onClick: () => void }) {
     <div className="mt-2" data-exclude-export>
       <button
         onClick={onClick}
-        className="text-[13px] text-slate-400 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+        className="text-[13px] text-slate-400 hover:text-accent-600 hover:bg-accent-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
           <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
@@ -167,9 +167,7 @@ function VerticalGrid({
             return (
               <tr
                 key={comp.id}
-                className={`group hover:bg-blue-50/40 transition-colors ${
-                  !isLast ? "border-b" : ""
-                }`}
+                className="group hover:bg-accent-50/40 transition-colors"
               >
                 <td className={`px-4 py-2.5 font-medium text-slate-500 text-center text-[13px] ${!isLast ? "border-b border-slate-100" : ""}`}>
                   {comp.label}
@@ -198,7 +196,7 @@ function VerticalGrid({
                 <td className={`px-3 py-2.5 text-right tabular-nums font-medium text-slate-600 ${!isLast ? "border-b border-slate-100" : ""}`}>
                   {weightsValid && comp.salePrice > 0
                     ? formatCurrency(contrib, decimals)
-                    : "—"}
+                    : "\u2014"}
                 </td>
                 <td className={`p-0 align-middle ${!isLast ? "border-b border-transparent" : ""}`} data-exclude-export>
                   {canRemove && (
@@ -213,16 +211,16 @@ function VerticalGrid({
           <tr>
             <td
               colSpan={2}
-              className="px-4 py-3.5 font-bold text-blue-900 bg-gradient-to-r from-blue-50 to-blue-100/60 text-[15px] border-t-2 border-blue-200 rounded-bl-xl"
+              className="px-4 py-3.5 font-bold text-accent-900 bg-gradient-to-r from-accent-50 to-accent-100/60 text-[15px] border-t-2 border-accent-200 rounded-bl-xl"
             >
               Weighted Average
               <WeightWarning totalWeight={totalWeight} decimals={decimals} />
             </td>
             <td
               colSpan={2}
-              className="px-3 py-3.5 text-right tabular-nums font-bold text-blue-900 bg-gradient-to-r from-blue-100/60 to-blue-50 text-[15px] border-t-2 border-blue-200 rounded-br-xl"
+              className="px-3 py-3.5 text-right tabular-nums font-bold text-accent-900 bg-gradient-to-r from-accent-100/60 to-accent-50 text-[15px] border-t-2 border-accent-200 rounded-br-xl"
             >
-              {weightsValid ? formatCurrency(avg, decimals) : "—"}
+              {weightsValid ? formatCurrency(avg, decimals) : "\u2014"}
             </td>
             <td className="border-t-2 border-transparent bg-transparent" data-exclude-export />
           </tr>
@@ -270,7 +268,7 @@ function HorizontalGrid({
                 )}
               </th>
             ))}
-            <th className="px-4 py-2.5 text-center text-[11px] font-bold uppercase tracking-widest text-blue-600 border-b-2 border-blue-200 bg-blue-50/50">
+            <th className="px-4 py-2.5 text-center text-[11px] font-bold uppercase tracking-widest text-accent-600 border-b-2 border-accent-200 bg-accent-50/50">
               Result
             </th>
           </tr>
@@ -282,7 +280,7 @@ function HorizontalGrid({
               Sale Price
             </td>
             {comps.map((comp) => (
-              <td key={comp.id} className="p-0 border-b border-slate-100 hover:bg-blue-50/40 transition-colors">
+              <td key={comp.id} className="p-0 border-b border-slate-100 hover:bg-accent-50/40 transition-colors">
                 <EditableCell
                   value={comp.salePrice}
                   formatted={formatCurrency(comp.salePrice, decimals)}
@@ -292,7 +290,7 @@ function HorizontalGrid({
                 />
               </td>
             ))}
-            <td className="border-b border-blue-100 bg-blue-50/30" />
+            <td className="border-b border-accent-100 bg-accent-50/30" />
           </tr>
 
           {/* Weight Row */}
@@ -304,7 +302,7 @@ function HorizontalGrid({
             {comps.map((comp) => {
               const weightRatio = comp.weight / maxWeight;
               return (
-                <td key={comp.id} className="p-0 relative border-b border-slate-100 hover:bg-blue-50/40 transition-colors">
+                <td key={comp.id} className="p-0 relative border-b border-slate-100 hover:bg-accent-50/40 transition-colors">
                   <WeightBar ratio={weightRatio} direction="vertical" />
                   <div className="relative z-10">
                     <EditableCell
@@ -318,7 +316,7 @@ function HorizontalGrid({
                 </td>
               );
             })}
-            <td className="px-3 py-2.5 text-right tabular-nums font-semibold text-slate-600 border-b border-blue-100 bg-blue-50/30">
+            <td className="px-3 py-2.5 text-right tabular-nums font-semibold text-slate-600 border-b border-accent-100 bg-accent-50/30">
               {formatPercent(totalWeight, decimals)}
             </td>
           </tr>
@@ -337,12 +335,12 @@ function HorizontalGrid({
                 >
                   {weightsValid && comp.salePrice > 0
                     ? formatCurrency(contrib, decimals)
-                    : "—"}
+                    : "\u2014"}
                 </td>
               );
             })}
-            <td className="px-3 py-3 text-right tabular-nums font-bold text-blue-900 bg-gradient-to-b from-blue-50 to-blue-100/60 text-[15px] border-t-2 border-blue-200 rounded-br-xl">
-              {weightsValid ? formatCurrency(avg, decimals) : "—"}
+            <td className="px-3 py-3 text-right tabular-nums font-bold text-accent-900 bg-gradient-to-b from-accent-50 to-accent-100/60 text-[15px] border-t-2 border-accent-200 rounded-br-xl">
+              {weightsValid ? formatCurrency(avg, decimals) : "\u2014"}
             </td>
           </tr>
         </tbody>

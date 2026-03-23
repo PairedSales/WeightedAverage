@@ -41,12 +41,12 @@ export default function TemplateManager({
           onChange={(e) => setSaveName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSave()}
           placeholder="Template name..."
-          className="flex-1 min-w-0 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:border-blue-300 transition-colors placeholder:text-slate-400"
+          className="flex-1 min-w-0 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-400/40 focus:border-accent-300 transition-colors placeholder:text-slate-400"
         />
         <button
           onClick={handleSave}
           disabled={!saveName.trim()}
-          className="text-sm font-medium px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          className="text-sm font-medium px-4 py-2 rounded-lg bg-accent-600 text-white hover:bg-accent-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
         >
           Save
         </button>
@@ -63,7 +63,7 @@ export default function TemplateManager({
             >
               <button
                 onClick={() => onLoad(t)}
-                className="flex-1 text-left text-slate-700 truncate hover:text-blue-600 transition-colors cursor-pointer"
+                className="flex-1 text-left text-slate-700 truncate hover:text-accent-600 transition-colors cursor-pointer"
                 title={`Load "${t.name}"`}
               >
                 {t.name}

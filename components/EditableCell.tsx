@@ -132,7 +132,7 @@ export default function EditableCell({
       placeholder={placeholder}
       className={`w-full outline-none tabular-nums font-medium px-3 py-2.5 ${textAlign} ${
         editing
-          ? "bg-blue-50/60 ring-2 ring-blue-400/50 rounded-sm"
+          ? "bg-accent-50/60 ring-2 ring-accent-400/50 rounded-sm"
           : isEmpty
           ? "bg-transparent text-slate-400 italic cursor-text"
           : "bg-transparent text-slate-800 cursor-text"
