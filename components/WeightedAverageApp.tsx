@@ -246,14 +246,42 @@ export default function WeightedAverageApp() {
 
   return (
     <div className="mx-auto w-full max-w-4xl">
-      {/* Copy/Save above card; Undo/Redo below — shared width aligns with card */}
+      {/* Toolbar above card — same width as card, groups centered */}
       <div className="flex flex-col items-center w-full">
         <div className="w-fit max-w-full mx-auto flex flex-col items-stretch">
-          {/* Copy / Save — above chart card */}
+          {/* Undo/Redo | Copy | Save — centered to card */}
           <div
             className="mb-4 w-full flex flex-wrap items-center justify-center gap-2 px-1"
             data-exclude-export
           >
+            <div className="flex items-center bg-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden shrink-0">
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={undo}
+                disabled={!canUndo}
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 disabled:opacity-25 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                title="Undo (Ctrl+Z)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                  <path fillRule="evenodd" d="M7.793 2.232a.75.75 0 0 1-.025 1.06L3.622 7.25h10.003a5.375 5.375 0 0 1 0 10.75H10.75a.75.75 0 0 1 0-1.5h2.875a3.875 3.875 0 0 0 0-7.75H3.622l4.146 3.957a.75.75 0 0 1-1.036 1.085l-5.5-5.25a.75.75 0 0 1 0-1.085l5.5-5.25a.75.75 0 0 1 1.06.025Z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <div className="w-px h-5 bg-slate-200/80" />
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={redo}
+                disabled={!canRedo}
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 disabled:opacity-25 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                title="Redo (Ctrl+Y)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                  <path fillRule="evenodd" d="M12.207 2.232a.75.75 0 0 0 .025 1.06l4.146 3.958H6.375a5.375 5.375 0 0 0 0 10.75H9.25a.75.75 0 0 0 0-1.5H6.375a3.875 3.875 0 0 1 0-7.75h10.003l-4.146 3.957a.75.75 0 0 0 1.036 1.085l5.5-5.25a.75.75 0 0 0 0-1.085l-5.5-5.25a.75.75 0 0 0-1.06.025Z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+
             <button
               type="button"
               tabIndex={copyTabIndex}
@@ -380,7 +408,7 @@ export default function WeightedAverageApp() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04]">
+          <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-full">
             {/* Exportable area */}
             <div
               ref={gridRef}
@@ -404,40 +432,6 @@ export default function WeightedAverageApp() {
                 onAddComp={addComp}
                 onRemoveComp={removeComp}
               />
-            </div>
-          </div>
-
-          {/* Undo / Redo — below chart card, centered */}
-          <div
-            className="mt-4 w-full flex flex-wrap items-center justify-center gap-2 px-1"
-            data-exclude-export
-          >
-            <div className="flex items-center bg-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden">
-              <button
-                type="button"
-                tabIndex={-1}
-                onClick={undo}
-                disabled={!canUndo}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 disabled:opacity-25 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                title="Undo (Ctrl+Z)"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                  <path fillRule="evenodd" d="M7.793 2.232a.75.75 0 0 1-.025 1.06L3.622 7.25h10.003a5.375 5.375 0 0 1 0 10.75H10.75a.75.75 0 0 1 0-1.5h2.875a3.875 3.875 0 0 0 0-7.75H3.622l4.146 3.957a.75.75 0 0 1-1.036 1.085l-5.5-5.25a.75.75 0 0 1 0-1.085l5.5-5.25a.75.75 0 0 1 1.06.025Z" clipRule="evenodd" />
-                </svg>
-              </button>
-              <div className="w-px h-5 bg-slate-200/80" />
-              <button
-                type="button"
-                tabIndex={-1}
-                onClick={redo}
-                disabled={!canRedo}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 disabled:opacity-25 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                title="Redo (Ctrl+Y)"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                  <path fillRule="evenodd" d="M12.207 2.232a.75.75 0 0 0 .025 1.06l4.146 3.958H6.375a5.375 5.375 0 0 0 0 10.75H9.25a.75.75 0 0 0 0-1.5H6.375a3.875 3.875 0 0 1 0-7.75h10.003l-4.146 3.957a.75.75 0 0 0 1.036 1.085l5.5-5.25a.75.75 0 0 0 0-1.085l-5.5-5.25a.75.75 0 0 0-1.06.025Z" clipRule="evenodd" />
-                </svg>
-              </button>
             </div>
           </div>
         </div>
