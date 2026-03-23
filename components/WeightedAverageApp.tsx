@@ -177,7 +177,7 @@ export default function WeightedAverageApp() {
     await new Promise((r) => setTimeout(r, 100));
 
     try {
-      const result = await saveGridAsImage(gridRef.current, rememberLocation);
+      const result = await saveGridAsImage(gridRef.current, rememberLocation, state.comps.length);
       if (result.success) {
         setSaveStatus("done");
         // Auto-enable "remember location" on first successful save
@@ -192,7 +192,7 @@ export default function WeightedAverageApp() {
       setSaveStatus("error");
     }
     setTimeout(() => setSaveStatus("idle"), 2000);
-  }, [rememberLocation]);
+  }, [rememberLocation, state.comps.length]);
 
   const toggleRemember = useCallback((checked: boolean) => {
     setRememberLocation(checked);
@@ -307,10 +307,10 @@ export default function WeightedAverageApp() {
                   onChange={(e) => toggleRemember(e.target.checked)}
                   className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
                 />
-                Remember location
+                Remember directory
               </label>
               <p className="text-xs text-slate-400 mt-1.5 ml-6">
-                Overwrite the same file without prompting
+                Save to the same folder without prompting
               </p>
             </div>
           )}

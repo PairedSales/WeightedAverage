@@ -96,19 +96,19 @@ function VerticalGrid({
 }: GridInternalProps) {
   return (
     <div className="w-full overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
+      <table className="mx-auto border-collapse text-sm">
         <thead>
           <tr>
             <th className="bg-slate-100 border border-slate-300 px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider w-28">
               Comparable
             </th>
-            <th className="bg-slate-100 border border-slate-300 px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            <th className="bg-slate-100 border border-slate-300 px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider min-w-[10rem]">
               Sale Price
             </th>
             <th className="bg-slate-100 border border-slate-300 px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider w-32">
               Weight
             </th>
-            <th className="bg-slate-100 border border-slate-300 px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            <th className="bg-slate-100 border border-slate-300 px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider min-w-[10rem]">
               Contribution
             </th>
             {/* Extra narrow column for remove button — excluded from image capture via data attr */}
@@ -225,7 +225,7 @@ function HorizontalGrid({
 }: GridInternalProps) {
   return (
     <div className="w-full overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
+      <table className="mx-auto border-collapse text-sm">
         <thead>
           <tr>
             <th className="bg-slate-100 border border-slate-300 px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider w-32">

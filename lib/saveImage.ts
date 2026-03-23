@@ -1,39 +1,41 @@
-import { toPng } from "html-to-image";
+import { toCanvas } from "html-to-image";
 
 const DB_NAME = "wa-filehandles";
 const STORE_NAME = "handles";
-const HANDLE_KEY = "save-image-handle";
+const DIR_HANDLE_KEY = "save-dir-handle";
 const PREF_KEY = "wa-remember-location";
 
-// ── IndexedDB helpers for persisting the FileSystemFileHandle ──────
+// ── IndexedDB helpers for persisting the FileSystemDirectoryHandle ──
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1);
+    const req = indexedDB.open(DB_NAME, 2);
     req.onupgradeneeded = () => {
-      req.result.createObjectStore(STORE_NAME);
+      if (!req.result.objectStoreNames.contains(STORE_NAME)) {
+        req.result.createObjectStore(STORE_NAME);
+      }
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
 }
 
-async function storeHandle(handle: FileSystemFileHandle): Promise<void> {
+async function storeDirHandle(handle: FileSystemDirectoryHandle): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, "readwrite");
-    tx.objectStore(STORE_NAME).put(handle, HANDLE_KEY);
+    tx.objectStore(STORE_NAME).put(handle, DIR_HANDLE_KEY);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
 }
 
-async function loadHandle(): Promise<FileSystemFileHandle | null> {
+async function loadDirHandle(): Promise<FileSystemDirectoryHandle | null> {
   try {
     const db = await openDB();
     return new Promise((resolve) => {
       const tx = db.transaction(STORE_NAME, "readonly");
-      const req = tx.objectStore(STORE_NAME).get(HANDLE_KEY);
+      const req = tx.objectStore(STORE_NAME).get(DIR_HANDLE_KEY);
       req.onsuccess = () => resolve(req.result ?? null);
       req.onerror = () => resolve(null);
     });
@@ -42,12 +44,12 @@ async function loadHandle(): Promise<FileSystemFileHandle | null> {
   }
 }
 
-async function clearHandle(): Promise<void> {
+async function clearDirHandle(): Promise<void> {
   try {
     const db = await openDB();
     return new Promise((resolve) => {
       const tx = db.transaction(STORE_NAME, "readwrite");
-      tx.objectStore(STORE_NAME).delete(HANDLE_KEY);
+      tx.objectStore(STORE_NAME).delete(DIR_HANDLE_KEY);
       tx.oncomplete = () => resolve();
       tx.onerror = () => resolve();
     });
@@ -66,17 +68,27 @@ export function getRememberLocation(): boolean {
 export function setRememberLocation(value: boolean) {
   localStorage.setItem(PREF_KEY, String(value));
   if (!value) {
-    clearHandle();
+    clearDirHandle();
   }
 }
 
-// ── File System Access API detection ──────────────────────────────
+// ── Filename generation ──────────────────────────────────────────
 
-function supportsFilePicker(): boolean {
-  return typeof window !== "undefined" && "showSaveFilePicker" in window;
+function generateFilename(numComps: number): string {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `weighted-avg-${numComps}comps-${yyyy}-${mm}-${dd}.webp`;
 }
 
-// ── Render the element to a PNG blob ──────────────────────────────
+// ── File System Access API detection ─────────────────────────────
+
+function supportsDirectoryPicker(): boolean {
+  return typeof window !== "undefined" && "showDirectoryPicker" in window;
+}
+
+// ── Render the element to a WebP blob ────────────────────────────
 
 const exportFilter = (node: Node) => {
   if (node instanceof HTMLElement && node.hasAttribute("data-exclude-export")) {
@@ -85,20 +97,29 @@ const exportFilter = (node: Node) => {
   return true;
 };
 
-async function renderToBlob(element: HTMLElement): Promise<Blob> {
-  const dataUrl = await toPng(element, {
+async function renderToWebpBlob(element: HTMLElement): Promise<Blob> {
+  const canvas = await toCanvas(element, {
     pixelRatio: 2,
     backgroundColor: "#ffffff",
     filter: exportFilter,
   });
-  const res = await fetch(dataUrl);
-  return res.blob();
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error("Failed to create WebP blob"));
+      },
+      "image/webp",
+      0.95
+    );
+  });
 }
 
-// ── Verify or request write permission on a stored handle ─────────
+// ── Verify or request write permission on a stored handle ────────
 
 async function verifyPermission(
-  handle: FileSystemFileHandle
+  handle: FileSystemDirectoryHandle
 ): Promise<boolean> {
   const opts: FileSystemHandlePermissionDescriptor = { mode: "readwrite" };
   if ((await handle.queryPermission(opts)) === "granted") return true;
@@ -106,7 +127,18 @@ async function verifyPermission(
   return false;
 }
 
-// ── Public API ────────────────────────────────────────────────────
+async function writeToDirectory(
+  dirHandle: FileSystemDirectoryHandle,
+  filename: string,
+  blob: Blob
+): Promise<void> {
+  const fileHandle = await dirHandle.getFileHandle(filename, { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(blob);
+  await writable.close();
+}
+
+// ── Public API ───────────────────────────────────────────────────
 
 export interface SaveResult {
   success: boolean;
@@ -114,28 +146,30 @@ export interface SaveResult {
 }
 
 /**
- * Save the element as a PNG image file.
+ * Save the element as a WebP image file.
  *
- * If `rememberLocation` is true and a saved handle exists, writes
- * directly to the previously chosen file. Otherwise shows the
- * save-file picker (or falls back to a download link).
+ * If `rememberLocation` is true and a saved directory handle exists,
+ * writes a new file into the remembered directory. Otherwise shows the
+ * directory picker (or falls back to a download link).
+ *
+ * Filename format: `weighted-avg-{numComps}comps-{YYYY-MM-DD}.webp`
  */
 export async function saveGridAsImage(
   element: HTMLElement,
-  rememberLocation: boolean
+  rememberLocation: boolean,
+  numComps: number
 ): Promise<SaveResult> {
-  const blob = await renderToBlob(element);
+  const blob = await renderToWebpBlob(element);
+  const filename = generateFilename(numComps);
 
-  // Try to reuse remembered handle
-  if (rememberLocation && supportsFilePicker()) {
-    const handle = await loadHandle();
-    if (handle) {
+  // Try to reuse remembered directory
+  if (rememberLocation && supportsDirectoryPicker()) {
+    const dirHandle = await loadDirHandle();
+    if (dirHandle) {
       try {
-        const ok = await verifyPermission(handle);
+        const ok = await verifyPermission(dirHandle);
         if (ok) {
-          const writable = await handle.createWritable();
-          await writable.write(blob);
-          await writable.close();
+          await writeToDirectory(dirHandle, filename, blob);
           return { success: true, usedRemembered: true };
         }
       } catch {
@@ -144,28 +178,16 @@ export async function saveGridAsImage(
     }
   }
 
-  // Show file picker (File System Access API)
-  if (supportsFilePicker()) {
+  // Show directory picker (File System Access API)
+  if (supportsDirectoryPicker()) {
     try {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: "weighted-average.png",
-        types: [
-          {
-            description: "PNG Image",
-            accept: { "image/png": [".png"] },
-          },
-        ],
+      const dirHandle = await window.showDirectoryPicker({
+        mode: "readwrite",
       });
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-
-      // Persist the handle for future saves
-      await storeHandle(handle);
-
+      await writeToDirectory(dirHandle, filename, blob);
+      await storeDirHandle(dirHandle);
       return { success: true, usedRemembered: false };
     } catch (err) {
-      // User cancelled the dialog
       if (err instanceof DOMException && err.name === "AbortError") {
         return { success: false, usedRemembered: false };
       }
@@ -177,7 +199,7 @@ export async function saveGridAsImage(
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "weighted-average.png";
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
