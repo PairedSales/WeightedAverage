@@ -100,7 +100,7 @@ function VerticalGrid({
         <thead>
           <tr>
             <th className="bg-slate-100 border border-slate-300 px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider w-28">
-              Comp
+              Comparable
             </th>
             <th className="bg-slate-100 border border-slate-300 px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
               Sale Price
@@ -167,32 +167,16 @@ function VerticalGrid({
         </tbody>
         <tfoot>
           <tr>
-            <td className="border border-slate-300 px-3 py-2 font-bold text-slate-700 bg-slate-50">
-              Totals
-            </td>
-            <td className="border border-slate-300 px-2 py-2 text-right tabular-nums font-semibold text-slate-600 bg-slate-50">
-              {formatCurrency(
-                comps.reduce((s, c) => s + c.salePrice, 0),
-                decimals
-              )}
-            </td>
-            <td className="border border-slate-300 px-2 py-2 text-right tabular-nums font-semibold text-slate-600 bg-slate-50">
-              {formatPercent(totalWeight, decimals)}
-              {totalWeight > 0 && Math.abs(totalWeight - 100) > 0.01 && (
-                <span className="ml-1 text-amber-500 text-[10px] font-normal" title="Weights do not sum to 100%">
-                  &#9888;
-                </span>
-              )}
-            </td>
-            <td className="border border-slate-300 bg-slate-50" />
-            <td className="border-0 bg-transparent" data-exclude-export />
-          </tr>
-          <tr>
             <td
               colSpan={2}
               className="border border-indigo-200 px-3 py-3 font-bold text-indigo-800 bg-indigo-50 text-base"
             >
               Weighted Average
+              {totalWeight > 0 && Math.abs(totalWeight - 100) > 0.01 && (
+                <span className="ml-2 text-amber-500 text-[10px] font-normal align-middle" title="Weights do not sum to 100%">
+                  &#9888; {formatPercent(totalWeight, decimals)}
+                </span>
+              )}
             </td>
             <td
               colSpan={2}
