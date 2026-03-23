@@ -357,27 +357,27 @@ export default function WeightedAverageApp() {
         </button>
       </div>
 
-      {/* The exportable grid area */}
-      <div
-        ref={gridRef}
-        className="bg-white rounded-xl border border-slate-200 shadow-sm p-5"
-      >
-        <input
-          type="text"
-          value={state.title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="block w-full text-center text-lg font-bold text-slate-800 mb-4 bg-transparent outline-none focus:ring-2 focus:ring-indigo-300 rounded px-2 py-1 border-0"
-          spellCheck={false}
-        />
+      {/* Card wrapper (on-screen styling only, not captured) */}
+      <div className="rounded-xl border border-slate-200 shadow-sm p-3 w-fit mx-auto">
+        {/* Exportable area (captured for save/copy) */}
+        <div ref={gridRef} className="bg-white p-2">
+          <input
+            type="text"
+            value={state.title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="block w-full text-center text-lg font-bold text-slate-800 mb-4 bg-transparent outline-none focus:ring-2 focus:ring-indigo-300 rounded px-2 py-1 border-0"
+            spellCheck={false}
+          />
 
-        <SpreadsheetGrid
-          comps={state.comps}
-          decimals={state.decimals}
-          layout={state.layout}
-          onUpdateComp={updateComp}
-          onAddComp={addComp}
-          onRemoveComp={removeComp}
-        />
+          <SpreadsheetGrid
+            comps={state.comps}
+            decimals={state.decimals}
+            layout={state.layout}
+            onUpdateComp={updateComp}
+            onAddComp={addComp}
+            onRemoveComp={removeComp}
+          />
+        </div>
       </div>
 
       {/* Options panel — always below the grid, never in the exported image */}
