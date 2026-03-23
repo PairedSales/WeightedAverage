@@ -51,7 +51,6 @@ export default function WeightedAverageApp() {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "done" | "error">("idle");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [rememberLocation, setRememberLocationState] = useState(false);
-  const [optionsOpen, setOptionsOpen] = useState(false);
   const [saveMenuOpen, setSaveMenuOpen] = useState(false);
   const [themeState, setThemeState] = useState<ThemeState>({ preset: "blue", customColor: "#8B5CF6" });
   const gridRef = useRef<HTMLDivElement>(null);
@@ -215,12 +214,15 @@ export default function WeightedAverageApp() {
 
   if (!hydrated) {
     return (
-      <div className="w-full max-w-4xl mx-auto mt-12 animate-pulse">
+      <div className="w-full max-w-4xl mx-auto animate-pulse">
         <div className="h-10 bg-slate-200/60 rounded-xl w-72 mx-auto mb-8" />
         <div className="h-72 bg-slate-200/60 rounded-2xl" />
       </div>
     );
   }
+
+  /** After all sale + weight cells (indices 1 … 2n), Copy is next in tab order only. */
+  const copyTabIndex = 2 * state.comps.length + 1;
 
   return (
     <div className="mx-auto w-full max-w-4xl">
@@ -237,6 +239,7 @@ export default function WeightedAverageApp() {
                 type="text"
                 value={state.title}
                 onChange={(e) => setTitle(e.target.value)}
+                tabIndex={-1}
                 className="block w-full text-center text-xl font-bold leading-tight text-slate-800 bg-transparent outline-none focus:ring-2 focus:ring-accent-300/50 rounded-lg px-3 py-1 border-0 placeholder:text-slate-300"
                 spellCheck={false}
                 placeholder="Enter title..."
@@ -253,13 +256,15 @@ export default function WeightedAverageApp() {
             </div>
           </div>
 
-          {/* Actions below card: Undo/Redo, Copy, Save, menu — left-aligned, same row */}
+          {/* Actions below card: Undo/Redo, Copy, Save — centered */}
           <div
-            className="mt-4 w-full flex flex-wrap items-center justify-start gap-2 px-1"
+            className="mt-4 w-full flex flex-wrap items-center justify-center gap-2 px-1"
             data-exclude-export
           >
             <div className="flex items-center bg-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden">
               <button
+                type="button"
+                tabIndex={-1}
                 onClick={undo}
                 disabled={!canUndo}
                 className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 disabled:opacity-25 disabled:cursor-not-allowed transition-colors cursor-pointer"
@@ -271,6 +276,8 @@ export default function WeightedAverageApp() {
               </button>
               <div className="w-px h-5 bg-slate-200/80" />
               <button
+                type="button"
+                tabIndex={-1}
                 onClick={redo}
                 disabled={!canRedo}
                 className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 disabled:opacity-25 disabled:cursor-not-allowed transition-colors cursor-pointer"
@@ -283,6 +290,8 @@ export default function WeightedAverageApp() {
             </div>
 
             <button
+              type="button"
+              tabIndex={copyTabIndex}
               onClick={handleCopy}
               disabled={copyStatus === "copying"}
               className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
@@ -324,6 +333,8 @@ export default function WeightedAverageApp() {
             <div className="relative" ref={saveMenuRef}>
               <div className="flex items-center">
                 <button
+                  type="button"
+                  tabIndex={-1}
                   onClick={handleSave}
                   disabled={saveStatus === "saving"}
                 className={`flex items-center gap-1.5 text-sm font-medium pl-3.5 pr-2.5 py-2 rounded-l-xl transition-all duration-200 cursor-pointer ${
@@ -367,6 +378,8 @@ export default function WeightedAverageApp() {
                 )}
               </button>
               <button
+                type="button"
+                tabIndex={-1}
                 onClick={() => setSaveMenuOpen((o) => !o)}
                 className={`flex items-center py-2 px-1.5 rounded-r-xl transition-all duration-200 cursor-pointer ${
                   saveStatus === "done"
@@ -387,6 +400,7 @@ export default function WeightedAverageApp() {
                 <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer select-none">
                   <input
                     type="checkbox"
+                    tabIndex={-1}
                     checked={rememberLocation}
                     onChange={(e) => toggleRemember(e.target.checked)}
                     className="rounded border-slate-300 text-accent-600 focus:ring-accent-500 w-4 h-4 cursor-pointer"
@@ -399,30 +413,12 @@ export default function WeightedAverageApp() {
               </div>
             )}
           </div>
-
-          <button
-            type="button"
-            onClick={() => setOptionsOpen((o) => !o)}
-            className={`p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${
-              optionsOpen
-                ? "bg-accent-50 border-accent-200 text-accent-700 shadow-sm"
-                : "bg-white border-slate-200/80 text-slate-500 hover:text-slate-700 hover:border-slate-300 shadow-sm"
-            }`}
-            title={optionsOpen ? "Close options" : "Options"}
-            aria-expanded={optionsOpen}
-            aria-label={optionsOpen ? "Close options" : "Open options"}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-6 h-6">
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
         </div>
         </div>
 
-        {/* Options panel — expands below action bar */}
-        <div className="mt-1 w-full max-w-4xl" data-exclude-export>
+        {/* Options — always visible below action bar */}
+        <div className="mt-3 w-full max-w-4xl" data-exclude-export>
           <OptionsDrawer
-            open={optionsOpen}
             decimals={state.decimals}
             layout={state.layout}
             onDecimalsChange={setDecimals}

@@ -5,7 +5,6 @@ import { themePresets, type ThemeState } from "@/lib/themes";
 import TemplateManager from "./TemplateManager";
 
 interface OptionsDrawerProps {
-  open: boolean;
   decimals: DecimalPrecision;
   layout: LayoutMode;
   onDecimalsChange: (d: DecimalPrecision) => void;
@@ -20,7 +19,6 @@ interface OptionsDrawerProps {
 }
 
 export default function OptionsDrawer({
-  open,
   decimals,
   layout,
   onDecimalsChange,
@@ -34,13 +32,9 @@ export default function OptionsDrawer({
   onThemeChange,
 }: OptionsDrawerProps) {
   return (
-    <div
-      className="grid transition-all duration-300 ease-out"
-      style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
-    >
-      <div className="overflow-hidden">
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 mt-1">
-          <div className="flex flex-wrap gap-x-10 gap-y-5">
+    <div className="w-full">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+        <div className="flex flex-wrap gap-x-10 gap-y-5">
             {/* Decimals */}
             <div className="min-w-[140px]">
               <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2.5">
@@ -50,6 +44,8 @@ export default function OptionsDrawer({
                 {([0, 1, 2] as DecimalPrecision[]).map((d) => (
                   <button
                     key={d}
+                    type="button"
+                    tabIndex={-1}
                     onClick={() => onDecimalsChange(d)}
                     className={`flex-1 py-1.5 px-4 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ${
                       decimals === d
@@ -70,6 +66,8 @@ export default function OptionsDrawer({
               </p>
               <div className="flex rounded-lg bg-slate-100 p-0.5">
                 <button
+                  type="button"
+                  tabIndex={-1}
                   onClick={() => onLayoutChange("vertical")}
                   className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer ${
                     layout === "vertical"
@@ -83,6 +81,8 @@ export default function OptionsDrawer({
                   Vertical
                 </button>
                 <button
+                  type="button"
+                  tabIndex={-1}
                   onClick={() => onLayoutChange("horizontal")}
                   className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer ${
                     layout === "horizontal"
@@ -109,6 +109,8 @@ export default function OptionsDrawer({
                   return (
                     <button
                       key={preset.id}
+                      type="button"
+                      tabIndex={-1}
                       onClick={() => onThemeChange({ preset: preset.id, customColor: themeState.customColor })}
                       className={`w-7 h-7 rounded-full transition-all duration-200 cursor-pointer ${
                         isSelected ? "scale-110" : "hover:scale-105"
@@ -147,6 +149,7 @@ export default function OptionsDrawer({
                   )}
                   <input
                     type="color"
+                    tabIndex={-1}
                     value={themeState.customColor}
                     onChange={(e) => onThemeChange({ preset: "custom", customColor: e.target.value })}
                     className="absolute inset-0 opacity-0 cursor-pointer"
@@ -165,7 +168,6 @@ export default function OptionsDrawer({
                 currentState={currentState}
               />
             </div>
-          </div>
         </div>
       </div>
     </div>

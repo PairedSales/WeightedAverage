@@ -37,6 +37,7 @@ export default function TemplateManager({
       <div className="flex gap-2">
         <input
           type="text"
+          tabIndex={-1}
           value={saveName}
           onChange={(e) => setSaveName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSave()}
@@ -44,6 +45,8 @@ export default function TemplateManager({
           className="flex-1 min-w-0 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-400/40 focus:border-accent-300 transition-colors placeholder:text-slate-400"
         />
         <button
+          type="button"
+          tabIndex={-1}
           onClick={handleSave}
           disabled={!saveName.trim()}
           className="text-sm font-medium px-4 py-2 rounded-lg bg-accent-600 text-white hover:bg-accent-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
@@ -62,6 +65,8 @@ export default function TemplateManager({
               className="flex items-center gap-2 text-sm px-2.5 py-2 rounded-lg hover:bg-slate-50 group transition-colors"
             >
               <button
+                type="button"
+                tabIndex={-1}
                 onClick={() => onLoad(t)}
                 className="flex-1 text-left text-slate-700 truncate hover:text-accent-600 transition-colors cursor-pointer"
                 title={`Load "${t.name}"`}
@@ -74,6 +79,8 @@ export default function TemplateManager({
               {confirmDeleteId === t.id ? (
                 <div className="flex gap-1 shrink-0">
                   <button
+                    type="button"
+                    tabIndex={-1}
                     onClick={() => {
                       onDelete(t.id);
                       setConfirmDeleteId(null);
@@ -83,6 +90,8 @@ export default function TemplateManager({
                     Yes
                   </button>
                   <button
+                    type="button"
+                    tabIndex={-1}
                     onClick={() => setConfirmDeleteId(null)}
                     className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
                   >
@@ -91,6 +100,8 @@ export default function TemplateManager({
                 </div>
               ) : (
                 <button
+                  type="button"
+                  tabIndex={-1}
                   onClick={() => setConfirmDeleteId(t.id)}
                   className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-all shrink-0 cursor-pointer"
                   title="Delete"

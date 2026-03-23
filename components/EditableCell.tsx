@@ -17,6 +17,8 @@ interface EditableCellProps {
   placeholder?: string;
   className?: string;
   align?: "left" | "right";
+  /** Keyboard tab order; use -1 to skip in tab sequence (default). */
+  tabIndex?: number;
 }
 
 function countDigitsBefore(str: string, pos: number): number {
@@ -44,6 +46,7 @@ export default function EditableCell({
   placeholder = "0",
   className = "",
   align = "right",
+  tabIndex = -1,
 }: EditableCellProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -118,6 +121,7 @@ export default function EditableCell({
         type="text"
         inputMode="decimal"
         size={1}
+        tabIndex={tabIndex}
         value={draft}
         onChange={handleChange}
         onBlur={commit}
@@ -132,9 +136,9 @@ export default function EditableCell({
     <div
       onClick={startEditing}
       onFocus={startEditing}
-      tabIndex={0}
+      tabIndex={tabIndex}
       role="textbox"
-      className={`outline-none tabular-nums font-medium px-3 py-2.5 cursor-text ${textAlign} ${
+      className={`outline-none focus-visible:ring-2 focus-visible:ring-accent-400/50 focus-visible:ring-inset rounded-sm tabular-nums font-medium px-3 py-2.5 cursor-text ${textAlign} ${
         isEmpty ? "text-slate-400 italic" : "text-slate-800"
       } ${className}`}
     >

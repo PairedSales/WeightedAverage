@@ -97,6 +97,8 @@ function WeightWarning({ totalWeight, decimals }: { totalWeight: number; decimal
 function RemoveButton({ onClick, label }: { onClick: () => void; label: string }) {
   return (
     <button
+      type="button"
+      tabIndex={-1}
       onClick={onClick}
       className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-all cursor-pointer"
       title={`Remove ${label}`}
@@ -112,6 +114,8 @@ function AddButton({ onClick }: { onClick: () => void }) {
   return (
     <div className="mt-2" data-exclude-export>
       <button
+        type="button"
+        tabIndex={-1}
         onClick={onClick}
         className="text-[13px] text-slate-400 hover:text-accent-600 hover:bg-accent-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
       >
@@ -139,6 +143,7 @@ function VerticalGrid({
   onAddComp,
   onRemoveComp,
 }: GridInternalProps) {
+  const n = comps.length;
   return (
     <div className="overflow-x-auto">
       <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
@@ -179,6 +184,7 @@ function VerticalGrid({
                     onChange={(v) => onUpdateComp(comp.id, "salePrice", v)}
                     type="currency"
                     placeholder="Enter price"
+                    tabIndex={i + 1}
                   />
                 </td>
                 <td className={`p-0 relative ${!isLast ? "border-b border-slate-100" : ""}`}>
@@ -190,6 +196,7 @@ function VerticalGrid({
                       onChange={(v) => onUpdateComp(comp.id, "weight", v)}
                       type="percent"
                       placeholder="0%"
+                      tabIndex={n + i + 1}
                     />
                   </div>
                 </td>
@@ -247,6 +254,7 @@ function HorizontalGrid({
   onAddComp,
   onRemoveComp,
 }: GridInternalProps) {
+  const n = comps.length;
   return (
     <div className="overflow-x-auto">
       <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
@@ -279,7 +287,7 @@ function HorizontalGrid({
             <td className="px-4 py-2.5 font-semibold text-slate-500 text-[11px] uppercase tracking-widest border-b border-slate-100">
               Sale Price
             </td>
-            {comps.map((comp) => (
+            {comps.map((comp, i) => (
               <td key={comp.id} className="p-0 min-w-[7rem] border-b border-slate-100 hover:bg-accent-50/40 transition-colors">
                 <EditableCell
                   value={comp.salePrice}
@@ -287,6 +295,7 @@ function HorizontalGrid({
                   onChange={(v) => onUpdateComp(comp.id, "salePrice", v)}
                   type="currency"
                   placeholder="Enter price"
+                  tabIndex={i + 1}
                 />
               </td>
             ))}
@@ -299,7 +308,7 @@ function HorizontalGrid({
               Weight
               <WeightWarning totalWeight={totalWeight} decimals={decimals} />
             </td>
-            {comps.map((comp) => {
+            {comps.map((comp, i) => {
               const weightRatio = comp.weight / maxWeight;
               return (
                 <td key={comp.id} className="p-0 min-w-[7rem] relative border-b border-slate-100 hover:bg-accent-50/40 transition-colors">
@@ -311,6 +320,7 @@ function HorizontalGrid({
                       onChange={(v) => onUpdateComp(comp.id, "weight", v)}
                       type="percent"
                       placeholder="0%"
+                      tabIndex={n + i + 1}
                     />
                   </div>
                 </td>
