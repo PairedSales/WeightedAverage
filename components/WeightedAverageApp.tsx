@@ -223,7 +223,7 @@ export default function WeightedAverageApp() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="mx-auto">
       {/* Toolbar — centered */}
       <div className="flex items-center justify-center gap-2 mb-4 flex-wrap" data-exclude-export>
         {/* Options toggle */}

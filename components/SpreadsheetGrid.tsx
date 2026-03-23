@@ -141,7 +141,7 @@ function VerticalGrid({
 }: GridInternalProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-separate border-spacing-0 text-sm">
+      <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
         <thead>
           <tr>
             <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 w-28">
@@ -249,7 +249,7 @@ function HorizontalGrid({
 }: GridInternalProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-separate border-spacing-0 text-sm">
+      <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
         <thead>
           <tr>
             <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 w-32">
@@ -280,7 +280,7 @@ function HorizontalGrid({
               Sale Price
             </td>
             {comps.map((comp) => (
-              <td key={comp.id} className="p-0 border-b border-slate-100 hover:bg-accent-50/40 transition-colors">
+              <td key={comp.id} className="p-0 min-w-[7rem] border-b border-slate-100 hover:bg-accent-50/40 transition-colors">
                 <EditableCell
                   value={comp.salePrice}
                   formatted={formatCurrency(comp.salePrice, decimals)}
@@ -302,7 +302,7 @@ function HorizontalGrid({
             {comps.map((comp) => {
               const weightRatio = comp.weight / maxWeight;
               return (
-                <td key={comp.id} className="p-0 relative border-b border-slate-100 hover:bg-accent-50/40 transition-colors">
+                <td key={comp.id} className="p-0 min-w-[7rem] relative border-b border-slate-100 hover:bg-accent-50/40 transition-colors">
                   <WeightBar ratio={weightRatio} direction="vertical" />
                   <div className="relative z-10">
                     <EditableCell
@@ -331,7 +331,7 @@ function HorizontalGrid({
               return (
                 <td
                   key={comp.id}
-                  className="px-3 py-2.5 text-right tabular-nums font-medium text-slate-600"
+                  className="px-3 py-2.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-600"
                 >
                   {weightsValid && comp.salePrice > 0
                     ? formatCurrency(contrib, decimals)
