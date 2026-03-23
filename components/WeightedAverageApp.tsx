@@ -223,24 +223,9 @@ export default function WeightedAverageApp() {
   }
 
   return (
-    <div className="mx-auto">
-      {/* Toolbar — centered */}
-      <div className="flex items-center justify-center gap-2 mb-4 flex-wrap" data-exclude-export>
-        {/* Options toggle */}
-        <button
-          onClick={() => setOptionsOpen((o) => !o)}
-          className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
-            optionsOpen
-              ? "bg-accent-50 text-accent-700 shadow-sm shadow-accent-100"
-              : "text-slate-400 hover:text-slate-600 hover:bg-white hover:shadow-sm"
-          }`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4.5 h-4.5">
-            <path fillRule="evenodd" d="M8.34 1.804A1 1 0 0 1 9.32 1h1.36a1 1 0 0 1 .98.804l.295 1.473c.497.144.971.342 1.416.587l1.25-.834a1 1 0 0 1 1.262.125l.962.962a1 1 0 0 1 .125 1.262l-.834 1.25c.245.445.443.919.587 1.416l1.473.295a1 1 0 0 1 .804.98v1.361a1 1 0 0 1-.804.98l-1.473.295a6.95 6.95 0 0 1-.587 1.416l.834 1.25a1 1 0 0 1-.125 1.262l-.962.962a1 1 0 0 1-1.262.125l-1.25-.834a6.953 6.953 0 0 1-1.416.587l-.295 1.473a1 1 0 0 1-.98.804H9.32a1 1 0 0 1-.98-.804l-.295-1.473a6.957 6.957 0 0 1-1.416-.587l-1.25.834a1 1 0 0 1-1.262-.125l-.962-.962a1 1 0 0 1-.125-1.262l.834-1.25a6.957 6.957 0 0 1-.587-1.416l-1.473-.295A1 1 0 0 1 1 10.68V9.32a1 1 0 0 1 .804-.98l1.473-.295c.144-.497.342-.971.587-1.416l-.834-1.25a1 1 0 0 1 .125-1.262l.962-.962A1 1 0 0 1 5.38 3.03l1.25.834a6.957 6.957 0 0 1 1.416-.587l.294-1.473ZM13 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" clipRule="evenodd" />
-          </svg>
-          Options
-        </button>
-
+    <div className="mx-auto w-full max-w-4xl">
+      {/* Toolbar — left-aligned */}
+      <div className="flex items-center justify-start gap-2 mb-4 flex-wrap" data-exclude-export>
         {/* Undo / Redo */}
         <div className="flex items-center bg-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden">
           <button
@@ -265,6 +250,46 @@ export default function WeightedAverageApp() {
             </svg>
           </button>
         </div>
+
+        {/* Copy to Clipboard */}
+        <button
+          onClick={handleCopy}
+          disabled={copyStatus === "copying"}
+          className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
+            copyStatus === "done"
+              ? "bg-emerald-500 text-white shadow-sm shadow-emerald-200"
+              : copyStatus === "error"
+              ? "bg-red-500 text-white"
+              : "bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
+          }`}
+        >
+          {copyStatus === "copying" ? (
+            <>
+              <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Copying...
+            </>
+          ) : copyStatus === "done" ? (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                <path fillRule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clipRule="evenodd" />
+              </svg>
+              Copied!
+            </>
+          ) : copyStatus === "error" ? (
+            "Failed"
+          ) : (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                <path d="M5.5 3.5A1.5 1.5 0 0 1 7 2h5.5a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 12.5 12H7a1.5 1.5 0 0 1-1.5-1.5v-7Z" />
+                <path d="M3 5.5A1.5 1.5 0 0 1 4.5 4H5v6.5A2.5 2.5 0 0 0 7.5 13H11v.5A1.5 1.5 0 0 1 9.5 15H4a2 2 0 0 1-2-2V7a1.5 1.5 0 0 1 1-1.415V5.5Z" />
+              </svg>
+              Copy
+            </>
+          )}
+        </button>
 
         {/* Save Image — split button */}
         <div className="relative" ref={saveMenuRef}>
@@ -329,7 +354,7 @@ export default function WeightedAverageApp() {
             </button>
           </div>
           {saveMenuOpen && (
-            <div className="absolute right-0 top-full mt-1.5 z-50 bg-white rounded-xl border border-slate-200/80 shadow-lg shadow-slate-200/50 p-4 min-w-[220px]">
+            <div className="absolute left-0 top-full mt-1.5 z-50 bg-white rounded-xl border border-slate-200/80 shadow-lg shadow-slate-200/50 p-4 min-w-[220px]">
               <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -345,88 +370,70 @@ export default function WeightedAverageApp() {
             </div>
           )}
         </div>
-
-        {/* Copy to Clipboard */}
-        <button
-          onClick={handleCopy}
-          disabled={copyStatus === "copying"}
-          className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
-            copyStatus === "done"
-              ? "bg-emerald-500 text-white shadow-sm shadow-emerald-200"
-              : copyStatus === "error"
-              ? "bg-red-500 text-white"
-              : "bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
-          }`}
-        >
-          {copyStatus === "copying" ? (
-            <>
-              <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Copying...
-            </>
-          ) : copyStatus === "done" ? (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
-                <path fillRule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clipRule="evenodd" />
-              </svg>
-              Copied!
-            </>
-          ) : copyStatus === "error" ? (
-            "Failed"
-          ) : (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
-                <path d="M5.5 3.5A1.5 1.5 0 0 1 7 2h5.5a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 12.5 12H7a1.5 1.5 0 0 1-1.5-1.5v-7Z" />
-                <path d="M3 5.5A1.5 1.5 0 0 1 4.5 4H5v6.5A2.5 2.5 0 0 0 7.5 13H11v.5A1.5 1.5 0 0 1 9.5 15H4a2 2 0 0 1-2-2V7a1.5 1.5 0 0 1 1-1.415V5.5Z" />
-              </svg>
-              Copy
-            </>
-          )}
-        </button>
       </div>
 
-      {/* Card wrapper */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-fit mx-auto">
-        {/* Exportable area */}
-        <div ref={gridRef} className="bg-white rounded-2xl px-6 py-5">
-          <input
-            type="text"
-            value={state.title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="block w-full text-center text-xl font-bold text-slate-800 mb-5 bg-transparent outline-none focus:ring-2 focus:ring-accent-300/50 rounded-lg px-3 py-1.5 border-0 placeholder:text-slate-300"
-            spellCheck={false}
-            placeholder="Enter title..."
-          />
+      {/* Card wrapper — centered */}
+      <div className="flex flex-col items-center">
+        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-fit mx-auto">
+          {/* Exportable area */}
+          <div ref={gridRef} className="bg-white rounded-2xl px-6 py-5">
+            <input
+              type="text"
+              value={state.title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="block w-full text-center text-xl font-bold text-slate-800 mb-5 bg-transparent outline-none focus:ring-2 focus:ring-accent-300/50 rounded-lg px-3 py-1.5 border-0 placeholder:text-slate-300"
+              spellCheck={false}
+              placeholder="Enter title..."
+            />
 
-          <SpreadsheetGrid
-            comps={state.comps}
+            <SpreadsheetGrid
+              comps={state.comps}
+              decimals={state.decimals}
+              layout={state.layout}
+              onUpdateComp={updateComp}
+              onAddComp={addComp}
+              onRemoveComp={removeComp}
+            />
+          </div>
+        </div>
+
+        {/* Options toggle — hamburger below card */}
+        <div className="mt-4 flex justify-center" data-exclude-export>
+          <button
+            type="button"
+            onClick={() => setOptionsOpen((o) => !o)}
+            className={`p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+              optionsOpen
+                ? "bg-accent-50 border-accent-200 text-accent-700 shadow-sm"
+                : "bg-white border-slate-200/80 text-slate-500 hover:text-slate-700 hover:border-slate-300 shadow-sm"
+            }`}
+            title={optionsOpen ? "Close options" : "Options"}
+            aria-expanded={optionsOpen}
+            aria-label={optionsOpen ? "Close options" : "Open options"}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-6 h-6">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Options panel — expands below hamburger */}
+        <div className="mt-1 w-full max-w-4xl" data-exclude-export>
+          <OptionsDrawer
+            open={optionsOpen}
             decimals={state.decimals}
             layout={state.layout}
-            onUpdateComp={updateComp}
-            onAddComp={addComp}
-            onRemoveComp={removeComp}
+            onDecimalsChange={setDecimals}
+            onLayoutChange={setLayout}
+            templates={templates}
+            onSaveTemplate={saveTemplate}
+            onLoadTemplate={handleLoadTemplate}
+            onDeleteTemplate={deleteTemplate}
+            currentState={state}
+            themeState={themeState}
+            onThemeChange={handleThemeChange}
           />
         </div>
-      </div>
-
-      {/* Options panel — below the grid */}
-      <div className="mt-3" data-exclude-export>
-        <OptionsDrawer
-          open={optionsOpen}
-          decimals={state.decimals}
-          layout={state.layout}
-          onDecimalsChange={setDecimals}
-          onLayoutChange={setLayout}
-          templates={templates}
-          onSaveTemplate={saveTemplate}
-          onLoadTemplate={handleLoadTemplate}
-          onDeleteTemplate={deleteTemplate}
-          currentState={state}
-          themeState={themeState}
-          onThemeChange={handleThemeChange}
-        />
       </div>
     </div>
   );

@@ -46,26 +46,6 @@ export const themePresets: ThemePreset[] = [
       "800": "#9F1239", "900": "#881337",
     },
   },
-  {
-    id: "amber",
-    name: "Amber",
-    swatch: "#F59E0B",
-    colors: {
-      "50": "#FFFBEB", "100": "#FEF3C7", "200": "#FDE68A", "300": "#FCD34D",
-      "400": "#FBBF24", "500": "#F59E0B", "600": "#D97706", "700": "#B45309",
-      "800": "#92400E", "900": "#78350F",
-    },
-  },
-  {
-    id: "violet",
-    name: "Violet",
-    swatch: "#8B5CF6",
-    colors: {
-      "50": "#F5F3FF", "100": "#EDE9FE", "200": "#DDD6FE", "300": "#C4B5FD",
-      "400": "#A78BFA", "500": "#8B5CF6", "600": "#7C3AED", "700": "#6D28D9",
-      "800": "#5B21B6", "900": "#4C1D95",
-    },
-  },
 ];
 
 export interface ThemeState {
@@ -75,12 +55,27 @@ export interface ThemeState {
 
 const THEME_KEY = "wa_theme";
 
+const REMOVED_PRESET_ALIASES: Record<string, string> = {
+  amber: "blue",
+  violet: "indigo",
+};
+
 export function loadThemeState(): ThemeState {
   try {
     const raw = localStorage.getItem(THEME_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed.preset === "string") return parsed;
+      if (parsed && typeof parsed.preset === "string") {
+        const migrated =
+          REMOVED_PRESET_ALIASES[parsed.preset] ?? parsed.preset;
+        return {
+          preset: migrated,
+          customColor:
+            typeof parsed.customColor === "string"
+              ? parsed.customColor
+              : "#8B5CF6",
+        };
+      }
     }
   } catch { /* ignore */ }
   return { preset: "blue", customColor: "#8B5CF6" };

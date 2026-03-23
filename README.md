@@ -79,6 +79,6 @@ npm start
 ## Usage
 
 1. Click any **Sale Price** or **Weight** cell to edit — formatting applies as you type.
-2. Use the **Options** panel below the grid to change decimal precision, switch between vertical/horizontal layout, or manage templates.
-3. Click **Save Image** to export as a WebP file. Toggle **Remember directory** in the dropdown to skip the folder picker on subsequent saves.
-4. Click **Copy to Clipboard** to copy the grid as a PNG for pasting into a word processor.
+2. Tap the **menu** (hamburger) below the card to open options: decimal precision, layout, theme (four presets plus custom), and templates.
+3. Click **Copy** to copy the grid as a PNG for pasting into a word processor.
+4. Click **Save** to export as a WebP file. Toggle **Remember directory** in the dropdown to skip the folder picker on subsequent saves.
