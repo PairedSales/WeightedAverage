@@ -111,32 +111,34 @@ export default function EditableCell({
   const textAlign = align === "right" ? "text-right" : "text-left";
   const isEmpty = value === 0;
 
-  const displayValue = editing
-    ? draft
-    : isEmpty
-    ? ""
-    : formatted;
+  if (editing) {
+    return (
+      <input
+        ref={inputRef}
+        type="text"
+        inputMode="decimal"
+        size={1}
+        value={draft}
+        onChange={handleChange}
+        onBlur={commit}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        className={`w-full outline-none tabular-nums font-medium px-3 py-2.5 ${textAlign} bg-accent-50/60 ring-2 ring-accent-400/50 rounded-sm ${className}`}
+      />
+    );
+  }
 
   return (
-    <input
-      ref={inputRef}
-      type="text"
-      inputMode="decimal"
-      readOnly={!editing}
-      value={displayValue}
-      onClick={() => !editing && startEditing()}
-      onFocus={() => !editing && startEditing()}
-      onChange={handleChange}
-      onBlur={commit}
-      onKeyDown={handleKeyDown}
-      placeholder={placeholder}
-      className={`w-full outline-none tabular-nums font-medium px-3 py-2.5 ${textAlign} ${
-        editing
-          ? "bg-accent-50/60 ring-2 ring-accent-400/50 rounded-sm"
-          : isEmpty
-          ? "bg-transparent text-slate-400 italic cursor-text"
-          : "bg-transparent text-slate-800 cursor-text"
+    <div
+      onClick={startEditing}
+      onFocus={startEditing}
+      tabIndex={0}
+      role="textbox"
+      className={`outline-none tabular-nums font-medium px-3 py-2.5 cursor-text ${textAlign} ${
+        isEmpty ? "text-slate-400 italic" : "text-slate-800"
       } ${className}`}
-    />
+    >
+      {isEmpty ? placeholder : formatted}
+    </div>
   );
 }
