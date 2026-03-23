@@ -30,7 +30,7 @@ export default function TemplateManager({
 
   return (
     <div className="space-y-3">
-      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+      <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
         Templates
       </p>
 
@@ -41,34 +41,34 @@ export default function TemplateManager({
           onChange={(e) => setSaveName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSave()}
           placeholder="Template name..."
-          className="flex-1 min-w-0 text-sm border border-slate-300 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          className="flex-1 min-w-0 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:border-blue-300 transition-colors placeholder:text-slate-400"
         />
         <button
           onClick={handleSave}
           disabled={!saveName.trim()}
-          className="text-sm font-medium px-3 py-1.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="text-sm font-medium px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
         >
           Save
         </button>
       </div>
 
       {templates.length === 0 ? (
-        <p className="text-xs text-slate-400 italic">No saved templates</p>
+        <p className="text-xs text-slate-400 italic py-1">No saved templates</p>
       ) : (
         <ul className="space-y-1 max-h-48 overflow-y-auto">
           {templates.map((t) => (
             <li
               key={t.id}
-              className="flex items-center gap-2 text-sm p-1.5 rounded hover:bg-slate-50 group"
+              className="flex items-center gap-2 text-sm px-2.5 py-2 rounded-lg hover:bg-slate-50 group transition-colors"
             >
               <button
                 onClick={() => onLoad(t)}
-                className="flex-1 text-left text-slate-700 truncate hover:text-indigo-600 transition-colors"
+                className="flex-1 text-left text-slate-700 truncate hover:text-blue-600 transition-colors cursor-pointer"
                 title={`Load "${t.name}"`}
               >
                 {t.name}
               </button>
-              <span className="text-[10px] text-slate-400 shrink-0">
+              <span className="text-[10px] text-slate-400 shrink-0 tabular-nums">
                 {new Date(t.createdAt).toLocaleDateString()}
               </span>
               {confirmDeleteId === t.id ? (
@@ -78,13 +78,13 @@ export default function TemplateManager({
                       onDelete(t.id);
                       setConfirmDeleteId(null);
                     }}
-                    className="text-[10px] px-1.5 py-0.5 rounded bg-red-600 text-white hover:bg-red-700"
+                    className="text-[10px] px-2 py-0.5 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer"
                   >
                     Yes
                   </button>
                   <button
                     onClick={() => setConfirmDeleteId(null)}
-                    className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 hover:bg-slate-300"
+                    className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
                   >
                     No
                   </button>
@@ -92,7 +92,7 @@ export default function TemplateManager({
               ) : (
                 <button
                   onClick={() => setConfirmDeleteId(t.id)}
-                  className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all shrink-0"
+                  className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-all shrink-0 cursor-pointer"
                   title="Delete"
                 >
                   <svg

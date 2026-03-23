@@ -130,9 +130,9 @@ export default function EditableCell({
       onBlur={commit}
       onKeyDown={handleKeyDown}
       placeholder={placeholder}
-      className={`w-full outline-none tabular-nums font-medium px-2 py-1.5 ${textAlign} ${
+      className={`w-full outline-none tabular-nums font-medium px-3 py-2.5 ${textAlign} ${
         editing
-          ? "bg-white ring-2 ring-indigo-400 rounded-sm"
+          ? "bg-blue-50/60 ring-2 ring-blue-400/50 rounded-sm"
           : isEmpty
           ? "bg-transparent text-slate-400 italic cursor-text"
           : "bg-transparent text-slate-800 cursor-text"
