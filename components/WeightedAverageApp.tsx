@@ -230,19 +230,19 @@ export default function WeightedAverageApp() {
     setRememberLocationState(checked);
   }, []);
 
-  const handleReset = useCallback(() => {
-    if (
-      !window.confirm(
-        "Reset all sales and options to defaults? This clears the undo history."
-      )
-    ) {
-      return;
-    }
-    resetState(defaultState());
+  const handleClear = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      comps: prev.comps.map((comp) => ({
+        ...comp,
+        salePrice: 0,
+        weight: 0,
+      })),
+    }));
     setSaveMenuOpen(false);
     setCopyStatus("idle");
     setSaveStatus("idle");
-  }, [resetState]);
+  }, [setState]);
 
   if (!hydrated) {
     return (
@@ -422,9 +422,9 @@ export default function WeightedAverageApp() {
             <button
               type="button"
               tabIndex={-1}
-              onClick={handleReset}
+              onClick={handleClear}
               className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
-              title="Reset to defaults"
+              title="Clear table data"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
                 <path
@@ -433,7 +433,7 @@ export default function WeightedAverageApp() {
                   clipRule="evenodd"
                 />
               </svg>
-              Reset
+              Clear
             </button>
           </div>
 
