@@ -151,8 +151,9 @@ export async function saveGridAsImage(
   rememberLocation: boolean,
   numComps: number
 ): Promise<SaveResult> {
-  const blob = await renderToWebpBlob(element);
   const filename = generateFilename(numComps);
+  let targetDirHandle: FileSystemDirectoryHandle | null = null;
+  let usedRemembered = false;
 
   // Try to reuse remembered directory
   if (rememberLocation && supportsDirectoryPicker()) {
@@ -161,8 +162,8 @@ export async function saveGridAsImage(
       try {
         const ok = await verifyPermission(dirHandle);
         if (ok) {
-          await writeToDirectory(dirHandle, filename, blob);
-          return { success: true, usedRemembered: true };
+          targetDirHandle = dirHandle;
+          usedRemembered = true;
         }
       } catch {
         // Handle expired or revoked — fall through to picker
@@ -170,21 +171,27 @@ export async function saveGridAsImage(
     }
   }
 
-  // Show directory picker (File System Access API)
-  if (supportsDirectoryPicker()) {
+  // If no remembered directory is available, prompt user first while
+  // the click gesture is still active.
+  if (!targetDirHandle && supportsDirectoryPicker()) {
     try {
-      const dirHandle = await window.showDirectoryPicker({
+      targetDirHandle = await window.showDirectoryPicker({
         mode: "readwrite",
       });
-      await writeToDirectory(dirHandle, filename, blob);
-      await storeDirHandle(dirHandle);
-      return { success: true, usedRemembered: false };
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
         return { success: false, usedRemembered: false };
       }
       throw err;
     }
+  }
+
+  const blob = await renderToWebpBlob(element);
+
+  if (targetDirHandle) {
+    await writeToDirectory(targetDirHandle, filename, blob);
+    await storeDirHandle(targetDirHandle);
+    return { success: true, usedRemembered };
   }
 
   // Fallback: trigger a download via <a> tag
