@@ -16,6 +16,7 @@ import {
 } from "@/lib/themes";
 import SpreadsheetGrid from "./SpreadsheetGrid";
 import OptionsDrawer from "./OptionsDrawer";
+import WeightAllocationTool from "./WeightAllocationTool";
 import { useState } from "react";
 
 function createComp(index: number): CompSale {
@@ -147,6 +148,17 @@ export default function WeightedAverageApp() {
 
   const setTitle = useCallback((title: string) => {
     setState((prev) => ({ ...prev, title }));
+  }, [setState]);
+
+
+  const applyWeights = useCallback((weightsById: Record<string, number>) => {
+    setState((prev) => ({
+      ...prev,
+      comps: prev.comps.map((c) => ({
+        ...c,
+        weight: typeof weightsById[c.id] === "number" ? weightsById[c.id] : c.weight,
+      })),
+    }));
   }, [setState]);
 
   const handleLoadTemplate = useCallback(
@@ -463,6 +475,11 @@ export default function WeightedAverageApp() {
               />
             </div>
           </div>
+
+          <WeightAllocationTool
+            comps={state.comps}
+            onApplyWeights={applyWeights}
+          />
         </div>
 
         {/* Options — always visible below action bar */}
