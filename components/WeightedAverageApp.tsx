@@ -189,7 +189,6 @@ export default function WeightedAverageApp() {
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
-    await new Promise((r) => setTimeout(r, 100));
 
     const success = await copyGridAsImage(el);
     setCopyStatus(success ? "done" : "error");
@@ -208,7 +207,6 @@ export default function WeightedAverageApp() {
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
-    await new Promise((r) => setTimeout(r, 100));
 
     try {
       const result = await saveGridAsImage(el, rememberLocation, state.comps.length);

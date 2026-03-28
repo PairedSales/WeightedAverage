@@ -5,15 +5,24 @@ export async function copyGridAsImage(
   element: HTMLElement
 ): Promise<boolean> {
   try {
-    const dataUrl = await toPng(element, {
-      ...getHtmlToImageBaseOptions(),
-    });
+    if (!("clipboard" in navigator) || !("write" in navigator.clipboard)) {
+      return false;
+    }
 
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
+    if (typeof ClipboardItem === "undefined") {
+      return false;
+    }
 
     await navigator.clipboard.write([
-      new ClipboardItem({ "image/png": blob }),
+      new ClipboardItem({
+        "image/png": (async () => {
+          const dataUrl = await toPng(element, {
+            ...getHtmlToImageBaseOptions(),
+          });
+          const res = await fetch(dataUrl);
+          return await res.blob();
+        })(),
+      }),
     ]);
 
     return true;
