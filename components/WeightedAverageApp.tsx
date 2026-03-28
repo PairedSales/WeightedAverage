@@ -232,6 +232,20 @@ export default function WeightedAverageApp() {
     setRememberLocationState(checked);
   }, []);
 
+  const handleReset = useCallback(() => {
+    if (
+      !window.confirm(
+        "Reset all sales and options to defaults? This clears the undo history."
+      )
+    ) {
+      return;
+    }
+    resetState(defaultState());
+    setSaveMenuOpen(false);
+    setCopyStatus("idle");
+    setSaveStatus("idle");
+  }, [resetState]);
+
   if (!hydrated) {
     return (
       <div className="w-full max-w-4xl mx-auto animate-pulse">
@@ -406,6 +420,23 @@ export default function WeightedAverageApp() {
                 </div>
               )}
             </div>
+
+            <button
+              type="button"
+              tabIndex={-1}
+              onClick={handleReset}
+              className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
+              title="Reset to defaults"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                <path
+                  fillRule="evenodd"
+                  d="M8 3a5 5 0 1 0 4.546 2.914.75.75 0 0 1 1.06-1.06 6.5 6.5 0 1 1-1.555-3.009l.54.9a.75.75 0 1 1-1.287.75l-1.638-2.163a.75.75 0 0 1 .156-1.043l3-2a.75.75 0 1 1 .99 1.127l-2.026 1.35a5.022 5.022 0 0 0-3.095 1.318Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Reset
+            </button>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-full">
