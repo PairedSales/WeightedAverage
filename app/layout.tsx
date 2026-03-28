@@ -30,7 +30,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-slate-50 min-h-screen antialiased">
+      <body className="min-h-screen bg-gradient-to-b from-slate-200 via-slate-100 to-blue-100 antialiased">
         {children}
       </body>
     </html>
