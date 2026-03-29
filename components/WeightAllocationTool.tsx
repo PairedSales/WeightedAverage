@@ -132,7 +132,7 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-3 flex flex-wrap gap-1.5">
         {comps.map((comp) => {
           const active = selectedIds.includes(comp.id);
           return (
@@ -140,7 +140,7 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
               key={comp.id}
               type="button"
               onClick={() => toggleSelected(comp.id)}
-              className={`w-full rounded-lg border px-1.5 py-1 text-center transition-colors cursor-pointer ${
+              className={`flex w-fit shrink-0 flex-col items-center rounded-lg border px-1 py-1 text-center transition-colors cursor-pointer ${
                 active ? "border-accent-300 bg-accent-50" : "border-slate-200 hover:border-slate-300 bg-white"
               }`}
             >
@@ -158,7 +158,9 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
                   className="w-11 px-0 py-0 text-center text-[13px] font-semibold"
                 />
               </div>
-              <div className="mt-0.5 text-[8px] leading-tight text-slate-500">{active ? "Manual / locked" : "Auto-fill candidate"}</div>
+              <div className="mt-0.5 whitespace-nowrap text-[8px] leading-tight text-slate-500">
+                {active ? "Manual / locked" : "Auto-fill candidate"}
+              </div>
             </button>
           );
         })}
