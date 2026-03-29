@@ -62,7 +62,7 @@ export default function WeightedAverageApp() {
   const [rememberLocation, setRememberLocationState] = useState(false);
   const [saveMenuOpen, setSaveMenuOpen] = useState(false);
   const [themeState, setThemeState] = useState<ThemeState>({ preset: "blue", customColor: "#8B5CF6" });
-  const gridRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
   const saveMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -196,7 +196,7 @@ export default function WeightedAverageApp() {
 
   /** Snapshot the node at click time; after awaits, gridRef.current must not be re-read (race / lost ref). */
   const resolveExportElement = useCallback((): HTMLElement | null => {
-    let el = gridRef.current;
+    let el = chartRef.current;
     if (el) return el;
     return null;
   }, []);
@@ -463,10 +463,7 @@ export default function WeightedAverageApp() {
 
           <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-fit">
             {/* Exportable area */}
-            <div
-              ref={gridRef}
-              className="bg-white rounded-2xl px-5 py-3 flex flex-col gap-2.5"
-            >
+            <div className="bg-white rounded-2xl px-5 py-3 flex flex-col gap-2.5">
               {state.showTitle && (
                 <input
                   type="text"
@@ -479,14 +476,16 @@ export default function WeightedAverageApp() {
                 />
               )}
 
-              <SpreadsheetGrid
-                comps={state.comps}
-                decimals={state.decimals}
-                layout={state.layout}
-                onUpdateComp={updateComp}
-                onAddComp={addComp}
-                onRemoveComp={removeComp}
-              />
+              <div ref={chartRef}>
+                <SpreadsheetGrid
+                  comps={state.comps}
+                  decimals={state.decimals}
+                  layout={state.layout}
+                  onUpdateComp={updateComp}
+                  onAddComp={addComp}
+                  onRemoveComp={removeComp}
+                />
+              </div>
             </div>
           </div>
 
