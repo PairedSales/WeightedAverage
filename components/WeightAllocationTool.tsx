@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { CompSale } from "@/lib/types";
+import type { CompSale, DecimalPrecision } from "@/lib/types";
 import { formatPercent } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
 
 interface WeightAllocationToolProps {
   comps: CompSale[];
+  decimals: DecimalPrecision;
   onApplyWeights: (weightsById: Record<string, number>) => void;
   onUpdateWeight: (id: string, value: number) => void;
 }
@@ -35,7 +36,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-export default function WeightAllocationTool({ comps, onApplyWeights, onUpdateWeight }: WeightAllocationToolProps) {
+export default function WeightAllocationTool({ comps, decimals, onApplyWeights, onUpdateWeight }: WeightAllocationToolProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedTotalInput, setSelectedTotalInput] = useState("50");
 
@@ -127,11 +128,11 @@ export default function WeightAllocationTool({ comps, onApplyWeights, onUpdateWe
           <p className="text-xs text-slate-500">Choose manual comps, then auto-distribute the rest to reach exactly 100%.</p>
         </div>
         <div className={`text-sm font-semibold ${totalClass}`}>
-          Total: {formatPercent(totalWeight, 2)}
+          Total: {formatPercent(totalWeight, decimals)}
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2.5">
         {comps.map((comp) => {
           const active = selectedIds.includes(comp.id);
           return (
@@ -139,25 +140,25 @@ export default function WeightAllocationTool({ comps, onApplyWeights, onUpdateWe
               key={comp.id}
               type="button"
               onClick={() => toggleSelected(comp.id)}
-              className={`w-full max-w-[13.5rem] rounded-xl border px-3 py-2 text-left transition-colors cursor-pointer ${
+              className={`w-[10.75rem] max-w-full rounded-xl border px-3 py-2.5 text-center transition-colors cursor-pointer ${
                 active ? "border-accent-300 bg-accent-50" : "border-slate-200 hover:border-slate-300 bg-white"
               }`}
             >
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{comp.label}</div>
-              <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+              <div className="mt-1.5 flex justify-center" onClick={(e) => e.stopPropagation()}>
                 <EditableCell
                   value={comp.weight}
-                  formatted={formatPercent(comp.weight, 2)}
+                  formatted={formatPercent(comp.weight, decimals)}
                   onChange={(value) => onUpdateWeight(comp.id, value)}
                   type="percent"
                   placeholder="0%"
                   align="left"
                   tabIndex={-1}
                   fullWidth={false}
-                  className="w-12 px-0 py-0 text-sm font-semibold"
+                  className="w-16 px-0 py-0 text-center text-lg font-semibold"
                 />
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">{active ? "Manual / locked" : "Auto-fill candidate"}</div>
+              <div className="mt-1.5 text-[11px] leading-tight text-slate-500">{active ? "Manual / locked" : "Auto-fill candidate"}</div>
             </button>
           );
         })}
@@ -238,7 +239,7 @@ export default function WeightAllocationTool({ comps, onApplyWeights, onUpdateWe
       )}
 
       <div className="mt-3 text-xs text-slate-500">
-        Selected: {selected.length} · Selected weight: {formatPercent(selectedWeight, 2)} · Remaining: {formatPercent(remainingFromSelected, 2)}
+        Selected: {selected.length} · Selected weight: {formatPercent(selectedWeight, decimals)} · Remaining: {formatPercent(remainingFromSelected, decimals)}
       </div>
     </div>
   );
