@@ -142,11 +142,7 @@ export default function SensitivityAnalysisTool({
             Use a positive step and ensure max ≥ min so the sweep is valid.
           </p>
         )}
-        {sweepValid && participantCount < 2 && (
-          <p className="mt-2 text-xs text-slate-500">
-            Enter subject GLA and at least two comps with sale price and comp GLA to compute a range.
-          </p>
-        )}
+
 
         <div className="mt-4 w-full overflow-x-auto">
           <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
