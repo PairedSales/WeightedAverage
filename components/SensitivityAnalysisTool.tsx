@@ -75,16 +75,7 @@ export default function SensitivityAnalysisTool({
   return (
     <div className="w-full" data-exclude-export>
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-semibold text-slate-800">GLA sensitivity</h3>
-            <p className="text-xs text-slate-500 mt-0.5 max-w-xl">
-              Adjusted price = sale price + (subject GLA − comp GLA) × $/SF. The tool sweeps trial
-              $/SF rates and picks the rate that minimizes the spread (max − min) of adjusted prices
-              among comps with sale price and GLA entered. Needs at least two such comps.
-            </p>
-          </div>
-        </div>
+        <h3 className="text-sm font-semibold text-slate-800">Sensitivity Analysis</h3>
 
         <div className="mt-4 flex flex-wrap items-end gap-4">
           <div>
