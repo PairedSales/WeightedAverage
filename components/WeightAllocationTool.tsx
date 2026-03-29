@@ -169,7 +169,7 @@ export default function WeightAllocationTool({ comps, onApplyWeights, onUpdateWe
             type="text"
             value={selectedTotalInput}
             onChange={(e) => setSelectedTotalInput(e.target.value)}
-            className="mt-1 block w-16 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm tabular-nums focus:border-accent-500 focus:outline-none"
+            className="mt-1 block w-28 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm focus:border-accent-500 focus:outline-none"
           />
         </label>
 
