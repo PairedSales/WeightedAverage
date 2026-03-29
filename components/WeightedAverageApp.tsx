@@ -34,6 +34,14 @@ function defaultState(): AppState {
     decimals: 0,
     layout: "vertical",
     title: "Weighted Average Analysis",
+    showTitle: false,
+  };
+}
+
+function normalizeState(state: AppState): AppState {
+  return {
+    ...state,
+    showTitle: typeof state.showTitle === "boolean" ? state.showTitle : Boolean(state.title?.trim()),
   };
 }
 
@@ -59,7 +67,7 @@ export default function WeightedAverageApp() {
 
   useEffect(() => {
     const saved = loadSavedState();
-    resetState(saved ?? defaultState());
+    resetState(saved ? normalizeState(saved) : defaultState());
     setRememberLocationState(getRememberLocation());
 
     const savedTheme = loadThemeState();
@@ -148,6 +156,10 @@ export default function WeightedAverageApp() {
 
   const setTitle = useCallback((title: string) => {
     setState((prev) => ({ ...prev, title }));
+  }, [setState]);
+
+  const setShowTitle = useCallback((showTitle: boolean) => {
+    setState((prev) => ({ ...prev, showTitle }));
   }, [setState]);
 
 
@@ -455,15 +467,17 @@ export default function WeightedAverageApp() {
               ref={gridRef}
               className="bg-white rounded-2xl px-5 py-3 flex flex-col gap-2.5"
             >
-              <input
-                type="text"
-                value={state.title}
-                onChange={(e) => setTitle(e.target.value)}
-                tabIndex={-1}
-                className="block w-full text-center text-xl font-bold leading-tight text-slate-800 bg-transparent outline-none focus:ring-2 focus:ring-accent-300/50 rounded-lg px-3 py-1 border-0 placeholder:text-slate-300"
-                spellCheck={false}
-                placeholder="Enter title..."
-              />
+              {state.showTitle && (
+                <input
+                  type="text"
+                  value={state.title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  tabIndex={-1}
+                  className="block w-full text-center text-xl font-bold leading-tight text-slate-800 bg-transparent outline-none focus:ring-2 focus:ring-accent-300/50 rounded-lg px-3 py-1 border-0 placeholder:text-slate-300"
+                  spellCheck={false}
+                  placeholder="Enter title..."
+                />
+              )}
 
               <SpreadsheetGrid
                 comps={state.comps}
@@ -487,8 +501,10 @@ export default function WeightedAverageApp() {
           <OptionsDrawer
             decimals={state.decimals}
             layout={state.layout}
+            showTitle={state.showTitle}
             onDecimalsChange={setDecimals}
             onLayoutChange={setLayout}
+            onShowTitleChange={setShowTitle}
             templates={templates}
             onSaveTemplate={saveTemplate}
             onLoadTemplate={handleLoadTemplate}

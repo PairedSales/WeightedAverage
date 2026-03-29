@@ -13,6 +13,7 @@ export interface AppState {
   decimals: DecimalPrecision;
   layout: LayoutMode;
   title: string;
+  showTitle: boolean;
 }
 
 export interface Template {

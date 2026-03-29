@@ -7,8 +7,10 @@ import TemplateManager from "./TemplateManager";
 interface OptionsDrawerProps {
   decimals: DecimalPrecision;
   layout: LayoutMode;
+  showTitle: boolean;
   onDecimalsChange: (d: DecimalPrecision) => void;
   onLayoutChange: (l: LayoutMode) => void;
+  onShowTitleChange: (show: boolean) => void;
   templates: Template[];
   onSaveTemplate: (name: string, state: AppState) => void;
   onLoadTemplate: (template: Template) => void;
@@ -21,8 +23,10 @@ interface OptionsDrawerProps {
 export default function OptionsDrawer({
   decimals,
   layout,
+  showTitle,
   onDecimalsChange,
   onLayoutChange,
+  onShowTitleChange,
   templates,
   onSaveTemplate,
   onLoadTemplate,
@@ -156,6 +160,23 @@ export default function OptionsDrawer({
                   />
                 </label>
               </div>
+            </div>
+
+            {/* Title */}
+            <div className="min-w-[180px]">
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2.5">
+                Title
+              </p>
+              <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  tabIndex={-1}
+                  checked={showTitle}
+                  onChange={(e) => onShowTitleChange(e.target.checked)}
+                  className="rounded border-slate-300 text-accent-600 focus:ring-accent-500 w-4 h-4 cursor-pointer"
+                />
+                Show title
+              </label>
             </div>
 
             {/* Templates */}
