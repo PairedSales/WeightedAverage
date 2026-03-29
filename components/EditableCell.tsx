@@ -5,9 +5,10 @@ import {
   parseNumericInput,
   formatCurrencyLive,
   formatPercentLive,
+  formatIntegerLive,
 } from "@/lib/formatting";
 
-type CellType = "currency" | "percent";
+type CellType = "currency" | "percent" | "integer";
 
 interface EditableCellProps {
   value: number;
@@ -73,22 +74,29 @@ export default function EditableCell({
     }
   });
 
-  const formatLive = type === "currency" ? formatCurrencyLive : formatPercentLive;
+  const formatLive =
+    type === "currency"
+      ? formatCurrencyLive
+      : type === "percent"
+        ? formatPercentLive
+        : formatIntegerLive;
 
   const startEditing = useCallback(() => {
     if (value === 0) {
       setDraft("");
+    } else if (type === "integer") {
+      setDraft(formatIntegerLive(String(Math.round(value))));
     } else {
       setDraft(formatLive(String(value)));
     }
     setEditing(true);
-  }, [value, formatLive]);
+  }, [value, formatLive, type]);
 
   const commit = useCallback(() => {
     const parsed = parseNumericInput(draft);
-    onChange(parsed);
+    onChange(type === "integer" ? Math.round(parsed) : parsed);
     setEditing(false);
-  }, [draft, onChange]);
+  }, [draft, onChange, type]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

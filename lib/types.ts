@@ -3,6 +3,7 @@ export interface CompSale {
   label: string;
   salePrice: number;
   weight: number;
+  gla: number;
 }
 
 export type DecimalPrecision = 0 | 1 | 2;
@@ -14,6 +15,7 @@ export interface AppState {
   layout: LayoutMode;
   title: string;
   showTitle: boolean;
+  subjectGla: number;
 }
 
 export interface Template {

@@ -17,6 +17,7 @@ import {
 import SpreadsheetGrid from "./SpreadsheetGrid";
 import OptionsDrawer from "./OptionsDrawer";
 import WeightAllocationTool from "./WeightAllocationTool";
+import SensitivityAnalysisTool from "./SensitivityAnalysisTool";
 import { useState } from "react";
 
 function createComp(index: number): CompSale {
@@ -25,6 +26,14 @@ function createComp(index: number): CompSale {
     label: `Sale ${index}`,
     salePrice: 0,
     weight: 0,
+    gla: 0,
+  };
+}
+
+function normalizeComp(c: CompSale): CompSale {
+  return {
+    ...c,
+    gla: typeof c.gla === "number" && isFinite(c.gla) ? c.gla : 0,
   };
 }
 
@@ -35,6 +44,7 @@ function defaultState(): AppState {
     layout: "vertical",
     title: "Weighted Average Analysis",
     showTitle: false,
+    subjectGla: 0,
   };
 }
 
@@ -42,6 +52,9 @@ function normalizeState(state: AppState): AppState {
   return {
     ...state,
     showTitle: typeof state.showTitle === "boolean" ? state.showTitle : Boolean(state.title?.trim()),
+    subjectGla:
+      typeof state.subjectGla === "number" && isFinite(state.subjectGla) ? state.subjectGla : 0,
+    comps: state.comps.map(normalizeComp),
   };
 }
 
@@ -113,7 +126,7 @@ export default function WeightedAverageApp() {
   const { templates, saveTemplate, deleteTemplate, getTemplate } = useTemplates();
 
   const updateComp = useCallback(
-    (id: string, field: "salePrice" | "weight", value: number) => {
+    (id: string, field: "salePrice" | "weight" | "gla", value: number) => {
       setState((prev) => ({
         ...prev,
         comps: prev.comps.map((c) =>
@@ -123,6 +136,10 @@ export default function WeightedAverageApp() {
     },
     [setState]
   );
+
+  const setSubjectGla = useCallback((value: number) => {
+    setState((prev) => ({ ...prev, subjectGla: value }));
+  }, [setState]);
 
   const addComp = useCallback(() => {
     setState((prev) => {
@@ -179,10 +196,10 @@ export default function WeightedAverageApp() {
       if (t) {
         const loaded = structuredClone(t.state);
         loaded.comps = loaded.comps.map((c) => ({
-          ...c,
+          ...normalizeComp(c),
           id: crypto.randomUUID(),
         }));
-        setState(loaded);
+        setState(normalizeState(loaded));
       }
     },
     [getTemplate, setState]
@@ -258,10 +275,12 @@ export default function WeightedAverageApp() {
   const handleClear = useCallback(() => {
     setState((prev) => ({
       ...prev,
+      subjectGla: 0,
       comps: prev.comps.map((comp) => ({
         ...comp,
         salePrice: 0,
         weight: 0,
+        gla: 0,
       })),
     }));
     setSaveMenuOpen(false);
@@ -513,6 +532,16 @@ export default function WeightedAverageApp() {
             currentState={state}
             themeState={themeState}
             onThemeChange={handleThemeChange}
+          />
+        </div>
+
+        <div className="mt-3 w-full max-w-4xl" data-exclude-export>
+          <SensitivityAnalysisTool
+            comps={state.comps}
+            decimals={state.decimals}
+            subjectGla={state.subjectGla}
+            onSubjectGlaChange={setSubjectGla}
+            onUpdateCompGla={(id, value) => updateComp(id, "gla", value)}
           />
         </div>
       </div>

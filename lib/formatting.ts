@@ -25,6 +25,22 @@ export function formatPercent(
   );
 }
 
+export function formatInteger(value: number): string {
+  if (!isFinite(value)) return "—";
+  return Math.round(value).toLocaleString("en-US", {
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  });
+}
+
+/** Live-format integer input with grouping; digits only while typing. */
+export function formatIntegerLive(raw: string): string {
+  const stripped = raw.replace(/[^0-9]/g, "");
+  if (stripped === "") return "";
+  const n = stripped.length > 12 ? stripped.slice(0, 12) : stripped;
+  return Number(n).toLocaleString("en-US");
+}
+
 /** Strip $, commas, % and parse as float. Returns 0 for unparseable input. */
 export function parseNumericInput(raw: string): number {
   const cleaned = raw.replace(/[$,%\s]/g, "");
