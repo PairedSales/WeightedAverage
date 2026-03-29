@@ -14,5 +14,7 @@ export function getHtmlToImageBaseOptions() {
     pixelRatio: 2,
     backgroundColor: "#ffffff",
     filter: exportFilter,
+    /** Avoid cross-origin @font-face (e.g. Google Fonts) breaking canvas serialization. */
+    skipFonts: true,
   } as const;
 }

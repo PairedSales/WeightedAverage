@@ -14,31 +14,48 @@ export function setRememberLocation(value: boolean) {
 
 // ── Filename generation ──────────────────────────────────────────
 
-function generateFilename(numComps: number): string {
+function generateFilename(numComps: number, ext: "webp" | "png"): string {
   const now = new Date();
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
-  return `weighted-avg-${numComps}comps-${yyyy}-${mm}-${dd}.webp`;
+  return `weighted-avg-${numComps}comps-${yyyy}-${mm}-${dd}.${ext}`;
 }
 
-// ── Render the element to a WebP blob ────────────────────────────
-
-async function renderToWebpBlob(element: HTMLElement): Promise<Blob> {
-  const canvas = await toCanvas(element, {
-    ...getHtmlToImageBaseOptions(),
-  });
-
+function canvasToBlob(
+  canvas: HTMLCanvasElement,
+  type: string,
+  quality?: number
+): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
         if (blob) resolve(blob);
-        else reject(new Error("Failed to create WebP blob"));
+        else reject(new Error(`Failed to create ${type} blob`));
       },
-      "image/webp",
-      0.95
+      type,
+      quality
     );
   });
+}
+
+/** Prefer WebP; fall back to PNG when the browser returns null from toBlob. */
+async function renderGridBlob(
+  element: HTMLElement
+): Promise<{ blob: Blob; ext: "webp" | "png" }> {
+  const canvas = await toCanvas(element, {
+    ...getHtmlToImageBaseOptions(),
+  });
+
+  const webpBlob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob((b) => resolve(b), "image/webp", 0.95);
+  });
+  if (webpBlob) {
+    return { blob: webpBlob, ext: "webp" };
+  }
+
+  const pngBlob = await canvasToBlob(canvas, "image/png");
+  return { blob: pngBlob, ext: "png" };
 }
 
 // ── Public API ───────────────────────────────────────────────────
@@ -49,18 +66,16 @@ export interface SaveResult {
 }
 
 /**
- * Save the element as a WebP image file.
+ * Save the element as WebP when supported, otherwise PNG.
  */
 export async function saveGridAsImage(
   element: HTMLElement,
   _rememberLocation: boolean,
   numComps: number
 ): Promise<SaveResult> {
-  const filename = generateFilename(numComps);
+  const { blob, ext } = await renderGridBlob(element);
+  const filename = generateFilename(numComps, ext);
 
-  const blob = await renderToWebpBlob(element);
-
-  // Trigger a download via <a> tag.
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

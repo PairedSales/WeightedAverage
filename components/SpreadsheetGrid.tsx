@@ -1,5 +1,6 @@
 "use client";
 
+import type { RefObject } from "react";
 import type { CompSale, DecimalPrecision, LayoutMode } from "@/lib/types";
 import { sumWeights, contribution, weightedAverage } from "@/lib/calculations";
 import { formatCurrency, formatPercent } from "@/lib/formatting";
@@ -10,6 +11,7 @@ interface SpreadsheetGridProps {
   comps: CompSale[];
   decimals: DecimalPrecision;
   layout: LayoutMode;
+  gridExportRef?: RefObject<HTMLDivElement | null>;
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number) => void;
   onAddComp: () => void;
   onRemoveComp: (id: string) => void;
@@ -19,6 +21,7 @@ export default function SpreadsheetGrid({
   comps,
   decimals,
   layout,
+  gridExportRef,
   onUpdateComp,
   onAddComp,
   onRemoveComp,
@@ -41,6 +44,7 @@ export default function SpreadsheetGrid({
         weightsValid={weightsValid}
         canAdd={canAdd}
         canRemove={canRemove}
+        gridExportRef={gridExportRef}
         onUpdateComp={onUpdateComp}
         onAddComp={onAddComp}
         onRemoveComp={onRemoveComp}
@@ -58,6 +62,7 @@ export default function SpreadsheetGrid({
       weightsValid={weightsValid}
       canAdd={canAdd}
       canRemove={canRemove}
+      gridExportRef={gridExportRef}
       onUpdateComp={onUpdateComp}
       onAddComp={onAddComp}
       onRemoveComp={onRemoveComp}
@@ -74,6 +79,7 @@ interface GridInternalProps {
   weightsValid: boolean;
   canAdd: boolean;
   canRemove: boolean;
+  gridExportRef?: RefObject<HTMLDivElement | null>;
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number) => void;
   onAddComp: () => void;
   onRemoveComp: (id: string) => void;
@@ -139,6 +145,7 @@ function VerticalGrid({
   weightsValid,
   canAdd,
   canRemove,
+  gridExportRef,
   onUpdateComp,
   onAddComp,
   onRemoveComp,
@@ -146,6 +153,7 @@ function VerticalGrid({
   const n = comps.length;
   return (
     <div className="w-fit">
+      <div ref={gridExportRef} className="w-fit">
       <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
         <thead>
           <tr>
@@ -233,6 +241,7 @@ function VerticalGrid({
           </tr>
         </tfoot>
       </table>
+      </div>
 
       {canAdd && <AddButton onClick={onAddComp} />}
     </div>
@@ -250,6 +259,7 @@ function HorizontalGrid({
   weightsValid,
   canAdd,
   canRemove,
+  gridExportRef,
   onUpdateComp,
   onAddComp,
   onRemoveComp,
@@ -257,6 +267,7 @@ function HorizontalGrid({
   const n = comps.length;
   return (
     <div className="w-fit">
+      <div ref={gridExportRef} className="w-fit">
       <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
         <thead>
           <tr>
@@ -355,6 +366,7 @@ function HorizontalGrid({
           </tr>
         </tbody>
       </table>
+      </div>
 
       {canAdd && <AddButton onClick={onAddComp} />}
     </div>

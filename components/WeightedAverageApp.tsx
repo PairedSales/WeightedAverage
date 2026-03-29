@@ -201,22 +201,23 @@ export default function WeightedAverageApp() {
     return null;
   }, []);
 
-  const handleCopy = useCallback(async () => {
-    let el = resolveExportElement();
+  const handleCopy = useCallback(() => {
+    const el = resolveExportElement();
     if (!el) {
-      await new Promise((r) => requestAnimationFrame(r));
-      el = resolveExportElement();
+      setCopyStatus("error");
+      setTimeout(() => setCopyStatus("idle"), 2000);
+      return;
     }
-    if (!el) return;
 
     setCopyStatus("copying");
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
 
-    const success = await copyGridAsImage(el);
-    setCopyStatus(success ? "done" : "error");
-    setTimeout(() => setCopyStatus("idle"), 2000);
+    void copyGridAsImage(el).then((success) => {
+      setCopyStatus(success ? "done" : "error");
+      setTimeout(() => setCopyStatus("idle"), 2000);
+    });
   }, [resolveExportElement]);
 
   const handleSave = useCallback(async () => {
@@ -476,16 +477,15 @@ export default function WeightedAverageApp() {
                 />
               )}
 
-              <div ref={chartRef}>
-                <SpreadsheetGrid
-                  comps={state.comps}
-                  decimals={state.decimals}
-                  layout={state.layout}
-                  onUpdateComp={updateComp}
-                  onAddComp={addComp}
-                  onRemoveComp={removeComp}
-                />
-              </div>
+              <SpreadsheetGrid
+                gridExportRef={chartRef}
+                comps={state.comps}
+                decimals={state.decimals}
+                layout={state.layout}
+                onUpdateComp={updateComp}
+                onAddComp={addComp}
+                onRemoveComp={removeComp}
+              />
             </div>
           </div>
 
