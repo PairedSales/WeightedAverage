@@ -132,7 +132,7 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(6.25rem,1fr))] gap-1.5">
         {comps.map((comp) => {
           const active = selectedIds.includes(comp.id);
           return (
@@ -140,12 +140,12 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
               key={comp.id}
               type="button"
               onClick={() => toggleSelected(comp.id)}
-              className={`w-full rounded-lg border px-2 py-1 text-center transition-colors cursor-pointer ${
+              className={`w-full rounded-md border px-1 py-0.5 text-center transition-colors cursor-pointer ${
                 active ? "border-accent-300 bg-accent-50" : "border-slate-200 hover:border-slate-300 bg-white"
               }`}
             >
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{comp.label}</div>
-              <div className="mt-0.5 flex justify-center" onClick={(e) => e.stopPropagation()}>
+              <div className="text-[9px] font-semibold uppercase tracking-normal text-slate-500">{comp.label}</div>
+              <div className="mt-px flex justify-center" onClick={(e) => e.stopPropagation()}>
                 <EditableCell
                   value={comp.weight}
                   formatted={formatPercent(comp.weight, decimals)}
@@ -155,10 +155,10 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
                   align="left"
                   tabIndex={-1}
                   fullWidth={false}
-                  className="w-12 px-0 py-0 text-center text-sm font-semibold"
+                  className="w-11 px-0 py-0 text-center text-sm font-semibold"
                 />
               </div>
-              <div className="mt-0.5 text-[9px] leading-tight text-slate-500">{active ? "Manual / locked" : "Auto-fill candidate"}</div>
+              <div className="mt-px text-[8px] leading-tight text-slate-500">{active ? "Manual / locked" : "Auto-fill candidate"}</div>
             </button>
           );
         })}
