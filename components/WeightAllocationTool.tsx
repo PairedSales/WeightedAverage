@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 import type { CompSale } from "@/lib/types";
 import { formatPercent } from "@/lib/formatting";
+import EditableCell from "./EditableCell";
 
 interface WeightAllocationToolProps {
   comps: CompSale[];
   onApplyWeights: (weightsById: Record<string, number>) => void;
+  onUpdateWeight: (id: string, value: number) => void;
 }
 
 const TARGET_TOTAL = 100;
@@ -33,7 +35,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-export default function WeightAllocationTool({ comps, onApplyWeights }: WeightAllocationToolProps) {
+export default function WeightAllocationTool({ comps, onApplyWeights, onUpdateWeight }: WeightAllocationToolProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedTotalInput, setSelectedTotalInput] = useState("50");
 
@@ -142,7 +144,18 @@ export default function WeightAllocationTool({ comps, onApplyWeights }: WeightAl
               }`}
             >
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{comp.label}</div>
-              <div className="mt-1 text-sm font-semibold text-slate-800">{formatPercent(comp.weight, 2)}</div>
+              <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+                <EditableCell
+                  value={comp.weight}
+                  formatted={formatPercent(comp.weight, 2)}
+                  onChange={(value) => onUpdateWeight(comp.id, value)}
+                  type="percent"
+                  placeholder="0%"
+                  align="left"
+                  tabIndex={-1}
+                  className="px-0 py-0 text-sm font-semibold"
+                />
+              </div>
               <div className="mt-1 text-[11px] text-slate-500">{active ? "Manual / locked" : "Auto-fill candidate"}</div>
             </button>
           );
