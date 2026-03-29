@@ -121,7 +121,10 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
   const totalClass = Math.abs(totalWeight - TARGET_TOTAL) <= 0.005 ? "text-emerald-700" : "text-amber-700";
 
   return (
-    <div className="mt-3 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm" data-exclude-export>
+    <div
+      className="mt-3 w-fit max-w-full self-center rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm"
+      data-exclude-export
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-slate-800">Weight Studio</h3>
@@ -155,7 +158,7 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
                   align="left"
                   tabIndex={-1}
                   fullWidth={false}
-                  className="w-11 px-0 py-0 text-center text-[13px] font-semibold"
+                  className="min-w-11 w-auto px-0 py-0 text-center text-[13px] font-semibold"
                 />
               </div>
               <div className="mt-0.5 whitespace-nowrap text-[8px] leading-tight text-slate-500">
