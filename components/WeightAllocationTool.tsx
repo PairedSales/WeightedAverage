@@ -132,7 +132,7 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-3 flex flex-wrap gap-2">
         {comps.map((comp) => {
           const active = selectedIds.includes(comp.id);
           return (
@@ -140,7 +140,7 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
               key={comp.id}
               type="button"
               onClick={() => toggleSelected(comp.id)}
-              className={`w-full rounded-lg border px-2 py-1 text-center transition-colors cursor-pointer ${
+              className={`w-fit min-w-[8.75rem] rounded-lg border px-2 py-1 text-center transition-colors cursor-pointer ${
                 active ? "border-accent-300 bg-accent-50" : "border-slate-200 hover:border-slate-300 bg-white"
               }`}
             >
