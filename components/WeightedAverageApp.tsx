@@ -479,6 +479,22 @@ export default function WeightedAverageApp() {
               </svg>
               Clear
             </button>
+
+            <OptionsDrawer
+              decimals={state.decimals}
+              layout={state.layout}
+              showTitle={state.showTitle}
+              onDecimalsChange={setDecimals}
+              onLayoutChange={setLayout}
+              onShowTitleChange={setShowTitle}
+              templates={templates}
+              onSaveTemplate={saveTemplate}
+              onLoadTemplate={handleLoadTemplate}
+              onDeleteTemplate={deleteTemplate}
+              currentState={state}
+              themeState={themeState}
+              onThemeChange={handleThemeChange}
+            />
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-fit">
@@ -513,25 +529,6 @@ export default function WeightedAverageApp() {
             decimals={state.decimals}
             onApplyWeights={applyWeights}
             onUpdateWeight={(id, value) => updateComp(id, "weight", value)}
-          />
-        </div>
-
-        {/* Options — always visible below action bar */}
-        <div className="mt-3 w-full max-w-4xl" data-exclude-export>
-          <OptionsDrawer
-            decimals={state.decimals}
-            layout={state.layout}
-            showTitle={state.showTitle}
-            onDecimalsChange={setDecimals}
-            onLayoutChange={setLayout}
-            onShowTitleChange={setShowTitle}
-            templates={templates}
-            onSaveTemplate={saveTemplate}
-            onLoadTemplate={handleLoadTemplate}
-            onDeleteTemplate={deleteTemplate}
-            currentState={state}
-            themeState={themeState}
-            onThemeChange={handleThemeChange}
           />
         </div>
 
