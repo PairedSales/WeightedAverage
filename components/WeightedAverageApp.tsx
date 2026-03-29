@@ -535,6 +535,7 @@ export default function WeightedAverageApp() {
             decimals={state.decimals}
             subjectGla={state.subjectGla}
             onSubjectGlaChange={setSubjectGla}
+            onUpdateCompSalePrice={(id, value) => updateComp(id, "salePrice", value)}
             onUpdateCompGla={(id, value) => updateComp(id, "gla", value)}
           />
         </div>

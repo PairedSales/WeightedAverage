@@ -11,6 +11,7 @@ interface SensitivityAnalysisToolProps {
   decimals: DecimalPrecision;
   subjectGla: number;
   onSubjectGlaChange: (value: number) => void;
+  onUpdateCompSalePrice: (id: string, value: number) => void;
   onUpdateCompGla: (id: string, value: number) => void;
 }
 
@@ -25,6 +26,7 @@ export default function SensitivityAnalysisTool({
   decimals,
   subjectGla,
   onSubjectGlaChange,
+  onUpdateCompSalePrice,
   onUpdateCompGla,
 }: SensitivityAnalysisToolProps) {
   const [sweepMin, setSweepMin] = useState(-50);
@@ -82,15 +84,21 @@ export default function SensitivityAnalysisTool({
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1.5">
               Subject GLA (SF)
             </p>
-            <div className="min-w-[8rem] border border-slate-200 rounded-lg overflow-hidden bg-white">
-              <EditableCell
-                value={Math.round(subjectGla)}
-                formatted={formatInteger(subjectGla)}
-                onChange={onSubjectGlaChange}
-                type="integer"
-                placeholder="SF"
-                tabIndex={-1}
-              />
+            <div className="flex min-w-[8rem] max-w-[10rem] items-stretch rounded-lg border border-slate-200 bg-white overflow-hidden">
+              <div className="min-w-0 flex-1">
+                <EditableCell
+                  value={Math.round(subjectGla)}
+                  formatted={formatInteger(subjectGla)}
+                  onChange={onSubjectGlaChange}
+                  type="integer"
+                  placeholder="—"
+                  tabIndex={-1}
+                  className="!px-2 !py-2"
+                />
+              </div>
+              <span className="flex items-center border-l border-slate-100 bg-slate-50/80 px-2 text-[11px] font-semibold text-slate-400">
+                SF
+              </span>
             </div>
           </div>
           <div>
@@ -151,14 +159,24 @@ export default function SensitivityAnalysisTool({
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 w-28">
                   Comparable
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 min-w-[10rem]">
+                <th className="px-2 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 w-[11rem] max-w-[11rem]">
                   Sale Price
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 min-w-[8rem]">
-                  Comp GLA
+                <th className="px-2 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 w-[8.25rem] max-w-[8.25rem]">
+                  <span className="inline-block text-right leading-tight">
+                    Comp GLA
+                    <span className="mt-0.5 block text-[10px] font-semibold normal-case tracking-normal text-slate-400">
+                      SF
+                    </span>
+                  </span>
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 min-w-[7rem]">
-                  GLA Δ
+                <th className="px-2 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 w-[7.5rem] max-w-[7.5rem]">
+                  <span className="inline-block text-right leading-tight">
+                    GLA Δ
+                    <span className="mt-0.5 block text-[10px] font-semibold normal-case tracking-normal text-slate-400">
+                      SF
+                    </span>
+                  </span>
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 min-w-[10rem]">
                   Adjusted price
@@ -179,24 +197,49 @@ export default function SensitivityAnalysisTool({
                       {comp.label}
                     </td>
                     <td
-                      className={`px-3 py-2.5 text-right tabular-nums font-medium text-slate-600 ${!isLast ? "border-b border-slate-100" : ""}`}
+                      className={`p-0 w-[11rem] max-w-[11rem] align-top ${!isLast ? "border-b border-slate-100" : ""}`}
                     >
-                      {comp.salePrice > 0 ? formatCurrency(comp.salePrice, decimals) : "\u2014"}
-                    </td>
-                    <td className={`p-0 ${!isLast ? "border-b border-slate-100" : ""}`}>
                       <EditableCell
-                        value={Math.round(comp.gla)}
-                        formatted={formatInteger(comp.gla)}
-                        onChange={(v) => onUpdateCompGla(comp.id, v)}
-                        type="integer"
-                        placeholder="SF"
+                        value={comp.salePrice}
+                        formatted={formatCurrency(comp.salePrice, decimals)}
+                        onChange={(v) => onUpdateCompSalePrice(comp.id, v)}
+                        type="currency"
+                        placeholder="Enter price"
                         tabIndex={-1}
+                        className="!px-2 !py-2 text-[13px] min-w-0 max-w-full"
                       />
                     </td>
                     <td
-                      className={`px-3 py-2.5 text-right tabular-nums font-medium text-slate-600 ${!isLast ? "border-b border-slate-100" : ""}`}
+                      className={`p-0 w-[8.25rem] max-w-[8.25rem] ${!isLast ? "border-b border-slate-100" : ""}`}
                     >
-                      {subjectGla > 0 && comp.gla > 0 ? formatInteger(delta) : "\u2014"}
+                      <div className="flex items-stretch justify-end">
+                        <div className="min-w-0 flex-1">
+                          <EditableCell
+                            value={Math.round(comp.gla)}
+                            formatted={formatInteger(comp.gla)}
+                            onChange={(v) => onUpdateCompGla(comp.id, v)}
+                            type="integer"
+                            placeholder="—"
+                            tabIndex={-1}
+                            className="!px-2 !py-2 text-[13px] min-w-0 max-w-full"
+                          />
+                        </div>
+                        <span className="flex items-center px-1.5 text-[10px] font-semibold text-slate-400">
+                          SF
+                        </span>
+                      </div>
+                    </td>
+                    <td
+                      className={`px-2 py-2.5 text-right text-[13px] tabular-nums font-medium text-slate-600 w-[7.5rem] max-w-[7.5rem] ${!isLast ? "border-b border-slate-100" : ""}`}
+                    >
+                      {subjectGla > 0 && comp.gla > 0 ? (
+                        <>
+                          {formatInteger(delta)}
+                          <span className="ml-1 text-[10px] font-semibold text-slate-400">SF</span>
+                        </>
+                      ) : (
+                        "\u2014"
+                      )}
                     </td>
                     <td
                       className={`px-3 py-2.5 text-right tabular-nums font-medium text-slate-600 ${!isLast ? "border-b border-slate-100" : ""}`}
