@@ -153,7 +153,6 @@ export default function WeightAllocationTool({ comps, onApplyWeights, onUpdateWe
                   placeholder="0%"
                   align="left"
                   tabIndex={-1}
-                  fullWidth={false}
                   className="w-16 px-0 py-0 text-sm font-semibold"
                 />
               </div>
