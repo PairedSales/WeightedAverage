@@ -153,7 +153,8 @@ export default function WeightAllocationTool({ comps, onApplyWeights, onUpdateWe
                   placeholder="0%"
                   align="left"
                   tabIndex={-1}
-                  className="px-0 py-0 text-sm font-semibold"
+                  fullWidth={false}
+                  className="w-16 px-0 py-0 text-sm font-semibold"
                 />
               </div>
               <div className="mt-1 text-[11px] text-slate-500">{active ? "Manual / locked" : "Auto-fill candidate"}</div>
@@ -169,7 +170,7 @@ export default function WeightAllocationTool({ comps, onApplyWeights, onUpdateWe
             type="text"
             value={selectedTotalInput}
             onChange={(e) => setSelectedTotalInput(e.target.value)}
-            className="mt-1 block w-28 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm focus:border-accent-500 focus:outline-none"
+            className="mt-1 block w-16 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm tabular-nums focus:border-accent-500 focus:outline-none"
           />
         </label>
 
