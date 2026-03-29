@@ -493,6 +493,7 @@ export default function WeightedAverageApp() {
           <WeightAllocationTool
             comps={state.comps}
             onApplyWeights={applyWeights}
+            onUpdateWeight={(id, value) => updateComp(id, "weight", value)}
           />
         </div>
 
