@@ -196,8 +196,6 @@ function VerticalGrid({
                       onChange={(v) => onUpdateComp(comp.id, "weight", v)}
                       type="percent"
                       placeholder="0%"
-                      fullWidth={false}
-                      className="w-16 ml-auto"
                       tabIndex={n + i + 1}
                     />
                   </div>
@@ -322,8 +320,6 @@ function HorizontalGrid({
                       onChange={(v) => onUpdateComp(comp.id, "weight", v)}
                       type="percent"
                       placeholder="0%"
-                      fullWidth={false}
-                      className="w-16 ml-auto"
                       tabIndex={n + i + 1}
                     />
                   </div>
