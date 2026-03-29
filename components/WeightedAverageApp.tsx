@@ -281,10 +281,10 @@ export default function WeightedAverageApp() {
   const copyTabIndex = 2 * state.comps.length + 1;
 
   return (
-    <div className="mx-auto w-full max-w-4xl">
+    <div className="mx-auto w-fit">
       {/* Toolbar above card — same width as card, groups centered */}
       <div className="flex flex-col items-center w-full">
-        <div className="w-fit max-w-full mx-auto flex flex-col items-stretch">
+        <div className="w-fit mx-auto flex flex-col items-stretch">
           {/* Undo/Redo | Copy | Save — centered to card */}
           <div
             className="mb-4 w-full flex flex-wrap items-center justify-center gap-2 px-1"
@@ -461,7 +461,7 @@ export default function WeightedAverageApp() {
             </button>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-full">
+          <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-fit">
             {/* Exportable area */}
             <div
               ref={gridRef}

@@ -145,7 +145,7 @@ function VerticalGrid({
 }: GridInternalProps) {
   const n = comps.length;
   return (
-    <div className="overflow-x-auto">
+    <div className="w-fit">
       <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
         <thead>
           <tr>
@@ -256,7 +256,7 @@ function HorizontalGrid({
 }: GridInternalProps) {
   const n = comps.length;
   return (
-    <div className="overflow-x-auto">
+    <div className="w-fit">
       <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
         <thead>
           <tr>
