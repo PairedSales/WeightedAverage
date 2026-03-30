@@ -2,8 +2,8 @@
 
 import { useRef, useCallback, useEffect } from "react";
 import type { AppState, CompSale, DecimalPrecision, LayoutMode, Template } from "@/lib/types";
-import { copyGridAsImage } from "@/lib/exportImage";
-import { saveGridAsImage, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
+import { copyChartAsImage } from "@/lib/exportImage";
+import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
 import { useAutoSave, loadSavedState } from "@/hooks/useAutoSave";
 import { useTemplates } from "@/hooks/useTemplates";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
@@ -73,13 +73,11 @@ export default function WeightedAverageApp() {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "done" | "error">("idle");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [rememberLocation, setRememberLocationState] = useState(false);
-  const [saveMenuOpen, setSaveMenuOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
   const [toolSwapPulse, setToolSwapPulse] = useState<ActiveTool | null>(null);
   const [themeState, setThemeState] = useState<ThemeState>({ preset: "blue", customColor: "#8B5CF6" });
   const weightedAverageChartRef = useRef<HTMLDivElement>(null);
   const sensitivityChartRef = useRef<HTMLDivElement>(null);
-  const saveMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const saved = loadSavedState();
@@ -113,18 +111,6 @@ export default function WeightedAverageApp() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [undo, redo]);
-
-  /** Use "click" (not "mousedown") so we don't run before the button's click and steal the gesture. */
-  useEffect(() => {
-    if (!saveMenuOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (saveMenuRef.current && !saveMenuRef.current.contains(e.target as Node)) {
-        setSaveMenuOpen(false);
-      }
-    };
-    document.addEventListener("click", handler);
-    return () => document.removeEventListener("click", handler);
-  }, [saveMenuOpen]);
 
   const { templates, saveTemplate, deleteTemplate, getTemplate } = useTemplates();
 
@@ -235,7 +221,7 @@ export default function WeightedAverageApp() {
       document.activeElement.blur();
     }
 
-    void copyGridAsImage(el).then((success) => {
+    void copyChartAsImage(el).then((success) => {
       setCopyStatus(success ? "done" : "error");
       setTimeout(() => setCopyStatus("idle"), 2000);
     });
@@ -255,11 +241,11 @@ export default function WeightedAverageApp() {
     }
 
     try {
-      const result = await saveGridAsImage(el, rememberLocation, state.comps.length);
+      const result = await saveChartAsWebp(el, rememberLocation, state.comps.length);
       if (result.success) {
         setSaveStatus("done");
       } else {
-        setSaveStatus("idle");
+        setSaveStatus(result.canceled ? "idle" : "error");
       }
     } catch {
       setSaveStatus("error");
@@ -283,7 +269,6 @@ export default function WeightedAverageApp() {
         gla: 0,
       })),
     }));
-    setSaveMenuOpen(false);
     setCopyStatus("idle");
     setSaveStatus("idle");
   }, [setState]);
@@ -380,21 +365,20 @@ export default function WeightedAverageApp() {
               )}
             </button>
 
-            <div className="relative" ref={saveMenuRef}>
-              <div className="flex items-center">
-                <button
-                  type="button"
-                  tabIndex={-1}
-                  onClick={handleSave}
-                  disabled={saveStatus === "saving"}
-                  className={`flex items-center gap-1.5 text-sm font-medium pl-3.5 pr-2.5 py-2 rounded-l-xl transition-all duration-200 cursor-pointer ${
-                    saveStatus === "done"
-                      ? "bg-emerald-500 text-white shadow-sm shadow-emerald-200"
-                      : saveStatus === "error"
-                      ? "bg-red-500 text-white"
-                      : "bg-accent-600 text-white hover:bg-accent-700 shadow-sm shadow-accent-200"
-                  }`}
-                >
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={handleSave}
+                disabled={saveStatus === "saving"}
+                className={`flex items-center gap-1.5 text-sm font-medium pl-3.5 pr-3 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
+                  saveStatus === "done"
+                    ? "bg-emerald-500 text-white shadow-sm shadow-emerald-200"
+                    : saveStatus === "error"
+                    ? "bg-red-500 text-white"
+                    : "bg-accent-600 text-white hover:bg-accent-700 shadow-sm shadow-accent-200"
+                }`}
+              >
                   {saveStatus === "saving" ? (
                     <>
                       <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -419,49 +403,19 @@ export default function WeightedAverageApp() {
                         <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
                       </svg>
                       Save
-                      {rememberLocation && (
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 text-accent-200">
-                          <path fillRule="evenodd" d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.291 5.597a15.591 15.591 0 0 0 2.236 2.235l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" clipRule="evenodd" />
-                        </svg>
-                      )}
                     </>
                   )}
-                </button>
-                <button
-                  type="button"
+              </button>
+              <label className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 cursor-pointer select-none">
+                <input
+                  type="checkbox"
                   tabIndex={-1}
-                  onClick={() => setSaveMenuOpen((o) => !o)}
-                  className={`flex items-center py-2 px-1.5 rounded-r-xl transition-all duration-200 cursor-pointer ${
-                    saveStatus === "done"
-                      ? "bg-emerald-500 text-white border-l border-emerald-400"
-                      : saveStatus === "error"
-                      ? "bg-red-500 text-white border-l border-red-400"
-                      : "bg-accent-600 text-white hover:bg-accent-700 border-l border-accent-500"
-                  }`}
-                  title="Save options"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
-                    <path fillRule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-              {saveMenuOpen && (
-                <div className="absolute left-0 top-full mt-1.5 z-50 bg-white rounded-xl border border-slate-200/80 shadow-lg shadow-slate-200/50 p-4 min-w-[220px]">
-                  <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      tabIndex={-1}
-                      checked={rememberLocation}
-                      onChange={(e) => toggleRemember(e.target.checked)}
-                      className="rounded border-slate-300 text-accent-600 focus:ring-accent-500 w-4 h-4 cursor-pointer"
-                    />
-                    Remember directory
-                  </label>
-                  <p className="text-xs text-slate-400 mt-1.5 ml-6.5">
-                    Save to the same folder without prompting
-                  </p>
-                </div>
-              )}
+                  checked={rememberLocation}
+                  onChange={(e) => toggleRemember(e.target.checked)}
+                  className="rounded border-slate-300 text-accent-600 focus:ring-accent-500 w-3.5 h-3.5 cursor-pointer"
+                />
+                Remember directory
+              </label>
             </div>
 
             <button
