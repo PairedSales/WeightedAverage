@@ -13,8 +13,32 @@ export function getRememberLocation(): boolean {
   return localStorage.getItem(PREF_KEY) === "true";
 }
 
+async function clearSavedDirectoryHandle(): Promise<void> {
+  if (typeof window === "undefined") return;
+  try {
+    const db = await openDb();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE, "readwrite");
+      tx.oncomplete = () => {
+        db.close();
+        resolve();
+      };
+      tx.onerror = () => {
+        db.close();
+        reject(tx.error ?? new Error("Failed clearing directory handle"));
+      };
+      tx.objectStore(STORE).delete(DIRECTORY_HANDLE_KEY);
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
 export function setRememberLocation(value: boolean) {
   localStorage.setItem(PREF_KEY, String(value));
+  if (!value) {
+    void clearSavedDirectoryHandle();
+  }
 }
 
 function generateFilename(activeTool: ChartToolId, numComps: number): string {
