@@ -425,9 +425,11 @@ export default function WeightedAverageApp() {
               className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
               title="Clear table data"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
-                <path d="M8.22 1.27a.75.75 0 0 1 1.06 0l1.44 1.44a.75.75 0 0 1 0 1.06L8.66 5.83l1.51 1.51 3.44-.69a.75.75 0 0 1 .88.88l-.69 3.44 1.51 1.51-1.06 1.06-1.51-1.51-3.44.69a.75.75 0 0 1-.88-.88l.69-3.44L7.6 6.89 5.54 8.95a.75.75 0 0 1-1.06 0L3.04 7.5a.75.75 0 0 1 0-1.06l5.18-5.17Z" />
-                <path d="M2.25 12.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-.46l.43 1.72A.75.75 0 0 1 7.79 15H3.71a.75.75 0 0 1-.73-.94L3.41 13H3a.75.75 0 0 1-.75-.75Z" />
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path d="M2.25 8.25a.75.75 0 0 1 .75-.75h9.88a3 3 0 0 1 2.12.88l5 5a3 3 0 0 1 0 4.24l-1.88 1.88a3 3 0 0 1-4.24 0l-5-5a3 3 0 0 1-.88-2.12V8.25H3a.75.75 0 0 1-.75-.75Z" />
+                <path d="M5.03 3.28a.75.75 0 0 1 1.06 0l2.5 2.5a.75.75 0 1 1-1.06 1.06l-2.5-2.5a.75.75 0 0 1 0-1.06Z" />
+                <path d="M7.53 3.28a.75.75 0 0 1 1.06 0l2.5 2.5a.75.75 0 1 1-1.06 1.06l-2.5-2.5a.75.75 0 0 1 0-1.06Z" />
+                <path d="M13.5 15.75a.75.75 0 0 1 1.06 0l2.75 2.75a.75.75 0 1 1-1.06 1.06l-2.75-2.75a.75.75 0 0 1 0-1.06Z" />
               </svg>
               Clear
             </button>
