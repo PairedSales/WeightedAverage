@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, type RefObject } from "react";
 import type { CompSale, DecimalPrecision } from "@/lib/types";
 import { formatCurrency, formatInteger } from "@/lib/formatting";
 import { findBestGlaRatePerSf, participatingCompIds } from "@/lib/sensitivity";
@@ -8,6 +8,7 @@ import EditableCell from "./EditableCell";
 
 interface SensitivityAnalysisToolProps {
   comps: CompSale[];
+  exportRef?: RefObject<HTMLDivElement | null>;
   decimals: DecimalPrecision;
   subjectGla: number;
   onSubjectGlaChange: (value: number) => void;
@@ -23,6 +24,7 @@ function parseSweepNumber(raw: string): number {
 
 export default function SensitivityAnalysisTool({
   comps,
+  exportRef,
   decimals,
   subjectGla,
   onSubjectGlaChange,
@@ -153,6 +155,7 @@ export default function SensitivityAnalysisTool({
 
 
         <div className="mt-4 w-full overflow-x-auto">
+          <div ref={exportRef} className="w-fit">
           <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
             <thead>
               <tr>
@@ -285,6 +288,7 @@ export default function SensitivityAnalysisTool({
               </tr>
             </tfoot>
           </table>
+          </div>
         </div>
       </div>
     </div>
