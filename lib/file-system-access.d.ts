@@ -3,6 +3,7 @@ interface FileSystemHandlePermissionDescriptor {
 }
 
 interface FileSystemFileHandle {
+  readonly name: string;
   createWritable(): Promise<FileSystemWritableFileStream>;
   queryPermission(
     descriptor?: FileSystemHandlePermissionDescriptor

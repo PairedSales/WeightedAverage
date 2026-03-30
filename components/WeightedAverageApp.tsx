@@ -2,7 +2,7 @@
 
 import { useRef, useCallback, useEffect } from "react";
 import type { AppState, CompSale, DecimalPrecision, LayoutMode, Template } from "@/lib/types";
-import { copyChartImageToClipboard } from "@/lib/chartClipboard";
+import { copyChartImageToClipboard, type CopyResult } from "@/lib/chartClipboard";
 import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
 import { useAutoSave, loadSavedState } from "@/hooks/useAutoSave";
 import { useTemplates } from "@/hooks/useTemplates";
@@ -60,6 +60,30 @@ function normalizeState(state: AppState): AppState {
   };
 }
 
+function clipExportHint(text: string, max = 96): string {
+  const t = text.trim();
+  if (!t) return "";
+  return t.length <= max ? t : `${t.slice(0, max - 1)}…`;
+}
+
+function copyFailureHint(result: CopyResult): string {
+  if (result.ok) return "";
+  switch (result.reason) {
+    case "no_element":
+      return "Chart area not ready — try again.";
+    case "unsupported":
+      return result.message
+        ? clipExportHint(result.message)
+        : "This browser does not support copying images.";
+    case "capture_failed":
+      return clipExportHint(result.message ?? "Could not render chart to image.");
+    case "clipboard_denied":
+      return clipExportHint(result.message ?? "Clipboard blocked — check site permissions or HTTPS.");
+    default:
+      return "Copy failed.";
+  }
+}
+
 export default function WeightedAverageApp() {
   const {
     state,
@@ -72,6 +96,9 @@ export default function WeightedAverageApp() {
   const [hydrated, setHydrated] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "done" | "error">("idle");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
+  const [copyDetail, setCopyDetail] = useState("");
+  const [saveDetail, setSaveDetail] = useState("");
+  const [saveInfo, setSaveInfo] = useState("");
   const [rememberLocation, setRememberLocationState] = useState(false);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
@@ -224,19 +251,31 @@ export default function WeightedAverageApp() {
   const handleCopy = useCallback(() => {
     const el = resolveExportElement();
     if (!el) {
+      console.error("[WeightedAverage] Copy failed: export element missing");
+      setCopyDetail("Chart area not ready — try again.");
       setCopyStatus("error");
-      setTimeout(() => setCopyStatus("idle"), 2000);
+      setTimeout(() => {
+        setCopyStatus("idle");
+        setCopyDetail("");
+      }, 4000);
       return;
     }
 
+    setCopyDetail("");
     setCopyStatus("copying");
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
 
     void copyChartImageToClipboard(el).then((result) => {
+      if (!result.ok) {
+        setCopyDetail(copyFailureHint(result));
+      }
       setCopyStatus(result.ok ? "done" : "error");
-      setTimeout(() => setCopyStatus("idle"), 2000);
+      setTimeout(() => {
+        setCopyStatus("idle");
+        setCopyDetail("");
+      }, result.ok ? 2000 : 4000);
     });
   }, [resolveExportElement]);
 
@@ -247,27 +286,59 @@ export default function WeightedAverageApp() {
       el = resolveExportElement();
     }
     if (!el) {
+      console.error("[WeightedAverage] Save failed: export element missing");
+      setSaveDetail("Chart area not ready — try again.");
       setSaveStatus("error");
-      setTimeout(() => setSaveStatus("idle"), 2000);
+      setTimeout(() => {
+        setSaveStatus("idle");
+        setSaveDetail("");
+      }, 4000);
       return;
     }
 
+    setSaveDetail("");
+    setSaveInfo("");
     setSaveStatus("saving");
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
 
+    let clearAfterMs = 0;
     try {
       const result = await saveChartAsWebp(el, rememberLocation, state.comps.length, activeTool);
       if (result.success) {
         setSaveStatus("done");
+        if (result.openedInNewTab) {
+          setSaveInfo("Image opened in a new tab — use the browser menu to save if needed.");
+          clearAfterMs = 5000;
+        } else {
+          clearAfterMs = 2000;
+        }
+      } else if (result.canceled) {
+        setSaveStatus("idle");
       } else {
-        setSaveStatus(result.canceled ? "idle" : "error");
+        setSaveDetail(clipExportHint(result.errorMessage ?? "Save failed."));
+        setSaveStatus("error");
+        if (result.errorMessage) {
+          console.error("[WeightedAverage] Save failed:", result.errorMessage);
+        }
+        clearAfterMs = 4000;
       }
-    } catch {
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("[WeightedAverage] Save threw:", e);
+      setSaveDetail(clipExportHint(msg));
       setSaveStatus("error");
+      clearAfterMs = 4000;
     }
-    setTimeout(() => setSaveStatus("idle"), 2000);
+
+    if (clearAfterMs > 0) {
+      window.setTimeout(() => {
+        setSaveStatus("idle");
+        setSaveDetail("");
+        setSaveInfo("");
+      }, clearAfterMs);
+    }
   }, [rememberLocation, state.comps.length, resolveExportElement, activeTool]);
 
   const toggleRemember = useCallback((checked: boolean) => {
@@ -289,6 +360,9 @@ export default function WeightedAverageApp() {
     }));
     setCopyStatus("idle");
     setSaveStatus("idle");
+    setCopyDetail("");
+    setSaveDetail("");
+    setSaveInfo("");
   }, [setState]);
 
   const handleToolToggle = useCallback(() => {
@@ -347,6 +421,7 @@ export default function WeightedAverageApp() {
               tabIndex={copyTabIndex}
               onClick={handleCopy}
               disabled={copyStatus === "copying"}
+              title={copyDetail || undefined}
               className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
                 copyStatus === "done"
                   ? "bg-emerald-500 text-white shadow-sm shadow-emerald-200"
@@ -371,7 +446,7 @@ export default function WeightedAverageApp() {
                   Copied!
                 </>
               ) : copyStatus === "error" ? (
-                "Failed"
+                <span className="max-w-[10rem] truncate">{copyDetail ? "Failed — see below" : "Failed"}</span>
               ) : (
                 <>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
@@ -398,6 +473,7 @@ export default function WeightedAverageApp() {
                   tabIndex={-1}
                   onClick={handleSave}
                   disabled={saveStatus === "saving"}
+                  title={saveDetail || saveInfo || undefined}
                   className="flex items-center gap-1.5 text-sm font-medium pl-3.5 pr-3 py-2 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {saveStatus === "saving" ? (
@@ -416,7 +492,7 @@ export default function WeightedAverageApp() {
                       Saved!
                     </>
                   ) : saveStatus === "error" ? (
-                    "Failed"
+                    <span className="max-w-[10rem] truncate">{saveDetail ? "Failed — see below" : "Failed"}</span>
                   ) : (
                     <>
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
@@ -490,6 +566,22 @@ export default function WeightedAverageApp() {
               onThemeChange={handleThemeChange}
             />
           </div>
+
+          {copyDetail && copyStatus === "error" && (
+            <p className="mt-1 text-center text-xs text-red-600 max-w-lg mx-auto px-2" role="alert">
+              {copyDetail}
+            </p>
+          )}
+          {saveDetail && saveStatus === "error" && (
+            <p className="mt-1 text-center text-xs text-red-600 max-w-lg mx-auto px-2" role="alert">
+              {saveDetail}
+            </p>
+          )}
+          {saveInfo && saveStatus === "done" && (
+            <p className="mt-1 text-center text-xs text-slate-600 max-w-lg mx-auto px-2" role="status">
+              {saveInfo}
+            </p>
+          )}
 
           <div className="flex w-full flex-col items-center gap-3">
             <section

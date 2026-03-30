@@ -2,25 +2,27 @@ import { toCanvas } from "html-to-image";
 
 const EXPORT_BG_CSS = "#ffffff";
 
-function exportFilter(node: HTMLElement): boolean {
+export function exportFilter(node: HTMLElement): boolean {
   if (node.hasAttribute("data-exclude-export")) {
     return false;
   }
   return true;
 }
 
-/** Matches first working export path (93be7b5): pixelRatio, background, filter only — no skipFonts or forced dimensions. */
-function getHtmlToImageBaseOptions() {
+/** skipFonts avoids embedding Google Fonts into huge SVG data URLs (common capture failure on static hosts). cacheBust avoids stale CSS/font fetches on GitHub Pages. */
+export function getHtmlToImageExportOptions() {
   return {
     pixelRatio: 2,
     backgroundColor: EXPORT_BG_CSS,
     filter: exportFilter,
+    skipFonts: true,
+    cacheBust: true,
   } as const;
 }
 
 export async function captureElementToCanvas(element: HTMLElement): Promise<HTMLCanvasElement> {
   return toCanvas(element, {
-    ...getHtmlToImageBaseOptions(),
+    ...getHtmlToImageExportOptions(),
   });
 }
 
