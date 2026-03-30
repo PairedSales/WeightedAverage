@@ -74,6 +74,7 @@ export default function WeightedAverageApp() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [rememberLocation, setRememberLocationState] = useState(false);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
   const [toolSwapPulse, setToolSwapPulse] = useState<ActiveTool | null>(null);
   const [themeState, setThemeState] = useState<ThemeState>({ preset: "blue", customColor: "#8B5CF6" });
@@ -461,6 +462,24 @@ export default function WeightedAverageApp() {
             <button
               type="button"
               tabIndex={-1}
+              onClick={() => setOptionsOpen((open) => !open)}
+              aria-expanded={optionsOpen}
+              className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm shrink-0"
+              title="App options"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path
+                  fillRule="evenodd"
+                  d="M11.49 3.17a.75.75 0 0 1 1.02 0l.59.53a.75.75 0 0 0 .76.17l.77-.26a.75.75 0 0 1 .9.4l.38.72a.75.75 0 0 0 .62.4l.81.05a.75.75 0 0 1 .71.71l.05.8a.75.75 0 0 0 .4.62l.73.39a.75.75 0 0 1 .4.9l-.26.77a.75.75 0 0 0 .17.76l.53.59a.75.75 0 0 1 0 1.02l-.53.59a.75.75 0 0 0-.17.76l.26.77a.75.75 0 0 1-.4.9l-.72.38a.75.75 0 0 0-.4.62l-.05.81a.75.75 0 0 1-.71.71l-.8.05a.75.75 0 0 0-.62.4l-.39.73a.75.75 0 0 1-.9.4l-.77-.26a.75.75 0 0 0-.76.17l-.59.53a.75.75 0 0 1-1.02 0l-.59-.53a.75.75 0 0 0-.76-.17l-.77.26a.75.75 0 0 1-.9-.4l-.38-.72a.75.75 0 0 0-.62-.4l-.81-.05a.75.75 0 0 1-.71-.71l-.05-.8a.75.75 0 0 0-.4-.62l-.73-.39a.75.75 0 0 1-.4-.9l.26-.77a.75.75 0 0 0-.17-.76l-.53-.59a.75.75 0 0 1 0-1.02l.53-.59a.75.75 0 0 0 .17-.76l-.26-.77a.75.75 0 0 1 .4-.9l.72-.38a.75.75 0 0 0 .4-.62l.05-.81a.75.75 0 0 1 .71-.71l.8-.05a.75.75 0 0 0 .62-.4l.39-.73a.75.75 0 0 1 .9-.4l.77.26a.75.75 0 0 0 .76-.17l.59-.53ZM12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Options
+            </button>
+
+            <button
+              type="button"
+              tabIndex={-1}
               onClick={handleClear}
               className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
               title="Clear table data"
@@ -474,21 +493,6 @@ export default function WeightedAverageApp() {
               Clear
             </button>
 
-            <OptionsDrawer
-              decimals={state.decimals}
-              layout={state.layout}
-              showTitle={state.showTitle}
-              onDecimalsChange={setDecimals}
-              onLayoutChange={setLayout}
-              onShowTitleChange={setShowTitle}
-              templates={templates}
-              onSaveTemplate={saveTemplate}
-              onLoadTemplate={handleLoadTemplate}
-              onDeleteTemplate={deleteTemplate}
-              currentState={state}
-              themeState={themeState}
-              onThemeChange={handleThemeChange}
-            />
           </div>
 
           <div className="flex w-full flex-col items-center gap-3">
@@ -531,6 +535,27 @@ export default function WeightedAverageApp() {
                 onApplyWeights={applyWeights}
                 onUpdateWeight={(id, value) => updateComp(id, "weight", value)}
               />
+
+              {activeTool === "weightedAverage" && (
+                <div className="mt-3 w-full max-w-4xl" data-exclude-export>
+                  <OptionsDrawer
+                    open={optionsOpen}
+                    decimals={state.decimals}
+                    layout={state.layout}
+                    showTitle={state.showTitle}
+                    onDecimalsChange={setDecimals}
+                    onLayoutChange={setLayout}
+                    onShowTitleChange={setShowTitle}
+                    templates={templates}
+                    onSaveTemplate={saveTemplate}
+                    onLoadTemplate={handleLoadTemplate}
+                    onDeleteTemplate={deleteTemplate}
+                    currentState={state}
+                    themeState={themeState}
+                    onThemeChange={handleThemeChange}
+                  />
+                </div>
+              )}
             </section>
 
             <section
@@ -539,15 +564,38 @@ export default function WeightedAverageApp() {
               } ${toolSwapPulse === "sensitivityAnalysis" ? "card-lift-in" : ""}`}
               data-exclude-export
             >
-              <SensitivityAnalysisTool
-                exportRef={sensitivityChartRef}
-                comps={state.comps}
-                decimals={state.decimals}
-                subjectGla={state.subjectGla}
-                onSubjectGlaChange={setSubjectGla}
-                onUpdateCompSalePrice={(id, value) => updateComp(id, "salePrice", value)}
-                onUpdateCompGla={(id, value) => updateComp(id, "gla", value)}
-              />
+              <div className="flex w-full max-w-4xl flex-col items-center">
+                <SensitivityAnalysisTool
+                  exportRef={sensitivityChartRef}
+                  comps={state.comps}
+                  decimals={state.decimals}
+                  subjectGla={state.subjectGla}
+                  onSubjectGlaChange={setSubjectGla}
+                  onUpdateCompSalePrice={(id, value) => updateComp(id, "salePrice", value)}
+                  onUpdateCompGla={(id, value) => updateComp(id, "gla", value)}
+                />
+
+                {activeTool === "sensitivityAnalysis" && (
+                  <div className="mt-3 w-full" data-exclude-export>
+                    <OptionsDrawer
+                      open={optionsOpen}
+                      decimals={state.decimals}
+                      layout={state.layout}
+                      showTitle={state.showTitle}
+                      onDecimalsChange={setDecimals}
+                      onLayoutChange={setLayout}
+                      onShowTitleChange={setShowTitle}
+                      templates={templates}
+                      onSaveTemplate={saveTemplate}
+                      onLoadTemplate={handleLoadTemplate}
+                      onDeleteTemplate={deleteTemplate}
+                      currentState={state}
+                      themeState={themeState}
+                      onThemeChange={handleThemeChange}
+                    />
+                  </div>
+                )}
+              </div>
             </section>
           </div>
         </div>
