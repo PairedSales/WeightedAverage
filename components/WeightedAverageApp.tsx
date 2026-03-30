@@ -288,14 +288,15 @@ export default function WeightedAverageApp() {
     setSaveStatus("idle");
   }, [setState]);
 
-  const handleToolToggle = useCallback((checked: boolean) => {
-    const nextTool: ActiveTool = checked ? "sensitivityAnalysis" : "weightedAverage";
+  const handleToolToggle = useCallback(() => {
+    const nextTool: ActiveTool =
+      activeTool === "weightedAverage" ? "sensitivityAnalysis" : "weightedAverage";
     setActiveTool(nextTool);
     setToolSwapPulse(nextTool);
     window.setTimeout(() => {
       setToolSwapPulse((current) => (current === nextTool ? null : current));
     }, 520);
-  }, []);
+  }, [activeTool]);
 
   if (!hydrated) {
     return (
@@ -319,19 +320,24 @@ export default function WeightedAverageApp() {
             className="mb-4 w-full flex flex-wrap items-center justify-center gap-2 px-1"
             data-exclude-export
           >
-            <div className="flex items-center gap-2 rounded-xl border border-slate-200/70 bg-white px-2.5 py-1.5 shadow-sm">
-              <input
-                id="active-tool-toggle"
-                type="checkbox"
-                tabIndex={-1}
-                checked={activeTool === "sensitivityAnalysis"}
-                onChange={(e) => handleToolToggle(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-accent-600 focus:ring-accent-400/60 cursor-pointer"
-              />
-              <label htmlFor="active-tool-toggle" className="text-xs font-semibold text-slate-600 select-none">
+            <button
+              type="button"
+              onClick={handleToolToggle}
+              className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                className="w-4 h-4"
+              >
+                <path d="M8 2.25a5.75 5.75 0 0 0-5.18 3.25h1.43a.75.75 0 0 1 0 1.5H1.5a.75.75 0 0 1-.75-.75V3.5a.75.75 0 0 1 1.5 0v1.19A7.25 7.25 0 0 1 15.25 8a.75.75 0 0 1-1.5 0A5.75 5.75 0 0 0 8 2.25Z" />
+                <path d="M14.5 9a.75.75 0 0 1 .75.75v2.75a.75.75 0 0 1-1.5 0v-1.19A7.25 7.25 0 0 1 .75 8a.75.75 0 0 1 1.5 0A5.75 5.75 0 0 0 8 13.75a5.75 5.75 0 0 0 5.18-3.25H11.75a.75.75 0 0 1 0-1.5h2.75Z" />
+              </svg>
+              <span className="text-xs font-semibold">
                 {activeTool === "sensitivityAnalysis" ? "Sensitivity Analysis" : "Weighted Average"}
-              </label>
-            </div>
+              </span>
+            </button>
 
             <button
               type="button"
