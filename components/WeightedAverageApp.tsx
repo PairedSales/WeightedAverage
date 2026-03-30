@@ -73,11 +73,13 @@ export default function WeightedAverageApp() {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "done" | "error">("idle");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [rememberLocation, setRememberLocationState] = useState(false);
+  const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
   const [toolSwapPulse, setToolSwapPulse] = useState<ActiveTool | null>(null);
   const [themeState, setThemeState] = useState<ThemeState>({ preset: "blue", customColor: "#8B5CF6" });
   const weightedAverageChartRef = useRef<HTMLDivElement>(null);
   const sensitivityChartRef = useRef<HTMLDivElement>(null);
+  const saveMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const saved = loadSavedState();
@@ -111,6 +113,17 @@ export default function WeightedAverageApp() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [undo, redo]);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (!saveMenuRef.current?.contains(event.target as Node)) {
+        setIsSaveMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
 
   const { templates, saveTemplate, deleteTemplate, getTemplate } = useTemplates();
 
@@ -256,6 +269,7 @@ export default function WeightedAverageApp() {
   const toggleRemember = useCallback((checked: boolean) => {
     setRememberLocation(checked);
     setRememberLocationState(checked);
+    setIsSaveMenuOpen(false);
   }, []);
 
   const handleClear = useCallback(() => {
@@ -365,13 +379,9 @@ export default function WeightedAverageApp() {
               )}
             </button>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                tabIndex={-1}
-                onClick={handleSave}
-                disabled={saveStatus === "saving"}
-                className={`flex items-center gap-1.5 text-sm font-medium pl-3.5 pr-3 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
+            <div className="relative" ref={saveMenuRef}>
+              <div
+                className={`flex items-stretch overflow-hidden rounded-xl transition-all duration-200 ${
                   saveStatus === "done"
                     ? "bg-emerald-500 text-white shadow-sm shadow-emerald-200"
                     : saveStatus === "error"
@@ -379,6 +389,13 @@ export default function WeightedAverageApp() {
                     : "bg-accent-600 text-white hover:bg-accent-700 shadow-sm shadow-accent-200"
                 }`}
               >
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={handleSave}
+                  disabled={saveStatus === "saving"}
+                  className="flex items-center gap-1.5 text-sm font-medium pl-3.5 pr-3 py-2 cursor-pointer disabled:cursor-not-allowed"
+                >
                   {saveStatus === "saving" ? (
                     <>
                       <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -405,17 +422,36 @@ export default function WeightedAverageApp() {
                       Save
                     </>
                   )}
-              </button>
-              <label className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 cursor-pointer select-none">
-                <input
-                  type="checkbox"
+                </button>
+
+                <button
+                  type="button"
                   tabIndex={-1}
-                  checked={rememberLocation}
-                  onChange={(e) => toggleRemember(e.target.checked)}
-                  className="rounded border-slate-300 text-accent-600 focus:ring-accent-500 w-3.5 h-3.5 cursor-pointer"
-                />
-                Remember directory
-              </label>
+                  aria-label="Save options"
+                  aria-expanded={isSaveMenuOpen}
+                  onClick={() => setIsSaveMenuOpen((open) => !open)}
+                  className="px-2.5 border-l border-white/25 hover:bg-white/10"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                    <path fillRule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+
+              {isSaveMenuOpen && (
+                <div className="absolute right-0 top-[calc(100%+0.5rem)] min-w-48 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-lg z-20">
+                  <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      tabIndex={-1}
+                      checked={rememberLocation}
+                      onChange={(e) => toggleRemember(e.target.checked)}
+                      className="rounded border-slate-300 text-accent-600 focus:ring-accent-500 w-3.5 h-3.5 cursor-pointer"
+                    />
+                    Remember directory
+                  </label>
+                </div>
+              )}
             </div>
 
             <button
