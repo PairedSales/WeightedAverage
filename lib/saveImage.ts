@@ -1,5 +1,4 @@
-import { toCanvas } from "html-to-image";
-import { getHtmlToImageBaseOptions } from "./exportSnapshot";
+import { captureChartCanvas, canvasToBlob } from "./chartExport";
 
 const PREF_KEY = "wa-remember-location";
 const DB_NAME = "weighted-average";
@@ -21,25 +20,10 @@ function generateFilename(numComps: number): string {
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
-  return `weighted-avg-${numComps}comps-${yyyy}-${mm}-${dd}.webp`;
-}
-
-async function renderWebpBlob(element: HTMLElement): Promise<Blob> {
-  const canvas = await toCanvas(element, {
-    ...getHtmlToImageBaseOptions(),
-    canvasWidth: element.scrollWidth,
-    canvasHeight: element.scrollHeight,
-  });
-
-  const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob((b) => resolve(b), "image/webp", 0.95);
-  });
-
-  if (!blob) {
-    throw new Error("Failed to create WEBP blob");
-  }
-
-  return blob;
+  const hh = String(now.getHours()).padStart(2, "0");
+  const min = String(now.getMinutes()).padStart(2, "0");
+  const sec = String(now.getSeconds()).padStart(2, "0");
+  return `weighted-avg-${numComps}comps-${yyyy}${mm}${dd}-${hh}${min}${sec}.webp`;
 }
 
 function openDb(): Promise<IDBDatabase> {
@@ -65,8 +49,8 @@ async function loadSavedDirectoryHandle(): Promise<FileSystemDirectoryHandle | n
     const db = await openDb();
     return await new Promise((resolve, reject) => {
       const tx = db.transaction(STORE, "readonly");
-      const store = tx.objectStore(STORE);
-      const req = store.get(DIRECTORY_HANDLE_KEY);
+      const req = tx.objectStore(STORE).get(DIRECTORY_HANDLE_KEY);
+
       req.onsuccess = () => {
         resolve((req.result as FileSystemDirectoryHandle | undefined) ?? null);
         db.close();
@@ -102,11 +86,27 @@ async function saveDirectoryHandle(handle: FileSystemDirectoryHandle): Promise<v
 async function ensureDirectoryPermission(handle: FileSystemDirectoryHandle): Promise<boolean> {
   if (!handle.queryPermission || !handle.requestPermission) return true;
 
-  const query = await handle.queryPermission({ mode: "readwrite" });
-  if (query === "granted") return true;
+  const queryState = await handle.queryPermission({ mode: "readwrite" });
+  if (queryState === "granted") return true;
 
-  const request = await handle.requestPermission({ mode: "readwrite" });
-  return request === "granted";
+  const requestState = await handle.requestPermission({ mode: "readwrite" });
+  return requestState === "granted";
+}
+
+async function promptForDirectory(): Promise<FileSystemDirectoryHandle | null> {
+  if (typeof window === "undefined" || typeof window.showDirectoryPicker !== "function") {
+    return null;
+  }
+
+  try {
+    const handle = await window.showDirectoryPicker({
+      id: "weighted-average-save-dir",
+      mode: "readwrite",
+    });
+    return handle;
+  } catch {
+    return null;
+  }
 }
 
 async function writeFile(handle: FileSystemFileHandle, blob: Blob): Promise<void> {
@@ -117,69 +117,61 @@ async function writeFile(handle: FileSystemFileHandle, blob: Blob): Promise<void
 
 async function saveViaAnchor(blob: Blob, filename: string): Promise<void> {
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
 
 export interface SaveResult {
   success: boolean;
-  usedRemembered: boolean;
+  canceled?: boolean;
 }
 
-export async function saveGridAsImage(
+export async function saveChartAsWebp(
   element: HTMLElement,
   rememberLocation: boolean,
   numComps: number
 ): Promise<SaveResult> {
-  const blob = await renderWebpBlob(element);
+  const canvas = await captureChartCanvas(element);
+  const blob = await canvasToBlob(canvas, "image/webp", 0.95);
   const filename = generateFilename(numComps);
 
-  const hasPickerSupport =
-    typeof window !== "undefined" &&
-    typeof window.showSaveFilePicker === "function" &&
-    typeof window.showDirectoryPicker === "function";
+  const hasDirectoryPicker =
+    typeof window !== "undefined" && typeof window.showDirectoryPicker === "function";
 
-  if (!hasPickerSupport) {
+  if (!hasDirectoryPicker) {
     await saveViaAnchor(blob, filename);
-    return { success: true, usedRemembered: false };
+    return { success: true };
   }
+
+  let directoryHandle = rememberLocation ? await loadSavedDirectoryHandle() : null;
+
+  if (!directoryHandle) {
+    directoryHandle = await promptForDirectory();
+    if (!directoryHandle) {
+      return { success: false, canceled: true };
+    }
+
+    if (rememberLocation) {
+      await saveDirectoryHandle(directoryHandle);
+    }
+  }
+
+  const hasPermission = await ensureDirectoryPermission(directoryHandle);
+  if (!hasPermission) {
+    return { success: false };
+  }
+
+  const fileHandle = await directoryHandle.getFileHandle(filename, { create: true });
+  await writeFile(fileHandle, blob);
 
   if (rememberLocation) {
-    let dirHandle = await loadSavedDirectoryHandle();
-
-    if (!dirHandle) {
-      dirHandle = await window.showDirectoryPicker({
-        id: "weighted-average-save-dir",
-        mode: "readwrite",
-      });
-      await saveDirectoryHandle(dirHandle);
-    }
-
-    const granted = await ensureDirectoryPermission(dirHandle);
-    if (!granted) {
-      return { success: false, usedRemembered: true };
-    }
-
-    const fileHandle = await dirHandle.getFileHandle(filename, { create: true });
-    await writeFile(fileHandle, blob);
-    return { success: true, usedRemembered: true };
+    await saveDirectoryHandle(directoryHandle);
   }
 
-  const fileHandle = await window.showSaveFilePicker({
-    suggestedName: filename,
-    types: [
-      {
-        description: "WEBP image",
-        accept: { "image/webp": [".webp"] },
-      },
-    ],
-  });
-
-  await writeFile(fileHandle, blob);
-  return { success: true, usedRemembered: false };
+  return { success: true };
 }
