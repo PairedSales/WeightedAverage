@@ -155,7 +155,7 @@ export default function SensitivityAnalysisTool({
 
 
         <div className="mt-4 w-full overflow-x-auto">
-          <div ref={exportRef} className="w-fit">
+          <div ref={exportRef} className="w-fit" data-chart-export>
           <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
             <thead>
               <tr>

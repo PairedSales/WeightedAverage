@@ -2,7 +2,7 @@
 
 import { useRef, useCallback, useEffect } from "react";
 import type { AppState, CompSale, DecimalPrecision, LayoutMode, Template } from "@/lib/types";
-import { copyChartAsImage } from "@/lib/exportImage";
+import { copyChartImageToClipboard } from "@/lib/chartClipboard";
 import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
 import { useAutoSave, loadSavedState } from "@/hooks/useAutoSave";
 import { useTemplates } from "@/hooks/useTemplates";
@@ -234,8 +234,8 @@ export default function WeightedAverageApp() {
       document.activeElement.blur();
     }
 
-    void copyChartAsImage(el).then((success) => {
-      setCopyStatus(success ? "done" : "error");
+    void copyChartImageToClipboard(el).then((result) => {
+      setCopyStatus(result.ok ? "done" : "error");
       setTimeout(() => setCopyStatus("idle"), 2000);
     });
   }, [resolveExportElement]);
@@ -246,7 +246,11 @@ export default function WeightedAverageApp() {
       await new Promise((r) => requestAnimationFrame(r));
       el = resolveExportElement();
     }
-    if (!el) return;
+    if (!el) {
+      setSaveStatus("error");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+      return;
+    }
 
     setSaveStatus("saving");
     if (document.activeElement instanceof HTMLElement) {
@@ -254,7 +258,7 @@ export default function WeightedAverageApp() {
     }
 
     try {
-      const result = await saveChartAsWebp(el, rememberLocation, state.comps.length);
+      const result = await saveChartAsWebp(el, rememberLocation, state.comps.length, activeTool);
       if (result.success) {
         setSaveStatus("done");
       } else {
@@ -264,7 +268,7 @@ export default function WeightedAverageApp() {
       setSaveStatus("error");
     }
     setTimeout(() => setSaveStatus("idle"), 2000);
-  }, [rememberLocation, state.comps.length, resolveExportElement]);
+  }, [rememberLocation, state.comps.length, resolveExportElement, activeTool]);
 
   const toggleRemember = useCallback((checked: boolean) => {
     setRememberLocation(checked);
@@ -487,7 +491,7 @@ export default function WeightedAverageApp() {
             />
           </div>
 
-          <div className="flex w-full flex-col gap-3">
+          <div className="flex w-full flex-col items-center gap-3">
             <section
               className={`rounded-2xl transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
                 activeTool === "weightedAverage" ? "order-1" : "order-2"

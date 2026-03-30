@@ -55,8 +55,9 @@ lib/
   types.ts            CompSale, AppState, Template types
   calculations.ts     sumWeights, contribution, weightedAverage
   formatting.ts       Currency/percent formatting and parsing
-  exportImage.ts      Copy grid as PNG to clipboard
-  saveImage.ts        Save grid as WebP to filesystem
+  chartRasterExport.ts Raster capture (html-to-image), trim, blob helpers
+  chartClipboard.ts   Copy chart PNG to clipboard
+  saveImage.ts        Save chart as WebP (directory picker / download)
   file-system-access.d.ts  Type helpers for File System Access API
 ```
 

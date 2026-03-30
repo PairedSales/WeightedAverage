@@ -153,7 +153,7 @@ function VerticalGrid({
   const n = comps.length;
   return (
     <div className="w-fit">
-      <div ref={gridExportRef} className="w-fit">
+      <div ref={gridExportRef} className="w-fit" data-chart-export>
       <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
         <thead>
           <tr>
@@ -267,7 +267,7 @@ function HorizontalGrid({
   const n = comps.length;
   return (
     <div className="w-fit">
-      <div ref={gridExportRef} className="w-fit">
+      <div ref={gridExportRef} className="w-fit" data-chart-export>
       <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
         <thead>
           <tr>
