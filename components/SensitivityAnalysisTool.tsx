@@ -77,7 +77,7 @@ export default function SensitivityAnalysisTool({
   const showResult = sweepValid && participantCount >= 2 && result.bestRate !== null;
 
   return (
-    <div className="w-full" data-exclude-export>
+    <div className="mx-auto w-fit max-w-full" data-exclude-export>
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
         <h3 className="text-sm font-semibold text-slate-800">Sensitivity Analysis</h3>
 
