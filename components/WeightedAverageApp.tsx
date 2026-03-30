@@ -493,7 +493,7 @@ export default function WeightedAverageApp() {
 
           <div className="flex w-full flex-col items-center gap-3">
             <section
-              className={`rounded-2xl transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
+              className={`flex w-full flex-col items-center rounded-2xl transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
                 activeTool === "weightedAverage" ? "order-1" : "order-2"
               } ${toolSwapPulse === "weightedAverage" ? "card-lift-in" : ""}`}
               data-exclude-export={activeTool !== "weightedAverage" ? true : undefined}
@@ -534,7 +534,7 @@ export default function WeightedAverageApp() {
             </section>
 
             <section
-              className={`transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
+              className={`flex w-full justify-center transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
                 activeTool === "sensitivityAnalysis" ? "order-1" : "order-2"
               } ${toolSwapPulse === "sensitivityAnalysis" ? "card-lift-in" : ""}`}
               data-exclude-export
