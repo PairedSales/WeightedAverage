@@ -498,7 +498,7 @@ export default function WeightedAverageApp() {
               } ${toolSwapPulse === "weightedAverage" ? "card-lift-in" : ""}`}
               data-exclude-export={activeTool !== "weightedAverage" ? true : undefined}
             >
-              <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-fit">
+              <div className="mx-auto w-fit rounded-2xl border border-slate-200/60 bg-white shadow-xl shadow-slate-900/[0.04]">
                 {/* Exportable area */}
                 <div className="bg-white rounded-2xl px-5 py-3 flex flex-col gap-2.5">
                   {state.showTitle && (
