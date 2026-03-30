@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useEffect, useMemo } from "react";
 import type { AppState, CompSale, DecimalPrecision, LayoutMode, Template } from "@/lib/types";
 import { copyChartImageToClipboard, type CopyResult } from "@/lib/chartClipboard";
 import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
@@ -39,9 +39,14 @@ function normalizeComp(c: CompSale): CompSale {
   };
 }
 
+/** Stable ids so server and client initial HTML match (crypto.randomUUID in default state breaks hydration). */
 function defaultState(): AppState {
   return {
-    comps: [createComp(1), createComp(2), createComp(3)],
+    comps: [
+      { id: "wa-default-1", label: "Sale 1", salePrice: 0, weight: 0, gla: 0 },
+      { id: "wa-default-2", label: "Sale 2", salePrice: 0, weight: 0, gla: 0 },
+      { id: "wa-default-3", label: "Sale 3", salePrice: 0, weight: 0, gla: 0 },
+    ],
     decimals: 0,
     layout: "vertical",
     title: "Weighted Average Analysis",
@@ -85,13 +90,14 @@ function copyFailureHint(result: CopyResult): string {
 }
 
 export default function WeightedAverageApp() {
+  const initialState = useMemo(() => defaultState(), []);
   const {
     state,
     set: setState,
     reset: resetState,
     undo,
     redo,
-  } = useUndoRedo<AppState>(defaultState());
+  } = useUndoRedo<AppState>(initialState);
 
   const [hydrated, setHydrated] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "done" | "error">("idle");

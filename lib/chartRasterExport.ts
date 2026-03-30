@@ -2,7 +2,14 @@ import { toCanvas } from "html-to-image";
 
 const EXPORT_BG_CSS = "#ffffff";
 
-export function exportFilter(node: HTMLElement): boolean {
+/**
+ * html-to-image passes every cloned node through `filter`, including text nodes and
+ * other non-Element nodes — they do not have `hasAttribute`.
+ */
+export function exportFilter(node: unknown): boolean {
+  if (!(node instanceof Element)) {
+    return true;
+  }
   if (node.hasAttribute("data-exclude-export")) {
     return false;
   }
