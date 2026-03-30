@@ -77,7 +77,8 @@ export default function WeightedAverageApp() {
   const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
   const [toolSwapPulse, setToolSwapPulse] = useState<ActiveTool | null>(null);
   const [themeState, setThemeState] = useState<ThemeState>({ preset: "blue", customColor: "#8B5CF6" });
-  const chartRef = useRef<HTMLDivElement>(null);
+  const weightedAverageChartRef = useRef<HTMLDivElement>(null);
+  const sensitivityChartRef = useRef<HTMLDivElement>(null);
   const saveMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -215,10 +216,11 @@ export default function WeightedAverageApp() {
 
   /** Snapshot the node at click time; after awaits, gridRef.current must not be re-read (race / lost ref). */
   const resolveExportElement = useCallback((): HTMLElement | null => {
-    let el = chartRef.current;
-    if (el) return el;
-    return null;
-  }, []);
+    if (activeTool === "sensitivityAnalysis") {
+      return sensitivityChartRef.current;
+    }
+    return weightedAverageChartRef.current;
+  }, [activeTool]);
 
   const handleCopy = useCallback(() => {
     const el = resolveExportElement();
@@ -256,10 +258,6 @@ export default function WeightedAverageApp() {
       const result = await saveGridAsImage(el, rememberLocation, state.comps.length);
       if (result.success) {
         setSaveStatus("done");
-        if (!rememberLocation) {
-          setRememberLocation(true);
-          setRememberLocationState(true);
-        }
       } else {
         setSaveStatus("idle");
       }
@@ -514,7 +512,7 @@ export default function WeightedAverageApp() {
                   )}
 
                   <SpreadsheetGrid
-                    gridExportRef={chartRef}
+                    gridExportRef={weightedAverageChartRef}
                     comps={state.comps}
                     decimals={state.decimals}
                     layout={state.layout}
@@ -540,6 +538,7 @@ export default function WeightedAverageApp() {
               data-exclude-export
             >
               <SensitivityAnalysisTool
+                exportRef={sensitivityChartRef}
                 comps={state.comps}
                 decimals={state.decimals}
                 subjectGla={state.subjectGla}

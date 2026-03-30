@@ -1,33 +1,34 @@
-import { toPng } from "html-to-image";
+import { toCanvas } from "html-to-image";
 import { getHtmlToImageBaseOptions } from "./exportSnapshot";
 
-function pngBlobPromise(element: HTMLElement): Promise<Blob> {
-  return (async () => {
-    const dataUrl = await toPng(element, {
-      ...getHtmlToImageBaseOptions(),
-    });
-    const res = await fetch(dataUrl);
-    return res.blob();
-  })();
+async function renderPngBlob(element: HTMLElement): Promise<Blob> {
+  const canvas = await toCanvas(element, {
+    ...getHtmlToImageBaseOptions(),
+    canvasWidth: element.scrollWidth,
+    canvasHeight: element.scrollHeight,
+  });
+
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob((b) => resolve(b), "image/png");
+  });
+
+  if (!blob) {
+    throw new Error("Unable to render PNG blob for clipboard copy");
+  }
+
+  return blob;
 }
 
-/**
- * Writes PNG to the clipboard. Call from a click handler without awaiting anything
- * before this function so the browser keeps user activation for clipboard.write.
- */
-export function copyGridAsImage(element: HTMLElement): Promise<boolean> {
-  if (!("clipboard" in navigator) || !("write" in navigator.clipboard)) {
-    return Promise.resolve(false);
+export async function copyGridAsImage(element: HTMLElement): Promise<boolean> {
+  if (!navigator.clipboard || !navigator.clipboard.write || typeof ClipboardItem === "undefined") {
+    return false;
   }
 
-  if (typeof ClipboardItem === "undefined") {
-    return Promise.resolve(false);
+  try {
+    const pngBlob = await renderPngBlob(element);
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": pngBlob })]);
+    return true;
+  } catch {
+    return false;
   }
-
-  const pngPromise = pngBlobPromise(element);
-
-  return navigator.clipboard
-    .write([new ClipboardItem({ "image/png": pngPromise })])
-    .then(() => true)
-    .catch(() => false);
 }
