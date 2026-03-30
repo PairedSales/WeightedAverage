@@ -38,6 +38,26 @@ html {
   }
 }
 
+@keyframes card-lift-in {
+  0% {
+    transform: translateY(16px) scale(0.985);
+    opacity: 0.74;
+  }
+  60% {
+    transform: translateY(-4px) scale(1.005);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.card-lift-in {
+  animation: card-lift-in 520ms cubic-bezier(0.2, 0.7, 0.1, 1);
+  will-change: transform, opacity;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

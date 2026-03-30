@@ -20,6 +20,8 @@ import WeightAllocationTool from "./WeightAllocationTool";
 import SensitivityAnalysisTool from "./SensitivityAnalysisTool";
 import { useState } from "react";
 
+type ActiveTool = "weightedAverage" | "sensitivityAnalysis";
+
 function createComp(index: number): CompSale {
   return {
     id: crypto.randomUUID(),
@@ -65,8 +67,6 @@ export default function WeightedAverageApp() {
     reset: resetState,
     undo,
     redo,
-    canUndo,
-    canRedo,
   } = useUndoRedo<AppState>(defaultState());
 
   const [hydrated, setHydrated] = useState(false);
@@ -74,6 +74,8 @@ export default function WeightedAverageApp() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [rememberLocation, setRememberLocationState] = useState(false);
   const [saveMenuOpen, setSaveMenuOpen] = useState(false);
+  const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
+  const [toolSwapPulse, setToolSwapPulse] = useState<ActiveTool | null>(null);
   const [themeState, setThemeState] = useState<ThemeState>({ preset: "blue", customColor: "#8B5CF6" });
   const chartRef = useRef<HTMLDivElement>(null);
   const saveMenuRef = useRef<HTMLDivElement>(null);
@@ -288,6 +290,15 @@ export default function WeightedAverageApp() {
     setSaveStatus("idle");
   }, [setState]);
 
+  const handleToolToggle = useCallback((checked: boolean) => {
+    const nextTool: ActiveTool = checked ? "sensitivityAnalysis" : "weightedAverage";
+    setActiveTool(nextTool);
+    setToolSwapPulse(nextTool);
+    window.setTimeout(() => {
+      setToolSwapPulse((current) => (current === nextTool ? null : current));
+    }, 520);
+  }, []);
+
   if (!hydrated) {
     return (
       <div className="w-full max-w-4xl mx-auto animate-pulse">
@@ -305,37 +316,23 @@ export default function WeightedAverageApp() {
       {/* Toolbar above card — same width as card, groups centered */}
       <div className="flex flex-col items-center w-full">
         <div className="w-fit mx-auto flex flex-col items-stretch">
-          {/* Undo/Redo | Copy | Save — centered to card */}
+          {/* Tool toggle | Copy | Save — centered to card */}
           <div
             className="mb-4 w-full flex flex-wrap items-center justify-center gap-2 px-1"
             data-exclude-export
           >
-            <div className="flex items-center bg-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden shrink-0">
-              <button
-                type="button"
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200/70 bg-white px-2.5 py-1.5 shadow-sm">
+              <input
+                id="active-tool-toggle"
+                type="checkbox"
                 tabIndex={-1}
-                onClick={undo}
-                disabled={!canUndo}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 disabled:opacity-25 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                title="Undo (Ctrl+Z)"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                  <path fillRule="evenodd" d="M7.793 2.232a.75.75 0 0 1-.025 1.06L3.622 7.25h10.003a5.375 5.375 0 0 1 0 10.75H10.75a.75.75 0 0 1 0-1.5h2.875a3.875 3.875 0 0 0 0-7.75H3.622l4.146 3.957a.75.75 0 0 1-1.036 1.085l-5.5-5.25a.75.75 0 0 1 0-1.085l5.5-5.25a.75.75 0 0 1 1.06.025Z" clipRule="evenodd" />
-                </svg>
-              </button>
-              <div className="w-px h-5 bg-slate-200/80" />
-              <button
-                type="button"
-                tabIndex={-1}
-                onClick={redo}
-                disabled={!canRedo}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 disabled:opacity-25 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                title="Redo (Ctrl+Y)"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                  <path fillRule="evenodd" d="M12.207 2.232a.75.75 0 0 0 .025 1.06l4.146 3.958H6.375a5.375 5.375 0 0 0 0 10.75H9.25a.75.75 0 0 0 0-1.5H6.375a3.875 3.875 0 0 1 0-7.75h10.003l-4.146 3.957a.75.75 0 0 0 1.036 1.085l5.5-5.25a.75.75 0 0 0 0-1.085l-5.5-5.25a.75.75 0 0 0-1.06.025Z" clipRule="evenodd" />
-                </svg>
-              </button>
+                checked={activeTool === "sensitivityAnalysis"}
+                onChange={(e) => handleToolToggle(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-accent-600 focus:ring-accent-400/60 cursor-pointer"
+              />
+              <label htmlFor="active-tool-toggle" className="text-xs font-semibold text-slate-600 select-none">
+                {activeTool === "sensitivityAnalysis" ? "Sensitivity Analysis" : "Weighted Average"}
+              </label>
             </div>
 
             <button
@@ -494,50 +491,64 @@ export default function WeightedAverageApp() {
             />
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-fit">
-            {/* Exportable area */}
-            <div className="bg-white rounded-2xl px-5 py-3 flex flex-col gap-2.5">
-              {state.showTitle && (
-                <input
-                  type="text"
-                  value={state.title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  tabIndex={-1}
-                  className="block w-full text-center text-xl font-bold leading-tight text-slate-800 bg-transparent outline-none focus:ring-2 focus:ring-accent-300/50 rounded-lg px-3 py-1 border-0 placeholder:text-slate-300"
-                  spellCheck={false}
-                  placeholder="Enter title..."
-                />
-              )}
+          <div className="flex w-full flex-col gap-3">
+            <section
+              className={`rounded-2xl transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
+                activeTool === "weightedAverage" ? "order-1" : "order-2"
+              } ${toolSwapPulse === "weightedAverage" ? "card-lift-in" : ""}`}
+              data-exclude-export={activeTool !== "weightedAverage" ? true : undefined}
+            >
+              <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-900/[0.04] w-fit">
+                {/* Exportable area */}
+                <div className="bg-white rounded-2xl px-5 py-3 flex flex-col gap-2.5">
+                  {state.showTitle && (
+                    <input
+                      type="text"
+                      value={state.title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      tabIndex={-1}
+                      className="block w-full text-center text-xl font-bold leading-tight text-slate-800 bg-transparent outline-none focus:ring-2 focus:ring-accent-300/50 rounded-lg px-3 py-1 border-0 placeholder:text-slate-300"
+                      spellCheck={false}
+                      placeholder="Enter title..."
+                    />
+                  )}
 
-              <SpreadsheetGrid
-                gridExportRef={chartRef}
+                  <SpreadsheetGrid
+                    gridExportRef={chartRef}
+                    comps={state.comps}
+                    decimals={state.decimals}
+                    layout={state.layout}
+                    onUpdateComp={updateComp}
+                    onAddComp={addComp}
+                    onRemoveComp={removeComp}
+                  />
+                </div>
+              </div>
+
+              <WeightAllocationTool
                 comps={state.comps}
                 decimals={state.decimals}
-                layout={state.layout}
-                onUpdateComp={updateComp}
-                onAddComp={addComp}
-                onRemoveComp={removeComp}
+                onApplyWeights={applyWeights}
+                onUpdateWeight={(id, value) => updateComp(id, "weight", value)}
               />
-            </div>
+            </section>
+
+            <section
+              className={`transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
+                activeTool === "sensitivityAnalysis" ? "order-1" : "order-2"
+              } ${toolSwapPulse === "sensitivityAnalysis" ? "card-lift-in" : ""}`}
+              data-exclude-export
+            >
+              <SensitivityAnalysisTool
+                comps={state.comps}
+                decimals={state.decimals}
+                subjectGla={state.subjectGla}
+                onSubjectGlaChange={setSubjectGla}
+                onUpdateCompSalePrice={(id, value) => updateComp(id, "salePrice", value)}
+                onUpdateCompGla={(id, value) => updateComp(id, "gla", value)}
+              />
+            </section>
           </div>
-
-          <WeightAllocationTool
-            comps={state.comps}
-            decimals={state.decimals}
-            onApplyWeights={applyWeights}
-            onUpdateWeight={(id, value) => updateComp(id, "weight", value)}
-          />
-        </div>
-
-        <div className="mt-3 w-full max-w-4xl" data-exclude-export>
-          <SensitivityAnalysisTool
-            comps={state.comps}
-            decimals={state.decimals}
-            subjectGla={state.subjectGla}
-            onSubjectGlaChange={setSubjectGla}
-            onUpdateCompSalePrice={(id, value) => updateComp(id, "salePrice", value)}
-            onUpdateCompGla={(id, value) => updateComp(id, "gla", value)}
-          />
         </div>
       </div>
     </div>
