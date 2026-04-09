@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useCallback, useEffect, useMemo } from "react";
-import type { AppState, CompSale, DecimalPrecision, LayoutMode, Template } from "@/lib/types";
+import type { AppState, CompSale, DecimalPrecision, LayoutMode, Template, WeightDisplayFormat } from "@/lib/types";
 import { copyChartImageToClipboard, type CopyResult } from "@/lib/chartClipboard";
 import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
 import { useAutoSave, loadSavedState } from "@/hooks/useAutoSave";
@@ -52,6 +52,7 @@ function defaultState(): AppState {
     title: "Weighted Average Analysis",
     showTitle: false,
     subjectGla: 0,
+    weightDisplayFormat: "decimal",
   };
 }
 
@@ -61,6 +62,8 @@ function normalizeState(state: AppState): AppState {
     showTitle: typeof state.showTitle === "boolean" ? state.showTitle : Boolean(state.title?.trim()),
     subjectGla:
       typeof state.subjectGla === "number" && isFinite(state.subjectGla) ? state.subjectGla : 0,
+    weightDisplayFormat:
+      state.weightDisplayFormat === "fraction" ? "fraction" : "decimal",
     comps: state.comps.map(normalizeComp),
   };
 }
@@ -213,6 +216,10 @@ export default function WeightedAverageApp() {
 
   const setShowTitle = useCallback((showTitle: boolean) => {
     setState((prev) => ({ ...prev, showTitle }));
+  }, [setState]);
+
+  const setWeightDisplayFormat = useCallback((weightDisplayFormat: WeightDisplayFormat) => {
+    setState((prev) => ({ ...prev, weightDisplayFormat }));
   }, [setState]);
 
 
@@ -621,6 +628,7 @@ export default function WeightedAverageApp() {
                     comps={state.comps}
                     decimals={state.decimals}
                     layout={state.layout}
+                    weightDisplayFormat={state.weightDisplayFormat}
                     onUpdateComp={updateComp}
                     onAddComp={addComp}
                     onRemoveComp={removeComp}
@@ -631,6 +639,7 @@ export default function WeightedAverageApp() {
               <WeightAllocationTool
                 comps={state.comps}
                 decimals={state.decimals}
+                weightDisplayFormat={state.weightDisplayFormat}
                 onApplyWeights={applyWeights}
                 onUpdateWeight={(id, value) => updateComp(id, "weight", value)}
               />
@@ -642,9 +651,11 @@ export default function WeightedAverageApp() {
                     decimals={state.decimals}
                     layout={state.layout}
                     showTitle={state.showTitle}
+                    weightDisplayFormat={state.weightDisplayFormat}
                     onDecimalsChange={setDecimals}
                     onLayoutChange={setLayout}
                     onShowTitleChange={setShowTitle}
+                    onWeightDisplayFormatChange={setWeightDisplayFormat}
                     templates={templates}
                     onSaveTemplate={saveTemplate}
                     onLoadTemplate={handleLoadTemplate}
@@ -681,9 +692,11 @@ export default function WeightedAverageApp() {
                       decimals={state.decimals}
                       layout={state.layout}
                       showTitle={state.showTitle}
+                      weightDisplayFormat={state.weightDisplayFormat}
                       onDecimalsChange={setDecimals}
                       onLayoutChange={setLayout}
                       onShowTitleChange={setShowTitle}
+                      onWeightDisplayFormatChange={setWeightDisplayFormat}
                       templates={templates}
                       onSaveTemplate={saveTemplate}
                       onLoadTemplate={handleLoadTemplate}

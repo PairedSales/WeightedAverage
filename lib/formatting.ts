@@ -1,4 +1,4 @@
-import type { DecimalPrecision } from "./types";
+import type { DecimalPrecision, WeightDisplayFormat } from "./types";
 
 export function formatCurrency(
   value: number,
@@ -97,4 +97,66 @@ export function formatPercentLive(raw: string): string {
     return `${intFormatted}.%`;
   }
   return `${intFormatted}%`;
+}
+
+function gcd(a: number, b: number): number {
+  a = Math.abs(a);
+  b = Math.abs(b);
+  while (b) {
+    const t = b;
+    b = a % b;
+    a = t;
+  }
+  return a;
+}
+
+/**
+ * Format a weight percentage as a simplified fraction (e.g. 16.67 → "1/6%").
+ * Falls back to decimal format when the value does not closely match a simple
+ * fraction with denominator ≤ 20.
+ */
+export function formatPercentFraction(
+  value: number,
+  fallbackDecimals: DecimalPrecision = 0
+): string {
+  if (!isFinite(value) || value <= 0) return formatPercent(value, fallbackDecimals);
+
+  const decimal = value / 100;
+  const MAX_DENOM = 20;
+  const TOLERANCE = 0.001;
+
+  let bestN = 0, bestD = 1, bestErr = Infinity;
+  for (let d = 1; d <= MAX_DENOM; d++) {
+    const n = Math.round(decimal * d);
+    if (n <= 0) continue;
+    const err = Math.abs(n / d - decimal);
+    if (err < bestErr) {
+      bestErr = err;
+      bestN = n;
+      bestD = d;
+    }
+  }
+
+  if (bestErr > TOLERANCE) return formatPercent(value, fallbackDecimals);
+
+  const g = gcd(bestN, bestD);
+  const simplN = bestN / g;
+  const simplD = bestD / g;
+
+  if (simplD === 1) return formatPercent(value, fallbackDecimals);
+
+  return `${simplN}/${simplD}%`;
+}
+
+/**
+ * Format a weight percentage using the chosen display format.
+ */
+export function formatWeight(
+  value: number,
+  decimals: DecimalPrecision,
+  format: WeightDisplayFormat
+): string {
+  return format === "fraction"
+    ? formatPercentFraction(value, decimals)
+    : formatPercent(value, decimals);
 }

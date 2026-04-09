@@ -1,13 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { CompSale, DecimalPrecision } from "@/lib/types";
-import { formatPercent } from "@/lib/formatting";
+import type { CompSale, DecimalPrecision, WeightDisplayFormat } from "@/lib/types";
+import { formatWeight } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
 
 interface WeightAllocationToolProps {
   comps: CompSale[];
   decimals: DecimalPrecision;
+  weightDisplayFormat: WeightDisplayFormat;
   onApplyWeights: (weightsById: Record<string, number>) => void;
   onUpdateWeight: (id: string, value: number) => void;
 }
@@ -36,7 +37,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-export default function WeightAllocationTool({ comps, decimals, onApplyWeights, onUpdateWeight }: WeightAllocationToolProps) {
+export default function WeightAllocationTool({ comps, decimals, weightDisplayFormat, onApplyWeights, onUpdateWeight }: WeightAllocationToolProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedTotalInput, setSelectedTotalInput] = useState("50");
 
@@ -131,7 +132,7 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
           <p className="text-xs text-slate-500">Choose manual comps, then auto-distribute the rest to reach exactly 100%.</p>
         </div>
         <div className={`text-sm font-semibold ${totalClass}`}>
-          Total: {formatPercent(totalWeight, decimals)}
+          Total: {formatWeight(totalWeight, decimals, weightDisplayFormat)}
         </div>
       </div>
 
@@ -151,7 +152,7 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
               <div className="mt-0.5 flex justify-center" onClick={(e) => e.stopPropagation()}>
                 <EditableCell
                   value={comp.weight}
-                  formatted={formatPercent(comp.weight, decimals)}
+                  formatted={formatWeight(comp.weight, decimals, weightDisplayFormat)}
                   onChange={(value) => onUpdateWeight(comp.id, value)}
                   type="percent"
                   placeholder="0%"
@@ -244,7 +245,7 @@ export default function WeightAllocationTool({ comps, decimals, onApplyWeights, 
       )}
 
       <div className="mt-3 text-xs text-slate-500">
-        Selected: {selected.length} · Selected weight: {formatPercent(selectedWeight, decimals)} · Remaining: {formatPercent(remainingFromSelected, decimals)}
+        Selected: {selected.length} · Selected weight: {formatWeight(selectedWeight, decimals, weightDisplayFormat)} · Remaining: {formatWeight(remainingFromSelected, decimals, weightDisplayFormat)}
       </div>
     </div>
   );

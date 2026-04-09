@@ -8,6 +8,7 @@ export interface CompSale {
 
 export type DecimalPrecision = 0 | 1 | 2;
 export type LayoutMode = "vertical" | "horizontal";
+export type WeightDisplayFormat = "decimal" | "fraction";
 
 export interface AppState {
   comps: CompSale[];
@@ -16,6 +17,7 @@ export interface AppState {
   title: string;
   showTitle: boolean;
   subjectGla: number;
+  weightDisplayFormat: WeightDisplayFormat;
 }
 
 export interface Template {

@@ -1,9 +1,9 @@
 "use client";
 
 import type { RefObject } from "react";
-import type { CompSale, DecimalPrecision, LayoutMode } from "@/lib/types";
+import type { CompSale, DecimalPrecision, LayoutMode, WeightDisplayFormat } from "@/lib/types";
 import { sumWeights, contribution, weightedAverage } from "@/lib/calculations";
-import { formatCurrency, formatPercent } from "@/lib/formatting";
+import { formatCurrency, formatPercent, formatWeight } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
 import WeightBar from "./WeightBar";
 
@@ -11,6 +11,7 @@ interface SpreadsheetGridProps {
   comps: CompSale[];
   decimals: DecimalPrecision;
   layout: LayoutMode;
+  weightDisplayFormat: WeightDisplayFormat;
   gridExportRef?: RefObject<HTMLDivElement | null>;
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number) => void;
   onAddComp: () => void;
@@ -21,6 +22,7 @@ export default function SpreadsheetGrid({
   comps,
   decimals,
   layout,
+  weightDisplayFormat,
   gridExportRef,
   onUpdateComp,
   onAddComp,
@@ -38,6 +40,7 @@ export default function SpreadsheetGrid({
       <HorizontalGrid
         comps={comps}
         decimals={decimals}
+        weightDisplayFormat={weightDisplayFormat}
         totalWeight={totalWeight}
         avg={avg}
         maxWeight={maxWeight}
@@ -56,6 +59,7 @@ export default function SpreadsheetGrid({
     <VerticalGrid
       comps={comps}
       decimals={decimals}
+      weightDisplayFormat={weightDisplayFormat}
       totalWeight={totalWeight}
       avg={avg}
       maxWeight={maxWeight}
@@ -73,6 +77,7 @@ export default function SpreadsheetGrid({
 interface GridInternalProps {
   comps: CompSale[];
   decimals: DecimalPrecision;
+  weightDisplayFormat: WeightDisplayFormat;
   totalWeight: number;
   avg: number;
   maxWeight: number;
@@ -139,6 +144,7 @@ function AddButton({ onClick }: { onClick: () => void }) {
 function VerticalGrid({
   comps,
   decimals,
+  weightDisplayFormat,
   totalWeight,
   avg,
   maxWeight,
@@ -200,7 +206,7 @@ function VerticalGrid({
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
-                      formatted={formatPercent(comp.weight, decimals)}
+                      formatted={formatWeight(comp.weight, decimals, weightDisplayFormat)}
                       onChange={(v) => onUpdateComp(comp.id, "weight", v)}
                       type="percent"
                       placeholder="0%"
@@ -253,6 +259,7 @@ function VerticalGrid({
 function HorizontalGrid({
   comps,
   decimals,
+  weightDisplayFormat,
   totalWeight,
   avg,
   maxWeight,
@@ -327,7 +334,7 @@ function HorizontalGrid({
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
-                      formatted={formatPercent(comp.weight, decimals)}
+                      formatted={formatWeight(comp.weight, decimals, weightDisplayFormat)}
                       onChange={(v) => onUpdateComp(comp.id, "weight", v)}
                       type="percent"
                       placeholder="0%"
@@ -338,7 +345,7 @@ function HorizontalGrid({
               );
             })}
             <td className="px-3 py-2.5 text-right tabular-nums font-semibold text-slate-600 border-b border-accent-100 bg-accent-50/30">
-              {formatPercent(totalWeight, decimals)}
+              {formatWeight(totalWeight, decimals, weightDisplayFormat)}
             </td>
           </tr>
 
