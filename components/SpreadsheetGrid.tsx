@@ -16,6 +16,7 @@ interface SpreadsheetGridProps {
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number) => void;
   onAddComp: () => void;
   onRemoveComp: (id: string) => void;
+  onWeightDisplayFormatChange?: (format: WeightDisplayFormat) => void;
 }
 
 export default function SpreadsheetGrid({
@@ -27,6 +28,7 @@ export default function SpreadsheetGrid({
   onUpdateComp,
   onAddComp,
   onRemoveComp,
+  onWeightDisplayFormatChange,
 }: SpreadsheetGridProps) {
   const totalWeight = sumWeights(comps);
   const avg = weightedAverage(comps);
@@ -51,6 +53,7 @@ export default function SpreadsheetGrid({
         onUpdateComp={onUpdateComp}
         onAddComp={onAddComp}
         onRemoveComp={onRemoveComp}
+        onWeightDisplayFormatChange={onWeightDisplayFormatChange}
       />
     );
   }
@@ -70,6 +73,7 @@ export default function SpreadsheetGrid({
       onUpdateComp={onUpdateComp}
       onAddComp={onAddComp}
       onRemoveComp={onRemoveComp}
+      onWeightDisplayFormatChange={onWeightDisplayFormatChange}
     />
   );
 }
@@ -88,6 +92,7 @@ interface GridInternalProps {
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number) => void;
   onAddComp: () => void;
   onRemoveComp: (id: string) => void;
+  onWeightDisplayFormatChange?: (format: WeightDisplayFormat) => void;
 }
 
 function WeightWarning({ totalWeight, decimals }: { totalWeight: number; decimals: DecimalPrecision }) {
@@ -155,6 +160,7 @@ function VerticalGrid({
   onUpdateComp,
   onAddComp,
   onRemoveComp,
+  onWeightDisplayFormatChange,
 }: GridInternalProps) {
   const n = comps.length;
   return (
@@ -211,6 +217,7 @@ function VerticalGrid({
                       type="percent"
                       placeholder="0%"
                       tabIndex={n + i + 1}
+                      onFormatChange={onWeightDisplayFormatChange}
                     />
                   </div>
                 </td>
@@ -270,6 +277,7 @@ function HorizontalGrid({
   onUpdateComp,
   onAddComp,
   onRemoveComp,
+  onWeightDisplayFormatChange,
 }: GridInternalProps) {
   const n = comps.length;
   return (
@@ -339,6 +347,7 @@ function HorizontalGrid({
                       type="percent"
                       placeholder="0%"
                       tabIndex={n + i + 1}
+                      onFormatChange={onWeightDisplayFormatChange}
                     />
                   </div>
                 </td>
