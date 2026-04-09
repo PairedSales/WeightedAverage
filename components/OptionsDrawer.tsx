@@ -1,6 +1,6 @@
 "use client";
 
-import type { AppState, DecimalPrecision, LayoutMode, Template } from "@/lib/types";
+import type { AppState, DecimalPrecision, LayoutMode, Template, WeightDisplayFormat } from "@/lib/types";
 import { themePresets, type ThemeState } from "@/lib/themes";
 import TemplateManager from "./TemplateManager";
 
@@ -9,9 +9,11 @@ interface OptionsDrawerProps {
   decimals: DecimalPrecision;
   layout: LayoutMode;
   showTitle: boolean;
+  weightDisplayFormat: WeightDisplayFormat;
   onDecimalsChange: (d: DecimalPrecision) => void;
   onLayoutChange: (l: LayoutMode) => void;
   onShowTitleChange: (show: boolean) => void;
+  onWeightDisplayFormatChange: (f: WeightDisplayFormat) => void;
   templates: Template[];
   onSaveTemplate: (name: string, state: AppState) => void;
   onLoadTemplate: (template: Template) => void;
@@ -26,9 +28,11 @@ export default function OptionsDrawer({
   decimals,
   layout,
   showTitle,
+  weightDisplayFormat,
   onDecimalsChange,
   onLayoutChange,
   onShowTitleChange,
+  onWeightDisplayFormatChange,
   templates,
   onSaveTemplate,
   onLoadTemplate,
@@ -180,6 +184,29 @@ export default function OptionsDrawer({
                 />
                 Show title
               </label>
+            </div>
+
+            <div className="min-w-[180px]">
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2.5">
+                Weight Format
+              </p>
+              <div className="flex rounded-lg bg-slate-100 p-0.5">
+                {(["decimal", "fraction"] as WeightDisplayFormat[]).map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => onWeightDisplayFormatChange(f)}
+                    className={`flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ${
+                      weightDisplayFormat === f
+                        ? "bg-white text-accent-700 shadow-sm"
+                        : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    {f === "decimal" ? "Decimal" : "Fraction"}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="min-w-[240px] flex-1">
