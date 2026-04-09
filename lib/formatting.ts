@@ -41,9 +41,19 @@ export function formatIntegerLive(raw: string): string {
   return Number(n).toLocaleString("en-US");
 }
 
-/** Strip $, commas, % and parse as float. Returns 0 for unparseable input. */
+/** Strip $, commas, % and parse as float. Returns 0 for unparseable input.
+ *  Supports fraction notation: "1/6" is interpreted as (1/6)*100 ≈ 16.667. */
 export function parseNumericInput(raw: string): number {
   const cleaned = raw.replace(/[$,%\s]/g, "");
+  if (cleaned.includes("/")) {
+    const slashIdx = cleaned.indexOf("/");
+    const num = parseFloat(cleaned.slice(0, slashIdx));
+    const den = parseFloat(cleaned.slice(slashIdx + 1));
+    if (isFinite(num) && isFinite(den) && den !== 0) {
+      return (num / den) * 100;
+    }
+    return 0;
+  }
   const parsed = parseFloat(cleaned);
   return isNaN(parsed) ? 0 : parsed;
 }
@@ -75,9 +85,20 @@ export function formatCurrencyLive(raw: string): string {
 }
 
 /**
- * Live-format a partially-typed percent string, preserving trailing decimals.
+ * Live-format a partially-typed percent string, preserving trailing decimals
+ * so the user can keep typing (e.g. "16." stays as "16.%", not "16%").
+ * Also supports fraction notation: if the input contains "/" it is treated as
+ * a fraction (e.g. "1/6" → "1/6%").
  */
 export function formatPercentLive(raw: string): string {
+  // Fraction mode: user has typed a "/"
+  if (raw.includes("/")) {
+    const stripped = raw.replace(/[^0-9/]/g, "");
+    if (stripped === "" || stripped === "/") return stripped || "%";
+    return `${stripped}%`;
+  }
+
+  // Decimal mode (existing behaviour)
   const stripped = raw.replace(/[^0-9.]/g, "");
   if (stripped === "" || stripped === ".") return raw === "" ? "" : "%";
 

@@ -22,12 +22,14 @@ interface EditableCellProps {
   tabIndex?: number;
   /** Whether the editable control should stretch to fill its container. */
   fullWidth?: boolean;
+  /** Called when a percent cell is committed, reporting whether the user typed a fraction or decimal. */
+  onFormatChange?: (format: "decimal" | "fraction") => void;
 }
 
 function countDigitsBefore(str: string, pos: number): number {
   let count = 0;
   for (let i = 0; i < pos && i < str.length; i++) {
-    if (/[0-9.]/.test(str[i])) count++;
+    if (/[0-9./]/.test(str[i])) count++;
   }
   return count;
 }
@@ -35,7 +37,7 @@ function countDigitsBefore(str: string, pos: number): number {
 function cursorPosForDigitCount(str: string, digitCount: number): number {
   let count = 0;
   for (let i = 0; i < str.length; i++) {
-    if (/[0-9.]/.test(str[i])) count++;
+    if (/[0-9./]/.test(str[i])) count++;
     if (count === digitCount) return i + 1;
   }
   return str.length;
@@ -51,6 +53,7 @@ export default function EditableCell({
   align = "right",
   tabIndex = -1,
   fullWidth = true,
+  onFormatChange,
 }: EditableCellProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -87,16 +90,19 @@ export default function EditableCell({
     } else if (type === "integer") {
       setDraft(formatIntegerLive(String(Math.round(value))));
     } else {
-      setDraft(formatLive(String(value)));
+      setDraft(formatLive(formatted));
     }
     setEditing(true);
-  }, [value, formatLive, type]);
+  }, [value, formatted, formatLive, type]);
 
   const commit = useCallback(() => {
     const parsed = parseNumericInput(draft);
+    if (onFormatChange && type === "percent") {
+      onFormatChange(draft.includes("/") ? "fraction" : "decimal");
+    }
     onChange(type === "integer" ? Math.round(parsed) : parsed);
     setEditing(false);
-  }, [draft, onChange, type]);
+  }, [draft, onChange, type, onFormatChange]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

@@ -632,6 +632,7 @@ export default function WeightedAverageApp() {
                     onUpdateComp={updateComp}
                     onAddComp={addComp}
                     onRemoveComp={removeComp}
+                    onWeightDisplayFormatChange={setWeightDisplayFormat}
                   />
                 </div>
               </div>
@@ -642,6 +643,7 @@ export default function WeightedAverageApp() {
                 weightDisplayFormat={state.weightDisplayFormat}
                 onApplyWeights={applyWeights}
                 onUpdateWeight={(id, value) => updateComp(id, "weight", value)}
+                onWeightDisplayFormatChange={setWeightDisplayFormat}
               />
 
               {activeTool === "weightedAverage" && (

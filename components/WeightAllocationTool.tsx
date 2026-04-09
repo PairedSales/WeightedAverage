@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { CompSale, DecimalPrecision, WeightDisplayFormat } from "@/lib/types";
-import { formatWeight } from "@/lib/formatting";
+import { formatWeight, parseNumericInput } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
 
 interface WeightAllocationToolProps {
@@ -11,6 +11,7 @@ interface WeightAllocationToolProps {
   weightDisplayFormat: WeightDisplayFormat;
   onApplyWeights: (weightsById: Record<string, number>) => void;
   onUpdateWeight: (id: string, value: number) => void;
+  onWeightDisplayFormatChange?: (format: WeightDisplayFormat) => void;
 }
 
 const TARGET_TOTAL = 100;
@@ -37,7 +38,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-export default function WeightAllocationTool({ comps, decimals, weightDisplayFormat, onApplyWeights, onUpdateWeight }: WeightAllocationToolProps) {
+export default function WeightAllocationTool({ comps, decimals, weightDisplayFormat, onApplyWeights, onUpdateWeight, onWeightDisplayFormatChange }: WeightAllocationToolProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedTotalInput, setSelectedTotalInput] = useState("50");
 
@@ -76,7 +77,7 @@ export default function WeightAllocationTool({ comps, decimals, weightDisplayFor
   const splitSelectedTotal = () => {
     if (selected.length === 0) return;
 
-    const parsed = Number(selectedTotalInput.replace(/[^0-9.]/g, ""));
+    const parsed = parseNumericInput(selectedTotalInput);
     if (!Number.isFinite(parsed)) return;
 
     const selectedTotal = clamp(parsed, 0, TARGET_TOTAL);
@@ -160,6 +161,7 @@ export default function WeightAllocationTool({ comps, decimals, weightDisplayFor
                   tabIndex={-1}
                   fullWidth={false}
                   className="min-w-11 w-auto px-0 py-0 text-center text-[13px] font-semibold"
+                  onFormatChange={onWeightDisplayFormatChange}
                 />
               </div>
               <div className="mt-0.5 whitespace-nowrap text-[8px] leading-tight text-slate-500">
