@@ -94,7 +94,7 @@ export function formatPercentLive(raw: string): string {
   // Fraction mode: user has typed a "/"
   if (raw.includes("/")) {
     const stripped = raw.replace(/[^0-9/]/g, "");
-    if (stripped === "" || stripped === "/") return stripped || "%";
+    if (stripped === "" || stripped === "/") return "%";
     return `${stripped}%`;
   }
 
