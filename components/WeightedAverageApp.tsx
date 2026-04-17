@@ -17,6 +17,7 @@ import {
 import SpreadsheetGrid from "./SpreadsheetGrid";
 import OptionsDrawer from "./OptionsDrawer";
 import WeightAllocationTool from "./WeightAllocationTool";
+import PercentChangeCalculator from "./PercentChangeCalculator";
 import SensitivityAnalysisTool from "./SensitivityAnalysisTool";
 import { useState } from "react";
 
@@ -645,6 +646,8 @@ export default function WeightedAverageApp() {
                 onUpdateWeight={(id, value) => updateComp(id, "weight", value)}
                 onWeightDisplayFormatChange={setWeightDisplayFormat}
               />
+
+              <PercentChangeCalculator />
 
               {activeTool === "weightedAverage" && (
                 <div className="mt-3 w-full max-w-4xl" data-exclude-export>
