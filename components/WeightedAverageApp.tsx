@@ -16,7 +16,6 @@ import {
 } from "@/lib/themes";
 import SpreadsheetGrid from "./SpreadsheetGrid";
 import OptionsDrawer from "./OptionsDrawer";
-import WeightAllocationTool from "./WeightAllocationTool";
 import PercentChangeCalculator from "./PercentChangeCalculator";
 import SensitivityAnalysisTool from "./SensitivityAnalysisTool";
 import { useState } from "react";
@@ -223,16 +222,6 @@ export default function WeightedAverageApp() {
     setState((prev) => ({ ...prev, weightDisplayFormat }));
   }, [setState]);
 
-
-  const applyWeights = useCallback((weightsById: Record<string, number>) => {
-    setState((prev) => ({
-      ...prev,
-      comps: prev.comps.map((c) => ({
-        ...c,
-        weight: typeof weightsById[c.id] === "number" ? weightsById[c.id] : c.weight,
-      })),
-    }));
-  }, [setState]);
 
   const handleLoadTemplate = useCallback(
     (template: Template) => {
@@ -637,15 +626,6 @@ export default function WeightedAverageApp() {
                   />
                 </div>
               </div>
-
-              <WeightAllocationTool
-                comps={state.comps}
-                decimals={state.decimals}
-                weightDisplayFormat={state.weightDisplayFormat}
-                onApplyWeights={applyWeights}
-                onUpdateWeight={(id, value) => updateComp(id, "weight", value)}
-                onWeightDisplayFormatChange={setWeightDisplayFormat}
-              />
 
               <PercentChangeCalculator />
 
