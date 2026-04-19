@@ -20,6 +20,22 @@ export default function PercentChangeCalculator() {
   const [fromValue, setFromValue] = useState("");
   const [toValue, setToValue] = useState("");
 
+  const formatNumberInput = (raw: string): string => {
+    const cleaned = raw.replace(/[^0-9.-]/g, "");
+    if (!cleaned) return "";
+
+    const isNegative = cleaned.startsWith("-");
+    const unsigned = isNegative ? cleaned.slice(1) : cleaned;
+    const [intPartRaw, decPartRaw] = unsigned.split(".");
+    const intDigits = intPartRaw.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
+    const intFormatted = intDigits ? Number(intDigits).toLocaleString("en-US") : "0";
+
+    if (unsigned.includes(".")) {
+      return `${isNegative ? "-" : ""}${intFormatted}.${(decPartRaw ?? "").replace(/[^0-9]/g, "")}`;
+    }
+    return `${isNegative ? "-" : ""}${intFormatted}`;
+  };
+
   const parsedFrom = useMemo(() => parseNumericInput(fromValue), [fromValue]);
   const parsedTo = useMemo(() => parseNumericInput(toValue), [toValue]);
 
@@ -56,7 +72,7 @@ export default function PercentChangeCalculator() {
           <input
             type="text"
             value={fromValue}
-            onChange={(e) => setFromValue(e.target.value)}
+            onChange={(e) => setFromValue(formatNumberInput(e.target.value))}
             placeholder="e.g., 250000"
             className="mt-1 block w-32 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-accent-500 focus:outline-none"
           />
@@ -67,7 +83,7 @@ export default function PercentChangeCalculator() {
           <input
             type="text"
             value={toValue}
-            onChange={(e) => setToValue(e.target.value)}
+            onChange={(e) => setToValue(formatNumberInput(e.target.value))}
             placeholder="e.g., 275000"
             className="mt-1 block w-32 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-accent-500 focus:outline-none"
           />

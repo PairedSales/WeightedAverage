@@ -44,7 +44,7 @@ export function formatIntegerLive(raw: string): string {
 /** Strip $, commas, % and parse as float. Returns 0 for unparseable input.
  *  Supports fraction notation: "1/6" is interpreted as (1/6)*100 ≈ 16.667. */
 export function parseNumericInput(raw: string): number {
-  const cleaned = raw.replace(/[$,%\s]/g, "");
+  const cleaned = raw.replace(/[$,%\s,]/g, "");
   if (cleaned.includes("/")) {
     const slashIdx = cleaned.indexOf("/");
     const num = parseFloat(cleaned.slice(0, slashIdx));
