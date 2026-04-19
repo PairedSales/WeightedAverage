@@ -49,6 +49,7 @@ export const themePresets: ThemePreset[] = [
 ];
 
 export interface ThemeState {
+  mode: "light" | "dark" | "dracula";
   preset: string;
   customColor: string;
 }
@@ -69,6 +70,10 @@ export function loadThemeState(): ThemeState {
         const migrated =
           REMOVED_PRESET_ALIASES[parsed.preset] ?? parsed.preset;
         return {
+          mode:
+            parsed.mode === "dark" || parsed.mode === "dracula"
+              ? parsed.mode
+              : "light",
           preset: migrated,
           customColor:
             typeof parsed.customColor === "string"
@@ -78,7 +83,7 @@ export function loadThemeState(): ThemeState {
       }
     }
   } catch { /* ignore */ }
-  return { preset: "blue", customColor: "#8B5CF6" };
+  return { mode: "light", preset: "blue", customColor: "#8B5CF6" };
 }
 
 export function saveThemeState(state: ThemeState): void {
@@ -90,6 +95,10 @@ export function applyThemeColors(colors: Record<string, string>): void {
   for (const [shade, value] of Object.entries(colors)) {
     root.style.setProperty(`--color-accent-${shade}`, value);
   }
+}
+
+export function applyThemeMode(mode: ThemeState["mode"]): void {
+  document.documentElement.setAttribute("data-theme-mode", mode);
 }
 
 export function getThemeColors(state: ThemeState): Record<string, string> {

@@ -41,6 +41,12 @@ export default function OptionsDrawer({
   themeState,
   onThemeChange,
 }: OptionsDrawerProps) {
+  const themeModes: Array<{ id: ThemeState["mode"]; label: string }> = [
+    { id: "light", label: "Light" },
+    { id: "dark", label: "Dark" },
+    { id: "dracula", label: "Dracula" },
+  ];
+
   return (
     <div
       className="grid transition-all duration-300 ease-out"
@@ -115,6 +121,26 @@ export default function OptionsDrawer({
               <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2.5">
                 Theme
               </p>
+              <div className="flex rounded-lg bg-slate-100 p-0.5 mb-2.5">
+                {themeModes.map((mode) => {
+                  const active = themeState.mode === mode.id;
+                  return (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => onThemeChange({ ...themeState, mode: mode.id })}
+                      className={`flex-1 py-1.5 px-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ${
+                        active
+                          ? "bg-white text-accent-700 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      {mode.label}
+                    </button>
+                  );
+                })}
+              </div>
               <div className="flex items-center gap-2">
                 {themePresets.map((preset) => {
                   const isSelected = themeState.preset === preset.id;
@@ -123,14 +149,14 @@ export default function OptionsDrawer({
                       key={preset.id}
                       type="button"
                       tabIndex={-1}
-                      onClick={() => onThemeChange({ preset: preset.id, customColor: themeState.customColor })}
+                      onClick={() => onThemeChange({ mode: themeState.mode, preset: preset.id, customColor: themeState.customColor })}
                       className={`w-7 h-7 rounded-full transition-all duration-200 cursor-pointer ${
                         isSelected ? "scale-110" : "hover:scale-105"
                       }`}
                       style={{
                         backgroundColor: preset.swatch,
                         boxShadow: isSelected
-                          ? `0 0 0 2px white, 0 0 0 4px ${preset.swatch}`
+                          ? `0 0 0 2px var(--wa-selection-ring), 0 0 0 4px ${preset.swatch}`
                           : "none",
                       }}
                       title={preset.name}
@@ -147,7 +173,7 @@ export default function OptionsDrawer({
                     backgroundColor: themeState.preset === "custom" ? themeState.customColor : undefined,
                     boxShadow:
                       themeState.preset === "custom"
-                        ? `0 0 0 2px white, 0 0 0 4px ${themeState.customColor}`
+                        ? `0 0 0 2px var(--wa-selection-ring), 0 0 0 4px ${themeState.customColor}`
                         : "none",
                     border: themeState.preset !== "custom" ? "2px dashed #94a3b8" : "none",
                   }}
@@ -163,7 +189,7 @@ export default function OptionsDrawer({
                     type="color"
                     tabIndex={-1}
                     value={themeState.customColor}
-                    onChange={(e) => onThemeChange({ preset: "custom", customColor: e.target.value })}
+                    onChange={(e) => onThemeChange({ mode: themeState.mode, preset: "custom", customColor: e.target.value })}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                 </label>
