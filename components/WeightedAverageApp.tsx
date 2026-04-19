@@ -12,6 +12,7 @@ import {
   loadThemeState,
   saveThemeState,
   applyThemeColors,
+  applyThemeMode,
   getThemeColors,
 } from "@/lib/themes";
 import SpreadsheetGrid from "./SpreadsheetGrid";
@@ -113,7 +114,11 @@ export default function WeightedAverageApp() {
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
   const [toolSwapPulse, setToolSwapPulse] = useState<ActiveTool | null>(null);
-  const [themeState, setThemeState] = useState<ThemeState>({ preset: "blue", customColor: "#8B5CF6" });
+  const [themeState, setThemeState] = useState<ThemeState>({
+    mode: "light",
+    preset: "blue",
+    customColor: "#8B5CF6",
+  });
   const weightedAverageChartRef = useRef<HTMLDivElement>(null);
   const sensitivityChartRef = useRef<HTMLDivElement>(null);
   const saveMenuRef = useRef<HTMLDivElement>(null);
@@ -125,6 +130,7 @@ export default function WeightedAverageApp() {
 
     const savedTheme = loadThemeState();
     setThemeState(savedTheme);
+    applyThemeMode(savedTheme.mode);
     applyThemeColors(getThemeColors(savedTheme));
 
     setHydrated(true);
@@ -241,6 +247,7 @@ export default function WeightedAverageApp() {
   const handleThemeChange = useCallback((newTheme: ThemeState) => {
     setThemeState(newTheme);
     saveThemeState(newTheme);
+    applyThemeMode(newTheme.mode);
     applyThemeColors(getThemeColors(newTheme));
   }, []);
 
