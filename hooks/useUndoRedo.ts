@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 
-const MAX_HISTORY = 50;
+const MAX_HISTORY = 25;
 
 interface UndoRedoState<T> {
   past: T[];

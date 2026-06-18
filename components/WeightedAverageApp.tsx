@@ -101,6 +101,8 @@ export default function WeightedAverageApp() {
     reset: resetState,
     undo,
     redo,
+    canUndo,
+    canRedo,
   } = useUndoRedo<AppState>(initialState);
 
   const [hydrated, setHydrated] = useState(false);
@@ -114,6 +116,7 @@ export default function WeightedAverageApp() {
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
   const [toolSwapPulse, setToolSwapPulse] = useState<ActiveTool | null>(null);
+  const [templateBarVisible, setTemplateBarVisible] = useState(false);
   const [themeState, setThemeState] = useState<ThemeState>({
     mode: "light",
     preset: "blue",
@@ -166,6 +169,16 @@ export default function WeightedAverageApp() {
 
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (e.clientY < 15) {
+        setTemplateBarVisible(true);
+      }
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   const { templates, saveTemplate, deleteTemplate, getTemplate } = useTemplates();
@@ -376,6 +389,36 @@ export default function WeightedAverageApp() {
     setSaveInfo("");
   }, [setState]);
 
+  const applyBlankTemplate = useCallback((count: number) => {
+    const hasDecimal = (100 % count) !== 0;
+    const weight = 100 / count;
+    setState({
+      comps: Array.from({ length: count }, (_, i) => ({
+        id: crypto.randomUUID(),
+        label: `Sale ${i + 1}`,
+        salePrice: 0,
+        weight: weight,
+        gla: 0,
+      })),
+      decimals: 0,
+      layout: "vertical",
+      title: "Weighted Average Analysis",
+      showTitle: false,
+      subjectGla: 0,
+      weightDisplayFormat: hasDecimal ? "fraction" : "decimal",
+    });
+    setCopyStatus("idle");
+    setSaveStatus("idle");
+    setCopyDetail("");
+    setSaveDetail("");
+    setSaveInfo("");
+  }, [setState]);
+
+  const handleSelectBlankTemplate = useCallback((count: number) => {
+    applyBlankTemplate(count);
+    setTemplateBarVisible(false);
+  }, [applyBlankTemplate]);
+
   const handleToolToggle = useCallback(() => {
     const nextTool: ActiveTool =
       activeTool === "weightedAverage" ? "sensitivityAnalysis" : "weightedAverage";
@@ -400,6 +443,52 @@ export default function WeightedAverageApp() {
 
   return (
     <div className="mx-auto w-fit">
+      {/* Template Bar Pull-down Tab Indicator */}
+      <div 
+        className="fixed top-0 left-1/2 -translate-x-1/2 h-1.5 w-12 bg-slate-300/60 hover:bg-accent-400 rounded-b-full cursor-pointer z-40 transition-all duration-300 opacity-60 hover:opacity-100 shadow-sm"
+        onMouseEnter={() => setTemplateBarVisible(true)}
+        title="Hover for Blank Templates"
+      />
+
+      {/* Template Bar */}
+      <div
+        onMouseEnter={() => setTemplateBarVisible(true)}
+        onMouseLeave={() => setTemplateBarVisible(false)}
+        className={`fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-lg transition-all duration-300 z-50 transform flex flex-col md:flex-row md:items-center justify-between gap-3 px-6 py-3.5 ${
+          templateBarVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="p-1.5 bg-accent-50 rounded-lg text-accent-600">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+              <path fillRule="evenodd" d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3Zm2 1h8v1.5H4V4Zm8 3H4v1.5h8V7Zm-8 3h8v1.5H4V10Z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">Blank Templates</h4>
+            <p className="text-[11px] text-slate-500">Weights are divided evenly (using fractions for decimals)</p>
+          </div>
+        </div>
+        
+        <div className="flex flex-wrap items-center gap-2">
+          {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((count) => {
+            const hasDecimal = (100 % count) !== 0;
+            const displayLabel = hasDecimal ? `1/${count}` : `${100 / count}%`;
+            return (
+              <button
+                key={count}
+                type="button"
+                onClick={() => handleSelectBlankTemplate(count)}
+                className="group px-3 py-1 text-xs font-semibold rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:bg-accent-50 hover:border-accent-200 hover:text-accent-700 transition-all duration-150 cursor-pointer shadow-sm flex flex-col items-center min-w-[72px]"
+              >
+                <span>{count} Comps</span>
+                <span className="text-[9px] text-slate-400 group-hover:text-accent-500 font-normal">{displayLabel} each</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Toolbar above card — same width as card, groups centered */}
       <div className="flex flex-col items-center w-full">
         <div className="w-fit mx-auto flex flex-col items-stretch">
@@ -425,6 +514,50 @@ export default function WeightedAverageApp() {
               <span className="text-xs font-semibold">
                 {activeTool === "sensitivityAnalysis" ? "Sensitivity Analysis" : "Weighted Average"}
               </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={undo}
+              disabled={!canUndo}
+              className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
+                canUndo
+                  ? "bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
+                  : "bg-slate-50/50 text-slate-300 border border-slate-200/40 cursor-not-allowed"
+              }`}
+              title="Undo last change (Ctrl+Z)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                className="w-4 h-4"
+              >
+                <path fillRule="evenodd" d="M12.5 9.75A2.75 2.75 0 0 0 9.75 7H4.56l2.22 2.22a.75.75 0 1 1-1.06 1.06l-3.5-3.5a.75.75 0 0 1 0-1.06l3.5-3.5a.75.75 0 0 1 1.06 1.06L4.56 5.5h5.19a4.25 4.25 0 0 1 4.25 4.25v1.5a.75.75 0 0 1-1.5 0v-1.5Z" clipRule="evenodd" />
+              </svg>
+              <span className="text-xs font-semibold">Undo</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={redo}
+              disabled={!canRedo}
+              className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
+                canRedo
+                  ? "bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
+                  : "bg-slate-50/50 text-slate-300 border border-slate-200/40 cursor-not-allowed"
+              }`}
+              title="Redo last change (Ctrl+Y)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                className="w-4 h-4"
+              >
+                <path fillRule="evenodd" d="M3.5 9.75A2.75 2.75 0 0 1 6.25 7h5.19l-2.22 2.22a.75.75 0 1 0 1.06 1.06l3.5-3.5a.75.75 0 0 0 0-1.06l-3.5-3.5a.75.75 0 1 0-1.06 1.06l2.22 2.22H6.25A4.25 4.25 0 0 0 2 9.75v1.5a.75.75 0 0 0 1.5 0v-1.5Z" clipRule="evenodd" />
+              </svg>
+              <span className="text-xs font-semibold">Redo</span>
             </button>
 
             <button
