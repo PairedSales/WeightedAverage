@@ -116,7 +116,7 @@ function RemoveButton({ onClick, label }: { onClick: () => void; label: string }
       type="button"
       tabIndex={-1}
       onClick={onClick}
-      className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-all cursor-pointer"
+      className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
       title={`Remove ${label}`}
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
@@ -128,14 +128,14 @@ function RemoveButton({ onClick, label }: { onClick: () => void; label: string }
 
 function AddButton({ onClick }: { onClick: () => void }) {
   return (
-    <div className="mt-2" data-exclude-export>
+    <div className="mt-1.5" data-exclude-export>
       <button
         type="button"
         tabIndex={-1}
         onClick={onClick}
-        className="text-[13px] text-slate-400 hover:text-accent-600 hover:bg-accent-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+        className="text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-100 px-2.5 py-1 transition-colors flex items-center gap-1 cursor-pointer border border-transparent hover:border-slate-300"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
           <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
         </svg>
         Add Comparable
@@ -166,38 +166,37 @@ function VerticalGrid({
   return (
     <div className="w-fit">
       <div ref={gridExportRef} className="w-fit" data-chart-export>
-      <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
+      <table className="border-collapse text-sm whitespace-nowrap">
         <thead>
           <tr>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 w-28">
+            <th className="px-3 py-1.5 text-left text-xs font-bold text-white bg-neutral-800 border border-neutral-300 w-28">
               Comparable
             </th>
-            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 min-w-[10rem]">
+            <th className="px-3 py-1.5 text-right text-xs font-bold text-white bg-neutral-800 border border-neutral-300 min-w-[10rem]">
               Sale Price
             </th>
-            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 w-32">
+            <th className="px-3 py-1.5 text-right text-xs font-bold text-white bg-neutral-800 border border-neutral-300 w-32">
               Weight
             </th>
-            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 min-w-[10rem]">
+            <th className="px-3 py-1.5 text-right text-xs font-bold text-white bg-neutral-800 border border-neutral-300 min-w-[10rem]">
               Contribution
             </th>
-            <th className="w-8 border-b-2 border-transparent" data-exclude-export />
+            <th className="w-7 border-none bg-transparent" data-exclude-export />
           </tr>
         </thead>
         <tbody>
           {comps.map((comp, i) => {
             const contrib = contribution(comp, totalWeight);
             const weightRatio = comp.weight / maxWeight;
-            const isLast = i === comps.length - 1;
             return (
               <tr
                 key={comp.id}
-                className="group hover:bg-accent-50/40 transition-colors"
+                className="group hover:bg-slate-50 transition-colors"
               >
-                <td className={`px-4 py-2.5 font-medium text-slate-500 text-center text-[13px] ${!isLast ? "border-b border-slate-100" : ""}`}>
+                <td className="px-3 py-1.5 font-medium text-slate-700 text-center text-[13px] border border-neutral-300">
                   {comp.label}
                 </td>
-                <td className={`p-0 ${!isLast ? "border-b border-slate-100" : ""}`}>
+                <td className="p-0 border border-neutral-300">
                   <EditableCell
                     value={comp.salePrice}
                     formatted={formatCurrency(comp.salePrice, decimals)}
@@ -207,7 +206,7 @@ function VerticalGrid({
                     tabIndex={i + 1}
                   />
                 </td>
-                <td className={`p-0 relative ${!isLast ? "border-b border-slate-100" : ""}`}>
+                <td className="p-0 relative border border-neutral-300">
                   <WeightBar ratio={weightRatio} direction="horizontal" />
                   <div className="relative z-10">
                     <EditableCell
@@ -221,12 +220,12 @@ function VerticalGrid({
                     />
                   </div>
                 </td>
-                <td className={`px-3 py-2.5 text-right tabular-nums font-medium text-slate-600 ${!isLast ? "border-b border-slate-100" : ""}`}>
+                <td className="px-2 py-1.5 text-right tabular-nums font-medium text-slate-700 border border-neutral-300">
                   {weightsValid && comp.salePrice > 0
                     ? formatCurrency(contrib, decimals)
                     : "\u2014"}
                 </td>
-                <td className={`p-0 align-middle ${!isLast ? "border-b border-transparent" : ""}`} data-exclude-export>
+                <td className="p-0 align-middle border-none" data-exclude-export>
                   {canRemove && (
                     <RemoveButton onClick={() => onRemoveComp(comp.id)} label={comp.label} />
                   )}
@@ -239,18 +238,18 @@ function VerticalGrid({
           <tr>
             <td
               colSpan={2}
-              className="px-4 py-3.5 font-bold text-accent-900 bg-gradient-to-r from-accent-50 to-accent-100/60 text-[15px] border-t-2 border-accent-200 rounded-bl-xl"
+              className="px-3 py-2 font-bold text-slate-900 bg-slate-100 text-sm border border-neutral-300"
             >
               Weighted Average
               <WeightWarning totalWeight={totalWeight} decimals={decimals} />
             </td>
             <td
               colSpan={2}
-              className="px-3 py-3.5 text-right tabular-nums font-bold text-accent-900 bg-gradient-to-r from-accent-100/60 to-accent-50 text-[15px] border-t-2 border-accent-200 rounded-br-xl"
+              className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 bg-slate-100 text-sm border border-neutral-300"
             >
               {weightsValid ? formatCurrency(avg, decimals) : "\u2014"}
             </td>
-            <td className="border-t-2 border-transparent bg-transparent" data-exclude-export />
+            <td className="border-none bg-transparent" data-exclude-export />
           </tr>
         </tfoot>
       </table>
@@ -283,26 +282,26 @@ function HorizontalGrid({
   return (
     <div className="w-fit">
       <div ref={gridExportRef} className="w-fit" data-chart-export>
-      <table className="border-separate border-spacing-0 text-sm whitespace-nowrap">
+      <table className="border-collapse text-sm whitespace-nowrap">
         <thead>
           <tr>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 w-32">
+            <th className="px-3 py-1.5 text-left text-xs font-bold text-white bg-neutral-800 border border-neutral-300 w-32">
               &nbsp;
             </th>
             {comps.map((comp) => (
               <th
                 key={comp.id}
-                className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b-2 border-slate-200 group relative"
+                className="px-3 py-1.5 text-center text-xs font-bold text-white bg-neutral-800 border border-neutral-300 group relative"
               >
                 <span>{comp.label}</span>
                 {canRemove && (
-                  <span className="absolute top-1 right-1" data-exclude-export>
+                  <span className="absolute top-0.5 right-0.5" data-exclude-export>
                     <RemoveButton onClick={() => onRemoveComp(comp.id)} label={comp.label} />
                   </span>
                 )}
               </th>
             ))}
-            <th className="px-4 py-2.5 text-center text-[11px] font-bold uppercase tracking-widest text-accent-600 border-b-2 border-accent-200 bg-accent-50/50">
+            <th className="px-3 py-1.5 text-center text-xs font-bold text-white bg-neutral-700 border border-neutral-300">
               Result
             </th>
           </tr>
@@ -310,11 +309,11 @@ function HorizontalGrid({
         <tbody>
           {/* Sale Price Row */}
           <tr className="group">
-            <td className="px-4 py-2.5 font-semibold text-slate-500 text-[11px] uppercase tracking-widest border-b border-slate-100">
+            <td className="px-3 py-1.5 font-bold text-slate-700 text-xs border border-neutral-300 bg-slate-50">
               Sale Price
             </td>
             {comps.map((comp, i) => (
-              <td key={comp.id} className="p-0 min-w-[7rem] border-b border-slate-100 hover:bg-accent-50/40 transition-colors">
+              <td key={comp.id} className="p-0 min-w-[7rem] border border-neutral-300 hover:bg-slate-50 transition-colors">
                 <EditableCell
                   value={comp.salePrice}
                   formatted={formatCurrency(comp.salePrice, decimals)}
@@ -325,19 +324,19 @@ function HorizontalGrid({
                 />
               </td>
             ))}
-            <td className="border-b border-accent-100 bg-accent-50/30" />
+            <td className="border border-neutral-300 bg-slate-50/60" />
           </tr>
 
           {/* Weight Row */}
           <tr className="group">
-            <td className="px-4 py-2.5 font-semibold text-slate-500 text-[11px] uppercase tracking-widest border-b border-slate-100">
+            <td className="px-3 py-1.5 font-bold text-slate-700 text-xs border border-neutral-300 bg-slate-50">
               Weight
               <WeightWarning totalWeight={totalWeight} decimals={decimals} />
             </td>
             {comps.map((comp, i) => {
               const weightRatio = comp.weight / maxWeight;
               return (
-                <td key={comp.id} className="p-0 min-w-[7rem] relative border-b border-slate-100 hover:bg-accent-50/40 transition-colors">
+                <td key={comp.id} className="p-0 min-w-[7rem] relative border border-neutral-300 hover:bg-slate-50 transition-colors">
                   <WeightBar ratio={weightRatio} direction="vertical" />
                   <div className="relative z-10">
                     <EditableCell
@@ -353,14 +352,14 @@ function HorizontalGrid({
                 </td>
               );
             })}
-            <td className="px-3 py-2.5 text-right tabular-nums font-semibold text-slate-600 border-b border-accent-100 bg-accent-50/30">
+            <td className="px-2 py-1.5 text-right tabular-nums font-semibold text-slate-700 border border-neutral-300 bg-slate-50/60">
               {formatWeight(totalWeight, decimals, weightDisplayFormat)}
             </td>
           </tr>
 
           {/* Contribution Row */}
           <tr className="group">
-            <td className="px-4 py-2.5 font-semibold text-slate-500 text-[11px] uppercase tracking-widest">
+            <td className="px-3 py-1.5 font-bold text-slate-700 text-xs border border-neutral-300 bg-slate-50">
               Contribution
             </td>
             {comps.map((comp) => {
@@ -368,7 +367,7 @@ function HorizontalGrid({
               return (
                 <td
                   key={comp.id}
-                  className="px-3 py-2.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-600"
+                  className="px-2 py-1.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-700 border border-neutral-300"
                 >
                   {weightsValid && comp.salePrice > 0
                     ? formatCurrency(contrib, decimals)
@@ -376,7 +375,7 @@ function HorizontalGrid({
                 </td>
               );
             })}
-            <td className="px-3 py-3 text-right tabular-nums font-bold text-accent-900 bg-gradient-to-b from-accent-50 to-accent-100/60 text-[15px] border-t-2 border-accent-200 rounded-br-xl">
+            <td className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 bg-slate-100 text-sm border-2 border-neutral-400">
               {weightsValid ? formatCurrency(avg, decimals) : "\u2014"}
             </td>
           </tr>

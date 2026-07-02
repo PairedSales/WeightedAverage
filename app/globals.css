@@ -18,43 +18,43 @@
 
 html {
   font-family: var(--font-sans);
-  --wa-bg-start: #e2e8f0;
-  --wa-bg-mid: #f1f5f9;
-  --wa-bg-end: #dbeafe;
+  --wa-bg-start: #f8f8f8;
+  --wa-bg-mid: #f8f8f8;
+  --wa-bg-end: #f8f8f8;
   --wa-surface: #ffffff;
-  --wa-surface-muted: #f8fafc;
-  --wa-surface-strong: #f1f5f9;
-  --wa-border: #e2e8f0;
-  --wa-border-soft: #f1f5f9;
-  --wa-text-primary: #0f172a;
-  --wa-text-secondary: #475569;
-  --wa-text-muted: #94a3b8;
+  --wa-surface-muted: #f5f5f5;
+  --wa-surface-strong: #eeeeee;
+  --wa-border: #d4d4d4;
+  --wa-border-soft: #e5e5e5;
+  --wa-text-primary: #111111;
+  --wa-text-secondary: #333333;
+  --wa-text-muted: #888888;
   --wa-danger-hover-bg: #fef2f2;
   --wa-danger-hover-text: #ef4444;
   --wa-selection-ring: #ffffff;
 }
 
 html[data-theme-mode="dark"] {
-  --wa-bg-start: #020617;
-  --wa-bg-mid: #0f172a;
-  --wa-bg-end: #111827;
-  --wa-surface: #0f172a;
-  --wa-surface-muted: #111827;
-  --wa-surface-strong: #1e293b;
-  --wa-border: #334155;
-  --wa-border-soft: #1e293b;
-  --wa-text-primary: #e2e8f0;
-  --wa-text-secondary: #cbd5e1;
-  --wa-text-muted: #94a3b8;
+  --wa-bg-start: #111111;
+  --wa-bg-mid: #111111;
+  --wa-bg-end: #111111;
+  --wa-surface: #1a1a1a;
+  --wa-surface-muted: #222222;
+  --wa-surface-strong: #2a2a2a;
+  --wa-border: #444444;
+  --wa-border-soft: #333333;
+  --wa-text-primary: #e5e5e5;
+  --wa-text-secondary: #cccccc;
+  --wa-text-muted: #888888;
   --wa-danger-hover-bg: #450a0a;
   --wa-danger-hover-text: #fca5a5;
-  --wa-selection-ring: #0f172a;
+  --wa-selection-ring: #1a1a1a;
 }
 
 html[data-theme-mode="dracula"] {
   --wa-bg-start: #282a36;
   --wa-bg-mid: #282a36;
-  --wa-bg-end: #1f2130;
+  --wa-bg-end: #282a36;
   --wa-surface: #282a36;
   --wa-surface-muted: #343746;
   --wa-surface-strong: #44475a;
@@ -69,7 +69,7 @@ html[data-theme-mode="dracula"] {
 }
 
 body {
-  background-image: linear-gradient(to bottom, var(--wa-bg-start), var(--wa-bg-mid), var(--wa-bg-end));
+  background-color: var(--wa-bg-start);
 }
 
 .app-body {
@@ -94,23 +94,40 @@ body {
   }
 }
 
+/* ── Appraisal form section header ─────────────────────────────── */
+.appraisal-section-header {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 5px 10px;
+  letter-spacing: 0.02em;
+}
+
+html[data-theme-mode="dark"] .appraisal-section-header {
+  background-color: #e5e5e5;
+  color: #111111;
+}
+
+html[data-theme-mode="dracula"] .appraisal-section-header {
+  background-color: #bd93f9;
+  color: #282a36;
+}
+
+/* ── Subtle card entrance ──────────────────────────────────────── */
 @keyframes card-lift-in {
   0% {
-    transform: translateY(16px) scale(0.985);
-    opacity: 0.74;
-  }
-  60% {
-    transform: translateY(-4px) scale(1.005);
-    opacity: 1;
+    opacity: 0.7;
+    transform: translateY(6px);
   }
   100% {
-    transform: translateY(0) scale(1);
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .card-lift-in {
-  animation: card-lift-in 520ms cubic-bezier(0.2, 0.7, 0.1, 1);
+  animation: card-lift-in 320ms ease-out;
   will-change: transform, opacity;
 }
 
@@ -125,6 +142,7 @@ body {
   }
 }
 
+/* ── Dark / Dracula theme overrides ────────────────────────────── */
 html[data-theme-mode="dark"] .bg-white,
 html[data-theme-mode="dracula"] .bg-white {
   background-color: var(--wa-surface) !important;

@@ -432,8 +432,8 @@ export default function WeightedAverageApp() {
   if (!hydrated) {
     return (
       <div className="w-full max-w-4xl mx-auto animate-pulse">
-        <div className="h-10 bg-slate-200/60 rounded-xl w-72 mx-auto mb-8" />
-        <div className="h-72 bg-slate-200/60 rounded-2xl" />
+        <div className="h-8 bg-slate-200/60 w-72 mx-auto mb-6" />
+        <div className="h-56 bg-slate-200/60" />
       </div>
     );
   }
@@ -445,7 +445,7 @@ export default function WeightedAverageApp() {
     <div className="mx-auto w-fit">
       {/* Template Bar Pull-down Tab Indicator */}
       <div 
-        className="fixed top-0 left-1/2 -translate-x-1/2 h-1.5 w-12 bg-slate-300/60 hover:bg-accent-400 rounded-b-full cursor-pointer z-40 transition-all duration-300 opacity-60 hover:opacity-100 shadow-sm"
+        className="fixed top-0 left-1/2 -translate-x-1/2 h-1 w-10 bg-neutral-400/50 hover:bg-neutral-600 cursor-pointer z-40 transition-all duration-300 opacity-60 hover:opacity-100"
         onMouseEnter={() => setTemplateBarVisible(true)}
         title="Hover for Blank Templates"
       />
@@ -454,23 +454,23 @@ export default function WeightedAverageApp() {
       <div
         onMouseEnter={() => setTemplateBarVisible(true)}
         onMouseLeave={() => setTemplateBarVisible(false)}
-        className={`fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-lg transition-all duration-300 z-50 transform flex flex-col md:flex-row md:items-center justify-between gap-3 px-6 py-3.5 ${
+        className={`fixed top-0 left-0 right-0 bg-white border-b border-neutral-300 shadow-sm transition-all duration-300 z-50 transform flex flex-col md:flex-row md:items-center justify-between gap-2 px-4 py-2.5 ${
           templateBarVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         }`}
       >
-        <div className="flex items-center gap-2.5">
-          <div className="p-1.5 bg-accent-50 rounded-lg text-accent-600">
+        <div className="flex items-center gap-2">
+          <div className="p-1 bg-neutral-100 text-neutral-700">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
               <path fillRule="evenodd" d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3Zm2 1h8v1.5H4V4Zm8 3H4v1.5h8V7Zm-8 3h8v1.5H4V10Z" clipRule="evenodd" />
             </svg>
           </div>
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">Blank Templates</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wide text-slate-800">Blank Templates</h4>
             <p className="text-[11px] text-slate-500">Weights are divided evenly (using fractions for decimals)</p>
           </div>
         </div>
         
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((count) => {
             const hasDecimal = (100 % count) !== 0;
             const displayLabel = hasDecimal ? `1/${count}` : `${100 / count}%`;
@@ -479,51 +479,49 @@ export default function WeightedAverageApp() {
                 key={count}
                 type="button"
                 onClick={() => handleSelectBlankTemplate(count)}
-                className="group px-3 py-1 text-xs font-semibold rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:bg-accent-50 hover:border-accent-200 hover:text-accent-700 transition-all duration-150 cursor-pointer shadow-sm flex flex-col items-center min-w-[72px]"
+                className="group px-2.5 py-1 text-xs font-semibold border border-neutral-300 text-slate-700 bg-white hover:bg-neutral-800 hover:text-white hover:border-neutral-800 transition-all duration-150 cursor-pointer flex flex-col items-center min-w-[68px]"
               >
                 <span>{count} Comps</span>
-                <span className="text-[9px] text-slate-400 group-hover:text-accent-500 font-normal">{displayLabel} each</span>
+                <span className="text-[9px] text-slate-400 group-hover:text-neutral-300 font-normal">{displayLabel} each</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Toolbar above card — same width as card, groups centered */}
+      {/* Toolbar above card */}
       <div className="flex flex-col items-center w-full">
         <div className="w-fit mx-auto flex flex-col items-stretch">
           {/* Tool toggle | Copy | Save — centered to card */}
           <div
-            className="mb-4 w-full flex flex-wrap items-center justify-center gap-2 px-1"
+            className="mb-3 w-full flex flex-wrap items-center justify-center gap-1.5 px-1"
             data-exclude-export
           >
             <button
               type="button"
               onClick={handleToolToggle}
-              className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer bg-white text-slate-700 border border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="w-4 h-4"
+                className="w-3.5 h-3.5"
               >
                 <path d="M8 2.25a5.75 5.75 0 0 0-5.18 3.25h1.43a.75.75 0 0 1 0 1.5H1.5a.75.75 0 0 1-.75-.75V3.5a.75.75 0 0 1 1.5 0v1.19A7.25 7.25 0 0 1 15.25 8a.75.75 0 0 1-1.5 0A5.75 5.75 0 0 0 8 2.25Z" />
                 <path d="M14.5 9a.75.75 0 0 1 .75.75v2.75a.75.75 0 0 1-1.5 0v-1.19A7.25 7.25 0 0 1 .75 8a.75.75 0 0 1 1.5 0A5.75 5.75 0 0 0 8 13.75a5.75 5.75 0 0 0 5.18-3.25H11.75a.75.75 0 0 1 0-1.5h2.75Z" />
               </svg>
-              <span className="text-xs font-semibold">
-                {activeTool === "sensitivityAnalysis" ? "Sensitivity Analysis" : "Weighted Average"}
-              </span>
+              {activeTool === "sensitivityAnalysis" ? "Sensitivity Analysis" : "Weighted Average"}
             </button>
 
             <button
               type="button"
               onClick={undo}
               disabled={!canUndo}
-              className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer border ${
                 canUndo
-                  ? "bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
-                  : "bg-slate-50/50 text-slate-300 border border-slate-200/40 cursor-not-allowed"
+                  ? "bg-white text-slate-700 border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
+                  : "bg-slate-50 text-slate-300 border-neutral-200 cursor-not-allowed"
               }`}
               title="Undo last change (Ctrl+Z)"
             >
@@ -531,21 +529,21 @@ export default function WeightedAverageApp() {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="w-4 h-4"
+                className="w-3.5 h-3.5"
               >
                 <path fillRule="evenodd" d="M12.5 9.75A2.75 2.75 0 0 0 9.75 7H4.56l2.22 2.22a.75.75 0 1 1-1.06 1.06l-3.5-3.5a.75.75 0 0 1 0-1.06l3.5-3.5a.75.75 0 0 1 1.06 1.06L4.56 5.5h5.19a4.25 4.25 0 0 1 4.25 4.25v1.5a.75.75 0 0 1-1.5 0v-1.5Z" clipRule="evenodd" />
               </svg>
-              <span className="text-xs font-semibold">Undo</span>
+              Undo
             </button>
 
             <button
               type="button"
               onClick={redo}
               disabled={!canRedo}
-              className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer border ${
                 canRedo
-                  ? "bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
-                  : "bg-slate-50/50 text-slate-300 border border-slate-200/40 cursor-not-allowed"
+                  ? "bg-white text-slate-700 border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
+                  : "bg-slate-50 text-slate-300 border-neutral-200 cursor-not-allowed"
               }`}
               title="Redo last change (Ctrl+Y)"
             >
@@ -553,11 +551,11 @@ export default function WeightedAverageApp() {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="w-4 h-4"
+                className="w-3.5 h-3.5"
               >
                 <path fillRule="evenodd" d="M3.5 9.75A2.75 2.75 0 0 1 6.25 7h5.19l-2.22 2.22a.75.75 0 1 0 1.06 1.06l3.5-3.5a.75.75 0 0 0 0-1.06l-3.5-3.5a.75.75 0 1 0-1.06 1.06l2.22 2.22H6.25A4.25 4.25 0 0 0 2 9.75v1.5a.75.75 0 0 0 1.5 0v-1.5Z" clipRule="evenodd" />
               </svg>
-              <span className="text-xs font-semibold">Redo</span>
+              Redo
             </button>
 
             <button
@@ -566,17 +564,17 @@ export default function WeightedAverageApp() {
               onClick={handleCopy}
               disabled={copyStatus === "copying"}
               title={copyDetail || undefined}
-              className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer border ${
                 copyStatus === "done"
-                  ? "bg-emerald-500 text-white shadow-sm shadow-emerald-200"
+                  ? "bg-emerald-600 text-white border-emerald-600"
                   : copyStatus === "error"
-                  ? "bg-red-500 text-white"
-                  : "bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
+                  ? "bg-red-600 text-white border-red-600"
+                  : "bg-white text-slate-700 border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
               }`}
             >
               {copyStatus === "copying" ? (
                 <>
-                  <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
@@ -584,7 +582,7 @@ export default function WeightedAverageApp() {
                 </>
               ) : copyStatus === "done" ? (
                 <>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
                     <path fillRule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clipRule="evenodd" />
                   </svg>
                   Copied!
@@ -593,7 +591,7 @@ export default function WeightedAverageApp() {
                 <span className="max-w-[10rem] truncate">{copyDetail ? "Failed — see below" : "Failed"}</span>
               ) : (
                 <>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
                     <path d="M5.5 3.5A1.5 1.5 0 0 1 7 2h5.5a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 12.5 12H7a1.5 1.5 0 0 1-1.5-1.5v-7Z" />
                     <path d="M3 5.5A1.5 1.5 0 0 1 4.5 4H5v6.5A2.5 2.5 0 0 0 7.5 13H11v.5A1.5 1.5 0 0 1 9.5 15H4a2 2 0 0 1-2-2V7a1.5 1.5 0 0 1 1-1.415V5.5Z" />
                   </svg>
@@ -604,12 +602,12 @@ export default function WeightedAverageApp() {
 
             <div className="relative" ref={saveMenuRef}>
               <div
-                className={`flex items-stretch overflow-hidden rounded-xl transition-all duration-200 ${
+                className={`flex items-stretch overflow-hidden transition-all duration-150 ${
                   saveStatus === "done"
-                    ? "bg-emerald-500 text-white shadow-sm shadow-emerald-200"
+                    ? "bg-emerald-600 text-white border border-emerald-600"
                     : saveStatus === "error"
-                    ? "bg-red-500 text-white"
-                    : "bg-accent-600 text-white hover:bg-accent-700 shadow-sm shadow-accent-200"
+                    ? "bg-red-600 text-white border border-red-600"
+                    : "bg-neutral-800 text-white border border-neutral-800 hover:bg-neutral-700"
                 }`}
               >
                 <button
@@ -618,11 +616,11 @@ export default function WeightedAverageApp() {
                   onClick={handleSave}
                   disabled={saveStatus === "saving"}
                   title={saveDetail || saveInfo || undefined}
-                  className="flex items-center gap-1.5 text-sm font-medium pl-3.5 pr-3 py-2 cursor-pointer disabled:cursor-not-allowed"
+                  className="flex items-center gap-1 text-xs font-semibold pl-3 pr-2.5 py-1.5 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {saveStatus === "saving" ? (
                     <>
-                      <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
@@ -630,7 +628,7 @@ export default function WeightedAverageApp() {
                     </>
                   ) : saveStatus === "done" ? (
                     <>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
                         <path fillRule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clipRule="evenodd" />
                       </svg>
                       Saved!
@@ -639,7 +637,7 @@ export default function WeightedAverageApp() {
                     <span className="max-w-[10rem] truncate">{saveDetail ? "Failed — see below" : "Failed"}</span>
                   ) : (
                     <>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
                         <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z" />
                         <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
                       </svg>
@@ -654,23 +652,23 @@ export default function WeightedAverageApp() {
                   aria-label="Save options"
                   aria-expanded={isSaveMenuOpen}
                   onClick={() => setIsSaveMenuOpen((open) => !open)}
-                  className="px-2.5 border-l border-white/25 hover:bg-white/10"
+                  className="px-2 border-l border-white/25 hover:bg-white/10"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
                     <path fillRule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                   </svg>
                 </button>
               </div>
 
               {isSaveMenuOpen && (
-                <div className="absolute right-0 top-[calc(100%+0.5rem)] min-w-48 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-lg z-20">
+                <div className="absolute right-0 top-[calc(100%+0.25rem)] min-w-48 border border-neutral-300 bg-white px-3 py-2 shadow-sm z-20">
                   <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
                     <input
                       type="checkbox"
                       tabIndex={-1}
                       checked={rememberLocation}
                       onChange={(e) => toggleRemember(e.target.checked)}
-                      className="rounded border-slate-300 text-accent-600 focus:ring-accent-500 w-3.5 h-3.5 cursor-pointer"
+                      className="border-slate-400 text-neutral-800 focus:ring-slate-500 w-3.5 h-3.5 cursor-pointer"
                     />
                     Remember directory
                   </label>
@@ -683,10 +681,10 @@ export default function WeightedAverageApp() {
               tabIndex={-1}
               onClick={() => setOptionsOpen((open) => !open)}
               aria-expanded={optionsOpen}
-              className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm shrink-0"
+              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer bg-white text-slate-700 border border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800 shrink-0"
               title="App options"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
                 <path
                   fillRule="evenodd"
                   d="M9.045 1.29a.75.75 0 0 0-1.09 0L7.5 1.79a.75.75 0 0 1-.73.2l-.632-.174a.75.75 0 0 0-.89.513l-.19.642a.75.75 0 0 1-.53.53l-.641.19a.75.75 0 0 0-.514.89l.174.631a.75.75 0 0 1-.2.73l-.499.456a.75.75 0 0 0 0 1.09l.499.455a.75.75 0 0 1 .2.731l-.174.632a.75.75 0 0 0 .514.89l.641.19a.75.75 0 0 1 .53.53l.19.641a.75.75 0 0 0 .89.514l.632-.174a.75.75 0 0 1 .73.2l.455.499a.75.75 0 0 0 1.09 0l.456-.499a.75.75 0 0 1 .73-.2l.631.174a.75.75 0 0 0 .89-.514l.19-.641a.75.75 0 0 1 .53-.53l.642-.19a.75.75 0 0 0 .513-.89l-.174-.632a.75.75 0 0 1 .2-.73l.499-.456a.75.75 0 0 0 0-1.09l-.499-.455a.75.75 0 0 1-.2-.73l.174-.632a.75.75 0 0 0-.513-.89l-.642-.19a.75.75 0 0 1-.53-.53l-.19-.642a.75.75 0 0 0-.89-.513l-.631.174a.75.75 0 0 1-.73-.2l-.456-.5ZM8.5 10.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"
@@ -700,10 +698,10 @@ export default function WeightedAverageApp() {
               type="button"
               tabIndex={-1}
               onClick={handleClear}
-              className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer bg-white text-slate-600 border border-slate-200/80 hover:border-slate-300 hover:text-slate-800 shadow-sm"
+              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer bg-white text-slate-700 border border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
               title="Clear table data"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
                 <path
                   fillRule="evenodd"
                   d="M5 1.75A1.75 1.75 0 0 0 3.25 3.5v.75h-.5a.75.75 0 0 0 0 1.5h.638l.548 7.119A1.75 1.75 0 0 0 5.68 14.5h4.64a1.75 1.75 0 0 0 1.744-1.631l.548-7.119h.638a.75.75 0 0 0 0-1.5h-.5V3.5A1.75 1.75 0 0 0 11 1.75H5ZM11.25 4.25V3.5a.25.25 0 0 0-.25-.25H5a.25.25 0 0 0-.25.25v.75h6.5Z"
@@ -733,21 +731,21 @@ export default function WeightedAverageApp() {
 
           <div className="flex w-full flex-col items-center gap-3">
             <section
-              className={`flex w-full flex-col items-center rounded-2xl transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
+              className={`flex w-full flex-col items-center transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
                 activeTool === "weightedAverage" ? "order-1" : "order-2"
               } ${toolSwapPulse === "weightedAverage" ? "card-lift-in" : ""}`}
               data-exclude-export={activeTool !== "weightedAverage" ? true : undefined}
             >
-              <div className="mx-auto w-fit rounded-2xl border border-slate-200/60 bg-white shadow-xl shadow-slate-900/[0.04]">
+              <div className="mx-auto w-fit border border-neutral-300 bg-white shadow-sm">
                 {/* Exportable area */}
-                <div className="bg-white rounded-2xl px-5 py-3 flex flex-col gap-2.5">
+                <div className="bg-white px-4 py-3 flex flex-col gap-2">
                   {state.showTitle && (
                     <input
                       type="text"
                       value={state.title}
                       onChange={(e) => setTitle(e.target.value)}
                       tabIndex={-1}
-                      className="block w-full text-center text-xl font-bold leading-tight text-slate-800 bg-transparent outline-none focus:ring-2 focus:ring-accent-300/50 rounded-lg px-3 py-1 border-0 placeholder:text-slate-300"
+                      className="block w-full text-center text-lg font-bold leading-tight text-slate-800 bg-transparent outline-none focus:ring-1 focus:ring-slate-400 px-2 py-1 border-0 placeholder:text-slate-300"
                       spellCheck={false}
                       placeholder="Enter title..."
                     />

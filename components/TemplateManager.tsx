@@ -29,12 +29,12 @@ export default function TemplateManager({
   };
 
   return (
-    <div className="space-y-3">
-      <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
+    <div className="space-y-2">
+      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">
         Templates
       </p>
 
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         <input
           type="text"
           tabIndex={-1}
@@ -42,14 +42,14 @@ export default function TemplateManager({
           onChange={(e) => setSaveName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSave()}
           placeholder="Template name..."
-          className="flex-1 min-w-0 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-400/40 focus:border-accent-300 transition-colors placeholder:text-slate-400"
+          className="flex-1 min-w-0 text-sm bg-white border border-neutral-300 px-2 py-1.5 focus:outline-none focus:border-slate-500 transition-colors placeholder:text-slate-400"
         />
         <button
           type="button"
           tabIndex={-1}
           onClick={handleSave}
           disabled={!saveName.trim()}
-          className="text-sm font-medium px-4 py-2 rounded-lg bg-accent-600 text-white hover:bg-accent-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          className="text-sm font-semibold px-3 py-1.5 bg-neutral-800 text-white hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
         >
           Save
         </button>
@@ -58,17 +58,17 @@ export default function TemplateManager({
       {templates.length === 0 ? (
         <p className="text-xs text-slate-400 italic py-1">No saved templates</p>
       ) : (
-        <ul className="space-y-1 max-h-48 overflow-y-auto">
+        <ul className="space-y-0.5 max-h-48 overflow-y-auto">
           {templates.map((t) => (
             <li
               key={t.id}
-              className="flex items-center gap-2 text-sm px-2.5 py-2 rounded-lg hover:bg-slate-50 group transition-colors"
+              className="flex items-center gap-2 text-sm px-2 py-1.5 hover:bg-slate-50 group transition-colors border border-transparent hover:border-neutral-200"
             >
               <button
                 type="button"
                 tabIndex={-1}
                 onClick={() => onLoad(t)}
-                className="flex-1 text-left text-slate-700 truncate hover:text-accent-600 transition-colors cursor-pointer"
+                className="flex-1 text-left text-slate-700 truncate hover:text-slate-900 transition-colors cursor-pointer"
                 title={`Load "${t.name}"`}
               >
                 {t.name}
@@ -85,7 +85,7 @@ export default function TemplateManager({
                       onDelete(t.id);
                       setConfirmDeleteId(null);
                     }}
-                    className="text-[10px] px-2 py-0.5 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer"
+                    className="text-[10px] px-2 py-0.5 bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer"
                   >
                     Yes
                   </button>
@@ -93,7 +93,7 @@ export default function TemplateManager({
                     type="button"
                     tabIndex={-1}
                     onClick={() => setConfirmDeleteId(null)}
-                    className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                    className="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
                   >
                     No
                   </button>
@@ -103,7 +103,7 @@ export default function TemplateManager({
                   type="button"
                   tabIndex={-1}
                   onClick={() => setConfirmDeleteId(t.id)}
-                  className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-all shrink-0 cursor-pointer"
+                  className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shrink-0 cursor-pointer"
                   title="Delete"
                 >
                   <svg

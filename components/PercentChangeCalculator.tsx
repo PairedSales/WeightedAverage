@@ -58,40 +58,40 @@ export default function PercentChangeCalculator() {
 
   return (
     <div
-      className="mt-3 w-fit max-w-full self-center rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm"
+      className="mt-3 w-fit max-w-full self-center border border-neutral-300 bg-white p-0"
       data-exclude-export
     >
-      <div>
-        <h3 className="text-sm font-semibold text-slate-800">% Change Calculator</h3>
-        <p className="text-xs text-slate-500">Quickly compute percent increase/decrease between two values.</p>
-      </div>
+      <div className="appraisal-section-header">% Change Calculator</div>
+      <div className="px-3 py-3">
+        <p className="text-xs text-slate-500 mb-3">Quickly compute percent increase/decrease between two values.</p>
 
-      <div className="mt-3 flex flex-wrap items-end gap-2">
-        <label className="text-xs text-slate-600">
-          Starting value
-          <input
-            type="text"
-            value={fromValue}
-            onChange={(e) => setFromValue(formatNumberInput(e.target.value))}
-            placeholder="e.g., 250000"
-            className="mt-1 block w-32 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-accent-500 focus:outline-none"
-          />
-        </label>
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="text-xs text-slate-700 font-medium">
+            Starting value
+            <input
+              type="text"
+              value={fromValue}
+              onChange={(e) => setFromValue(formatNumberInput(e.target.value))}
+              placeholder="e.g., 250000"
+              className="mt-1 block w-32 border border-neutral-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none"
+            />
+          </label>
 
-        <label className="text-xs text-slate-600">
-          Ending value
-          <input
-            type="text"
-            value={toValue}
-            onChange={(e) => setToValue(formatNumberInput(e.target.value))}
-            placeholder="e.g., 275000"
-            className="mt-1 block w-32 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-accent-500 focus:outline-none"
-          />
-        </label>
+          <label className="text-xs text-slate-700 font-medium">
+            Ending value
+            <input
+              type="text"
+              value={toValue}
+              onChange={(e) => setToValue(formatNumberInput(e.target.value))}
+              placeholder="e.g., 275000"
+              className="mt-1 block w-32 border border-neutral-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none"
+            />
+          </label>
 
-        <div className="min-w-36 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-          <div className="text-[11px] uppercase tracking-wide text-slate-500">Result</div>
-          <div className={`text-sm font-semibold ${resultClass}`}>{resultText}</div>
+          <div className="min-w-36 border border-neutral-300 bg-slate-50 px-3 py-1.5">
+            <div className="text-[11px] uppercase tracking-wide text-slate-500 font-semibold">Result</div>
+            <div className={`text-sm font-bold ${resultClass}`}>{resultText}</div>
+          </div>
         </div>
       </div>
     </div>

@@ -145,7 +145,7 @@ export default function EditableCell({
         onBlur={commit}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className={`${widthClass} outline-none tabular-nums font-medium px-3 py-2.5 ${textAlign} bg-accent-50/60 ring-2 ring-accent-400/50 rounded-sm ${className}`}
+        className={`${widthClass} outline-none tabular-nums font-medium px-2 py-1.5 ${textAlign} bg-blue-50 ring-1 ring-slate-400 ${className}`}
       />
     );
   }
@@ -156,7 +156,7 @@ export default function EditableCell({
       onFocus={startEditing}
       tabIndex={tabIndex}
       role="textbox"
-      className={`${widthClass} outline-none focus-visible:ring-2 focus-visible:ring-accent-400/50 focus-visible:ring-inset rounded-sm tabular-nums font-medium px-3 py-2.5 cursor-text ${textAlign} ${
+      className={`${widthClass} outline-none focus-visible:ring-1 focus-visible:ring-slate-400 focus-visible:ring-inset tabular-nums font-medium px-2 py-1.5 cursor-text ${textAlign} ${
         isEmpty ? "text-slate-400 italic" : "text-slate-800"
       } ${className}`}
     >
