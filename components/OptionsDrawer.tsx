@@ -1,7 +1,6 @@
 "use client";
 
 import type { AppState, DecimalPrecision, LayoutMode, Template, WeightDisplayFormat } from "@/lib/types";
-import { themePresets, type ThemeState } from "@/lib/themes";
 import TemplateManager from "./TemplateManager";
 
 interface OptionsDrawerProps {
@@ -19,8 +18,6 @@ interface OptionsDrawerProps {
   onLoadTemplate: (template: Template) => void;
   onDeleteTemplate: (id: string) => void;
   currentState: AppState;
-  themeState: ThemeState;
-  onThemeChange: (theme: ThemeState) => void;
 }
 
 export default function OptionsDrawer({
@@ -38,14 +35,7 @@ export default function OptionsDrawer({
   onLoadTemplate,
   onDeleteTemplate,
   currentState,
-  themeState,
-  onThemeChange,
 }: OptionsDrawerProps) {
-  const themeModes: Array<{ id: ThemeState["mode"]; label: string }> = [
-    { id: "light", label: "Light" },
-    { id: "dark", label: "Dark" },
-    { id: "dracula", label: "Dracula" },
-  ];
 
   return (
     <div
@@ -118,84 +108,7 @@ export default function OptionsDrawer({
               </div>
             </div>
 
-            <div className="min-w-[200px]">
-              <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
-                Theme
-              </p>
-              <div className="flex border border-neutral-300 mb-2">
-                {themeModes.map((mode) => {
-                  const active = themeState.mode === mode.id;
-                  return (
-                    <button
-                      key={mode.id}
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => onThemeChange({ ...themeState, mode: mode.id })}
-                      className={`flex-1 py-1 px-2 text-sm font-medium transition-all duration-150 cursor-pointer border-r border-neutral-300 last:border-r-0 ${
-                        active
-                          ? "bg-neutral-800 text-white"
-                          : "bg-white text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {mode.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="flex items-center gap-2">
-                {themePresets.map((preset) => {
-                  const isSelected = themeState.preset === preset.id;
-                  return (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => onThemeChange({ mode: themeState.mode, preset: preset.id, customColor: themeState.customColor })}
-                      className={`w-6 h-6 rounded-full transition-all duration-200 cursor-pointer ${
-                        isSelected ? "scale-110" : "hover:scale-105"
-                      }`}
-                      style={{
-                        backgroundColor: preset.swatch,
-                        boxShadow: isSelected
-                          ? `0 0 0 2px var(--wa-selection-ring), 0 0 0 4px ${preset.swatch}`
-                          : "none",
-                      }}
-                      title={preset.name}
-                      aria-label={`${preset.name} theme`}
-                    />
-                  );
-                })}
 
-                <label
-                  className={`w-6 h-6 rounded-full cursor-pointer relative flex items-center justify-center transition-all duration-200 overflow-hidden ${
-                    themeState.preset === "custom" ? "scale-110" : "hover:scale-105"
-                  }`}
-                  style={{
-                    backgroundColor: themeState.preset === "custom" ? themeState.customColor : undefined,
-                    boxShadow:
-                      themeState.preset === "custom"
-                        ? `0 0 0 2px var(--wa-selection-ring), 0 0 0 4px ${themeState.customColor}`
-                        : "none",
-                    border: themeState.preset !== "custom" ? "2px dashed #94a3b8" : "none",
-                  }}
-                  title="Custom color"
-                  aria-label="Custom theme color"
-                >
-                  {themeState.preset !== "custom" && (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 text-slate-400">
-                      <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
-                    </svg>
-                  )}
-                  <input
-                    type="color"
-                    tabIndex={-1}
-                    value={themeState.customColor}
-                    onChange={(e) => onThemeChange({ mode: themeState.mode, preset: "custom", customColor: e.target.value })}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
-                </label>
-              </div>
-            </div>
 
             <div className="min-w-[180px]">
               <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">

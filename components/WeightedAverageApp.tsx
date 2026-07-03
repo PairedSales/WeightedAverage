@@ -7,14 +7,7 @@ import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib
 import { useAutoSave, loadSavedState } from "@/hooks/useAutoSave";
 import { useTemplates } from "@/hooks/useTemplates";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
-import {
-  type ThemeState,
-  loadThemeState,
-  saveThemeState,
-  applyThemeColors,
-  applyThemeMode,
-  getThemeColors,
-} from "@/lib/themes";
+
 import SpreadsheetGrid from "./SpreadsheetGrid";
 import OptionsDrawer from "./OptionsDrawer";
 import PercentChangeCalculator from "./PercentChangeCalculator";
@@ -117,11 +110,7 @@ export default function WeightedAverageApp() {
   const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
   const [toolSwapPulse, setToolSwapPulse] = useState<ActiveTool | null>(null);
   const [templateBarVisible, setTemplateBarVisible] = useState(false);
-  const [themeState, setThemeState] = useState<ThemeState>({
-    mode: "light",
-    preset: "blue",
-    customColor: "#8B5CF6",
-  });
+
   const weightedAverageChartRef = useRef<HTMLDivElement>(null);
   const sensitivityChartRef = useRef<HTMLDivElement>(null);
   const saveMenuRef = useRef<HTMLDivElement>(null);
@@ -131,10 +120,7 @@ export default function WeightedAverageApp() {
     resetState(saved ? normalizeState(saved) : defaultState());
     setRememberLocationState(getRememberLocation());
 
-    const savedTheme = loadThemeState();
-    setThemeState(savedTheme);
-    applyThemeMode(savedTheme.mode);
-    applyThemeColors(getThemeColors(savedTheme));
+
 
     setHydrated(true);
   }, [resetState]);
@@ -257,12 +243,7 @@ export default function WeightedAverageApp() {
     [getTemplate, setState]
   );
 
-  const handleThemeChange = useCallback((newTheme: ThemeState) => {
-    setThemeState(newTheme);
-    saveThemeState(newTheme);
-    applyThemeMode(newTheme.mode);
-    applyThemeColors(getThemeColors(newTheme));
-  }, []);
+
 
   /** Snapshot the node at click time; after awaits, gridRef.current must not be re-read (race / lost ref). */
   const resolveExportElement = useCallback((): HTMLElement | null => {
@@ -784,8 +765,6 @@ export default function WeightedAverageApp() {
                     onLoadTemplate={handleLoadTemplate}
                     onDeleteTemplate={deleteTemplate}
                     currentState={state}
-                    themeState={themeState}
-                    onThemeChange={handleThemeChange}
                   />
                 </div>
               )}
@@ -825,8 +804,6 @@ export default function WeightedAverageApp() {
                       onLoadTemplate={handleLoadTemplate}
                       onDeleteTemplate={deleteTemplate}
                       currentState={state}
-                      themeState={themeState}
-                      onThemeChange={handleThemeChange}
                     />
                   </div>
                 )}
