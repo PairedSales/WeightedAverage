@@ -1,16 +1,18 @@
 "use client";
 
 import { useRef, useCallback, useEffect, useMemo } from "react";
-import type { AppState, CompSale, DecimalPrecision, LayoutMode, Template, WeightDisplayFormat } from "@/lib/types";
+import type { AppState, CompSale, DecimalPrecision, HistorySnapshot, LayoutMode, Template, WeightDisplayFormat } from "@/lib/types";
 import { copyChartImageToClipboard, type CopyResult } from "@/lib/chartClipboard";
 import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
 import { useAutoSave, loadSavedState } from "@/hooks/useAutoSave";
 import { useTemplates } from "@/hooks/useTemplates";
+import { useHistory } from "@/hooks/useHistory";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 
 import SpreadsheetGrid from "./SpreadsheetGrid";
 import OptionsDrawer from "./OptionsDrawer";
 import PercentChangeCalculator from "./PercentChangeCalculator";
+import HistoryPanel from "./HistoryPanel";
 import { useState } from "react";
 
 function createComp(index: number): CompSale {
@@ -166,6 +168,7 @@ export default function WeightedAverageApp() {
   }, []);
 
   const { templates, saveTemplate, deleteTemplate, getTemplate } = useTemplates();
+  const { history, addSnapshot } = useHistory();
 
   const updateComp = useCallback(
     (id: string, field: "salePrice" | "weight", value: number | string) => {
@@ -237,7 +240,12 @@ export default function WeightedAverageApp() {
     [getTemplate, setState]
   );
 
-
+  const handleLoadHistory = useCallback(
+    (snapshot: HistorySnapshot) => {
+      setState(normalizeState(structuredClone(snapshot.state)));
+    },
+    [setState]
+  );
 
   /** Snapshot the node at click time; after awaits, gridRef.current must not be re-read (race / lost ref). */
   const resolveExportElement = useCallback((): HTMLElement | null => {
@@ -266,6 +274,8 @@ export default function WeightedAverageApp() {
     void copyChartImageToClipboard(el).then((result) => {
       if (!result.ok) {
         setCopyDetail(copyFailureHint(result));
+      } else {
+        addSnapshot(state);
       }
       setCopyStatus(result.ok ? "done" : "error");
       setTimeout(() => {
@@ -273,7 +283,7 @@ export default function WeightedAverageApp() {
         setCopyDetail("");
       }, result.ok ? 2000 : 4000);
     });
-  }, [resolveExportElement]);
+  }, [resolveExportElement, addSnapshot, state]);
 
   const handleSave = useCallback(async () => {
     let el = resolveExportElement();
@@ -712,6 +722,8 @@ export default function WeightedAverageApp() {
                   currentState={state}
                 />
               </div>
+
+              <HistoryPanel history={history} onLoad={handleLoadHistory} />
             </section>
           </div>
         </div>

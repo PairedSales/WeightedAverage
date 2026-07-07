@@ -25,3 +25,10 @@ export interface Template {
   state: AppState;
   createdAt: number;
 }
+
+/** A snapshot of app state taken automatically whenever the user copies the grid. */
+export interface HistorySnapshot {
+  id: string;
+  state: AppState;
+  createdAt: number;
+}
