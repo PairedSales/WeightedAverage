@@ -27,8 +27,15 @@ function createComp(index: number): CompSale {
 }
 
 function normalizeComp(c: CompSale): CompSale {
+  const weight =
+    typeof c.weight === "number" && isFinite(c.weight)
+      ? c.weight
+      : typeof c.weight === "string"
+        ? c.weight
+        : 0;
   return {
     ...c,
+    weight,
     gla: typeof c.gla === "number" && isFinite(c.gla) ? c.gla : 0,
   };
 }
@@ -109,8 +116,9 @@ export default function WeightedAverageApp() {
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
   const [toolSwapPulse, setToolSwapPulse] = useState<ActiveTool | null>(null);
-  const [templateBarVisible, setTemplateBarVisible] = useState(false);
+  const [templateBarHeight, setTemplateBarHeight] = useState(0);
 
+  const templateBarRef = useRef<HTMLDivElement>(null);
   const weightedAverageChartRef = useRef<HTMLDivElement>(null);
   const sensitivityChartRef = useRef<HTMLDivElement>(null);
   const saveMenuRef = useRef<HTMLDivElement>(null);
@@ -158,19 +166,20 @@ export default function WeightedAverageApp() {
   }, []);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (e.clientY < 15) {
-        setTemplateBarVisible(true);
+    const updateHeight = () => {
+      if (templateBarRef.current) {
+        setTemplateBarHeight(templateBarRef.current.offsetHeight);
       }
     };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
   }, []);
 
   const { templates, saveTemplate, deleteTemplate, getTemplate } = useTemplates();
 
   const updateComp = useCallback(
-    (id: string, field: "salePrice" | "weight" | "gla", value: number) => {
+    (id: string, field: "salePrice" | "weight" | "gla", value: number | string) => {
       setState((prev) => ({
         ...prev,
         comps: prev.comps.map((c) =>
@@ -397,18 +406,22 @@ export default function WeightedAverageApp() {
 
   const handleSelectBlankTemplate = useCallback((count: number) => {
     applyBlankTemplate(count);
-    setTemplateBarVisible(false);
   }, [applyBlankTemplate]);
 
+  const activateTool = useCallback((tool: ActiveTool) => {
+    setActiveTool((current) => {
+      if (current === tool) return current;
+      setToolSwapPulse(tool);
+      window.setTimeout(() => {
+        setToolSwapPulse((c) => (c === tool ? null : c));
+      }, 520);
+      return tool;
+    });
+  }, []);
+
   const handleToolToggle = useCallback(() => {
-    const nextTool: ActiveTool =
-      activeTool === "weightedAverage" ? "sensitivityAnalysis" : "weightedAverage";
-    setActiveTool(nextTool);
-    setToolSwapPulse(nextTool);
-    window.setTimeout(() => {
-      setToolSwapPulse((current) => (current === nextTool ? null : current));
-    }, 520);
-  }, [activeTool]);
+    activateTool(activeTool === "weightedAverage" ? "sensitivityAnalysis" : "weightedAverage");
+  }, [activeTool, activateTool]);
 
   if (!hydrated) {
     return (
@@ -423,21 +436,11 @@ export default function WeightedAverageApp() {
   const copyTabIndex = 2 * state.comps.length + 1;
 
   return (
-    <div className="mx-auto w-fit">
-      {/* Template Bar Pull-down Tab Indicator */}
-      <div 
-        className="fixed top-0 left-1/2 -translate-x-1/2 h-1 w-10 bg-neutral-400/50 hover:bg-neutral-600 cursor-pointer z-40 transition-all duration-300 opacity-60 hover:opacity-100"
-        onMouseEnter={() => setTemplateBarVisible(true)}
-        title="Hover for Blank Templates"
-      />
-
+    <div className="mx-auto w-fit" style={{ paddingTop: templateBarHeight }}>
       {/* Template Bar */}
       <div
-        onMouseEnter={() => setTemplateBarVisible(true)}
-        onMouseLeave={() => setTemplateBarVisible(false)}
-        className={`fixed top-0 left-0 right-0 bg-white border-b border-neutral-300 shadow-sm transition-all duration-300 z-50 transform flex flex-col md:flex-row md:items-center justify-between gap-2 px-4 py-2.5 ${
-          templateBarVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
-        }`}
+        ref={templateBarRef}
+        className="fixed top-0 left-0 right-0 bg-white border-b border-neutral-300 shadow-sm z-50 flex flex-col md:flex-row md:items-center justify-between gap-2 px-4 py-2.5"
       >
         <div className="flex items-center gap-2">
           <div className="p-1 bg-neutral-100 text-neutral-700">
@@ -468,6 +471,8 @@ export default function WeightedAverageApp() {
             );
           })}
         </div>
+
+        <PercentChangeCalculator compact />
       </div>
 
       {/* Toolbar above card */}
@@ -710,12 +715,14 @@ export default function WeightedAverageApp() {
             </p>
           )}
 
-          <div className="flex w-full flex-col items-center gap-3">
+          <div className="flex w-full flex-col items-center gap-10">
             <section
               className={`flex w-full flex-col items-center transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
                 activeTool === "weightedAverage" ? "order-1" : "order-2"
               } ${toolSwapPulse === "weightedAverage" ? "card-lift-in" : ""}`}
               data-exclude-export={activeTool !== "weightedAverage" ? true : undefined}
+              onFocusCapture={() => activateTool("weightedAverage")}
+              onMouseDownCapture={() => activateTool("weightedAverage")}
             >
               <div className="mx-auto w-fit border border-neutral-300 bg-white shadow-sm">
                 {/* Exportable area */}
@@ -746,8 +753,6 @@ export default function WeightedAverageApp() {
                 </div>
               </div>
 
-              <PercentChangeCalculator />
-
               {activeTool === "weightedAverage" && (
                 <div className="mt-3 w-full max-w-4xl" data-exclude-export>
                   <OptionsDrawer
@@ -775,6 +780,8 @@ export default function WeightedAverageApp() {
                 activeTool === "sensitivityAnalysis" ? "order-1" : "order-2"
               } ${toolSwapPulse === "sensitivityAnalysis" ? "card-lift-in" : ""}`}
               data-exclude-export
+              onFocusCapture={() => activateTool("sensitivityAnalysis")}
+              onMouseDownCapture={() => activateTool("sensitivityAnalysis")}
             >
               <div className="flex w-full max-w-4xl flex-col items-center">
                 <SensitivityAnalysisTool

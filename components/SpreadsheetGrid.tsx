@@ -2,7 +2,7 @@
 
 import type { RefObject } from "react";
 import type { CompSale, DecimalPrecision, LayoutMode, WeightDisplayFormat } from "@/lib/types";
-import { sumWeights, contribution, weightedAverage } from "@/lib/calculations";
+import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/calculations";
 import { formatCurrency, formatPercent, formatWeight } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
 import WeightBar from "./WeightBar";
@@ -13,7 +13,7 @@ interface SpreadsheetGridProps {
   layout: LayoutMode;
   weightDisplayFormat: WeightDisplayFormat;
   gridExportRef?: RefObject<HTMLDivElement | null>;
-  onUpdateComp: (id: string, field: "salePrice" | "weight", value: number) => void;
+  onUpdateComp: (id: string, field: "salePrice" | "weight", value: number | string) => void;
   onAddComp: () => void;
   onRemoveComp: (id: string) => void;
   onWeightDisplayFormatChange?: (format: WeightDisplayFormat) => void;
@@ -32,7 +32,7 @@ export default function SpreadsheetGrid({
 }: SpreadsheetGridProps) {
   const totalWeight = sumWeights(comps);
   const avg = weightedAverage(comps);
-  const maxWeight = Math.max(...comps.map((c) => c.weight), 1);
+  const maxWeight = Math.max(...comps.map((c) => numericWeight(c)), 1);
   const canAdd = comps.length < 12;
   const canRemove = comps.length > 3;
   const weightsValid = totalWeight > 0;
@@ -89,7 +89,7 @@ interface GridInternalProps {
   canAdd: boolean;
   canRemove: boolean;
   gridExportRef?: RefObject<HTMLDivElement | null>;
-  onUpdateComp: (id: string, field: "salePrice" | "weight", value: number) => void;
+  onUpdateComp: (id: string, field: "salePrice" | "weight", value: number | string) => void;
   onAddComp: () => void;
   onRemoveComp: (id: string) => void;
   onWeightDisplayFormatChange?: (format: WeightDisplayFormat) => void;
@@ -187,7 +187,8 @@ function VerticalGrid({
         <tbody>
           {comps.map((comp, i) => {
             const contrib = contribution(comp, totalWeight);
-            const weightRatio = comp.weight / maxWeight;
+            const isTextWeight = typeof comp.weight === "string";
+            const weightRatio = numericWeight(comp) / maxWeight;
             return (
               <tr
                 key={comp.id}
@@ -211,17 +212,18 @@ function VerticalGrid({
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
-                      formatted={formatWeight(comp.weight, decimals, weightDisplayFormat)}
+                      formatted={isTextWeight ? (comp.weight as string) : formatWeight(comp.weight as number, decimals, weightDisplayFormat)}
                       onChange={(v) => onUpdateComp(comp.id, "weight", v)}
                       type="percent"
                       placeholder="0%"
                       tabIndex={n + i + 1}
                       onFormatChange={onWeightDisplayFormatChange}
+                      allowText
                     />
                   </div>
                 </td>
                 <td className="px-2 py-1.5 text-right tabular-nums font-medium text-slate-700 border border-neutral-300">
-                  {weightsValid && comp.salePrice > 0
+                  {weightsValid && comp.salePrice > 0 && !isTextWeight
                     ? formatCurrency(contrib, decimals)
                     : "\u2014"}
                 </td>
@@ -334,19 +336,21 @@ function HorizontalGrid({
               <WeightWarning totalWeight={totalWeight} decimals={decimals} />
             </td>
             {comps.map((comp, i) => {
-              const weightRatio = comp.weight / maxWeight;
+              const isTextWeight = typeof comp.weight === "string";
+              const weightRatio = numericWeight(comp) / maxWeight;
               return (
                 <td key={comp.id} className="p-0 min-w-[7rem] relative border border-neutral-300 hover:bg-slate-50 transition-colors">
                   <WeightBar ratio={weightRatio} direction="vertical" />
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
-                      formatted={formatWeight(comp.weight, decimals, weightDisplayFormat)}
+                      formatted={isTextWeight ? (comp.weight as string) : formatWeight(comp.weight as number, decimals, weightDisplayFormat)}
                       onChange={(v) => onUpdateComp(comp.id, "weight", v)}
                       type="percent"
                       placeholder="0%"
                       tabIndex={n + i + 1}
                       onFormatChange={onWeightDisplayFormatChange}
+                      allowText
                     />
                   </div>
                 </td>
@@ -364,12 +368,13 @@ function HorizontalGrid({
             </td>
             {comps.map((comp) => {
               const contrib = contribution(comp, totalWeight);
+              const isTextWeight = typeof comp.weight === "string";
               return (
                 <td
                   key={comp.id}
                   className="px-2 py-1.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-700 border border-neutral-300"
                 >
-                  {weightsValid && comp.salePrice > 0
+                  {weightsValid && comp.salePrice > 0 && !isTextWeight
                     ? formatCurrency(contrib, decimals)
                     : "\u2014"}
                 </td>

@@ -16,7 +16,11 @@ function formatSignedPercent(value: number): string {
   return "0%";
 }
 
-export default function PercentChangeCalculator() {
+interface PercentChangeCalculatorProps {
+  compact?: boolean;
+}
+
+export default function PercentChangeCalculator({ compact = false }: PercentChangeCalculatorProps) {
   const [fromValue, setFromValue] = useState("");
   const [toValue, setToValue] = useState("");
 
@@ -45,15 +49,48 @@ export default function PercentChangeCalculator() {
 
   const percentChange = canCalculate ? ((parsedTo - parsedFrom) / Math.abs(parsedFrom)) * 100 : null;
 
-  let resultText = "Enter starting and ending values.";
+  let resultText = compact ? "—" : "Enter starting and ending values.";
   let resultClass = "text-slate-600";
 
   if (isFromValid && Math.abs(parsedFrom) === 0) {
-    resultText = "Starting value must be non-zero.";
+    resultText = compact ? "Start ≠ 0" : "Starting value must be non-zero.";
     resultClass = "text-amber-700";
   } else if (canCalculate && percentChange !== null) {
     resultText = formatSignedPercent(percentChange);
     resultClass = percentChange >= 0 ? "text-emerald-700" : "text-rose-700";
+  }
+
+  if (compact) {
+    return (
+      <div className="flex items-end gap-1.5" data-exclude-export>
+        <label className="text-[10px] text-slate-600 font-medium">
+          Start
+          <input
+            type="text"
+            value={fromValue}
+            onChange={(e) => setFromValue(formatNumberInput(e.target.value))}
+            placeholder="250000"
+            className="mt-0.5 block w-20 border border-neutral-300 px-1.5 py-1 text-xs focus:border-slate-500 focus:outline-none"
+          />
+        </label>
+
+        <label className="text-[10px] text-slate-600 font-medium">
+          End
+          <input
+            type="text"
+            value={toValue}
+            onChange={(e) => setToValue(formatNumberInput(e.target.value))}
+            placeholder="275000"
+            className="mt-0.5 block w-20 border border-neutral-300 px-1.5 py-1 text-xs focus:border-slate-500 focus:outline-none"
+          />
+        </label>
+
+        <div className="min-w-20 border border-neutral-300 bg-slate-50 px-2 py-1">
+          <div className="text-[9px] uppercase tracking-wide text-slate-500 font-semibold">% Change</div>
+          <div className={`text-xs font-bold ${resultClass}`}>{resultText}</div>
+        </div>
+      </div>
+    );
   }
 
   return (

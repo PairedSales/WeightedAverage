@@ -41,6 +41,16 @@ export function formatIntegerLive(raw: string): string {
   return Number(n).toLocaleString("en-US");
 }
 
+/**
+ * Whether a draft string looks like a numeric/fraction entry (digits, $, %, ., comma,
+ * slash, minus, whitespace) as opposed to a free-text label (e.g. "Listing").
+ */
+export function isNumericWeightDraft(raw: string): boolean {
+  const trimmed = raw.trim();
+  if (trimmed === "") return true;
+  return /^[\d.,$%\s/-]+$/.test(trimmed);
+}
+
 /** Strip $, commas, % and parse as float. Returns 0 for unparseable input.
  *  Supports fraction notation: "1/6" is interpreted as (1/6)*100 ≈ 16.667. */
 export function parseNumericInput(raw: string): number {

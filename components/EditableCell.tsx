@@ -6,14 +6,15 @@ import {
   formatCurrencyLive,
   formatPercentLive,
   formatIntegerLive,
+  isNumericWeightDraft,
 } from "@/lib/formatting";
 
 type CellType = "currency" | "percent" | "integer";
 
 interface EditableCellProps {
-  value: number;
+  value: number | string;
   formatted: string;
-  onChange: (value: number) => void;
+  onChange: (value: number | string) => void;
   type: CellType;
   placeholder?: string;
   className?: string;
@@ -24,6 +25,8 @@ interface EditableCellProps {
   fullWidth?: boolean;
   /** Called when a percent cell is committed, reporting whether the user typed a fraction or decimal. */
   onFormatChange?: (format: "decimal" | "fraction") => void;
+  /** Allow committing free-text (non-numeric) input as-is, e.g. a "Listing" label in a weight cell. */
+  allowText?: boolean;
 }
 
 function countDigitsBefore(str: string, pos: number): number {
@@ -54,6 +57,7 @@ export default function EditableCell({
   tabIndex = -1,
   fullWidth = true,
   onFormatChange,
+  allowText = false,
 }: EditableCellProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -85,7 +89,9 @@ export default function EditableCell({
         : formatIntegerLive;
 
   const startEditing = useCallback(() => {
-    if (value === 0) {
+    if (typeof value === "string") {
+      setDraft(value);
+    } else if (value === 0) {
       setDraft("");
     } else if (type === "integer") {
       setDraft(formatIntegerLive(String(Math.round(value))));
@@ -96,13 +102,18 @@ export default function EditableCell({
   }, [value, formatted, formatLive, type]);
 
   const commit = useCallback(() => {
+    if (allowText && draft.trim() !== "" && !isNumericWeightDraft(draft)) {
+      onChange(draft.trim());
+      setEditing(false);
+      return;
+    }
     const parsed = parseNumericInput(draft);
     if (onFormatChange && type === "percent") {
       onFormatChange(draft.includes("/") ? "fraction" : "decimal");
     }
     onChange(type === "integer" ? Math.round(parsed) : parsed);
     setEditing(false);
-  }, [draft, onChange, type, onFormatChange]);
+  }, [draft, onChange, type, onFormatChange, allowText]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -118,6 +129,10 @@ export default function EditableCell({
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value;
+      if (allowText && !isNumericWeightDraft(raw)) {
+        setDraft(raw);
+        return;
+      }
       const caretPos = e.target.selectionStart ?? raw.length;
       const digitsBefore = countDigitsBefore(raw, caretPos);
       const newFormatted = formatLive(raw);
@@ -125,11 +140,11 @@ export default function EditableCell({
       cursorRef.current = newCaret;
       setDraft(newFormatted);
     },
-    [formatLive]
+    [formatLive, allowText]
   );
 
   const textAlign = align === "right" ? "text-right" : "text-left";
-  const isEmpty = value === 0;
+  const isEmpty = value === 0 || value === "";
   const widthClass = fullWidth ? "w-full" : "w-auto";
 
   if (editing) {

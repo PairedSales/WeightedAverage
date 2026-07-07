@@ -2,7 +2,8 @@ export interface CompSale {
   id: string;
   label: string;
   salePrice: number;
-  weight: number;
+  /** Numeric weight (%) or a free-text label (e.g. "Listing") for comps that shouldn't factor into the calculation. */
+  weight: number | string;
   gla: number;
 }
 

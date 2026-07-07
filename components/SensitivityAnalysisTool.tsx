@@ -16,6 +16,11 @@ interface SensitivityAnalysisToolProps {
   onUpdateCompGla: (id: string, value: number) => void;
 }
 
+/** EditableCell's onChange is typed for number | string (weight cells allow text); these fields are always numeric. */
+function toNumber(value: number | string): number {
+  return typeof value === "number" ? value : 0;
+}
+
 function parseSweepNumber(raw: string): number {
   const cleaned = raw.replace(/[$,%\s]/g, "");
   const parsed = parseFloat(cleaned);
@@ -92,7 +97,7 @@ export default function SensitivityAnalysisTool({
                   <EditableCell
                     value={Math.round(subjectGla)}
                     formatted={formatInteger(subjectGla)}
-                    onChange={onSubjectGlaChange}
+                    onChange={(v) => onSubjectGlaChange(toNumber(v))}
                     type="integer"
                     placeholder="—"
                     tabIndex={-1}
@@ -206,7 +211,7 @@ export default function SensitivityAnalysisTool({
                       <EditableCell
                         value={comp.salePrice}
                         formatted={formatCurrency(comp.salePrice, decimals)}
-                        onChange={(v) => onUpdateCompSalePrice(comp.id, v)}
+                        onChange={(v) => onUpdateCompSalePrice(comp.id, toNumber(v))}
                         type="currency"
                         placeholder="Enter price"
                         tabIndex={-1}
@@ -221,7 +226,7 @@ export default function SensitivityAnalysisTool({
                           <EditableCell
                             value={Math.round(comp.gla)}
                             formatted={formatInteger(comp.gla)}
-                            onChange={(v) => onUpdateCompGla(comp.id, v)}
+                            onChange={(v) => onUpdateCompGla(comp.id, toNumber(v))}
                             type="integer"
                             placeholder="—"
                             tabIndex={-1}
