@@ -11,10 +11,7 @@ import { useUndoRedo } from "@/hooks/useUndoRedo";
 import SpreadsheetGrid from "./SpreadsheetGrid";
 import OptionsDrawer from "./OptionsDrawer";
 import PercentChangeCalculator from "./PercentChangeCalculator";
-import SensitivityAnalysisTool from "./SensitivityAnalysisTool";
 import { useState } from "react";
-
-type ActiveTool = "weightedAverage" | "sensitivityAnalysis";
 
 function createComp(index: number): CompSale {
   return {
@@ -22,7 +19,6 @@ function createComp(index: number): CompSale {
     label: `Sale ${index}`,
     salePrice: 0,
     weight: 0,
-    gla: 0,
   };
 }
 
@@ -36,7 +32,6 @@ function normalizeComp(c: CompSale): CompSale {
   return {
     ...c,
     weight,
-    gla: typeof c.gla === "number" && isFinite(c.gla) ? c.gla : 0,
   };
 }
 
@@ -44,15 +39,14 @@ function normalizeComp(c: CompSale): CompSale {
 function defaultState(): AppState {
   return {
     comps: [
-      { id: "wa-default-1", label: "Sale 1", salePrice: 0, weight: 0, gla: 0 },
-      { id: "wa-default-2", label: "Sale 2", salePrice: 0, weight: 0, gla: 0 },
-      { id: "wa-default-3", label: "Sale 3", salePrice: 0, weight: 0, gla: 0 },
+      { id: "wa-default-1", label: "Sale 1", salePrice: 0, weight: 0 },
+      { id: "wa-default-2", label: "Sale 2", salePrice: 0, weight: 0 },
+      { id: "wa-default-3", label: "Sale 3", salePrice: 0, weight: 0 },
     ],
     decimals: 0,
     layout: "horizontal",
     title: "Weighted Average Analysis",
     showTitle: false,
-    subjectGla: 0,
     weightDisplayFormat: "decimal",
   };
 }
@@ -61,8 +55,6 @@ function normalizeState(state: AppState): AppState {
   return {
     ...state,
     showTitle: typeof state.showTitle === "boolean" ? state.showTitle : Boolean(state.title?.trim()),
-    subjectGla:
-      typeof state.subjectGla === "number" && isFinite(state.subjectGla) ? state.subjectGla : 0,
     weightDisplayFormat:
       state.weightDisplayFormat === "fraction" ? "fraction" : "decimal",
     comps: state.comps.map(normalizeComp),
@@ -114,13 +106,10 @@ export default function WeightedAverageApp() {
   const [rememberLocation, setRememberLocationState] = useState(false);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
-  const [activeTool, setActiveTool] = useState<ActiveTool>("weightedAverage");
-  const [toolSwapPulse, setToolSwapPulse] = useState<ActiveTool | null>(null);
   const [templateBarHeight, setTemplateBarHeight] = useState(0);
 
   const templateBarRef = useRef<HTMLDivElement>(null);
   const weightedAverageChartRef = useRef<HTMLDivElement>(null);
-  const sensitivityChartRef = useRef<HTMLDivElement>(null);
   const saveMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -179,7 +168,7 @@ export default function WeightedAverageApp() {
   const { templates, saveTemplate, deleteTemplate, getTemplate } = useTemplates();
 
   const updateComp = useCallback(
-    (id: string, field: "salePrice" | "weight" | "gla", value: number | string) => {
+    (id: string, field: "salePrice" | "weight", value: number | string) => {
       setState((prev) => ({
         ...prev,
         comps: prev.comps.map((c) =>
@@ -189,10 +178,6 @@ export default function WeightedAverageApp() {
     },
     [setState]
   );
-
-  const setSubjectGla = useCallback((value: number) => {
-    setState((prev) => ({ ...prev, subjectGla: value }));
-  }, [setState]);
 
   const addComp = useCallback(() => {
     setState((prev) => {
@@ -256,11 +241,8 @@ export default function WeightedAverageApp() {
 
   /** Snapshot the node at click time; after awaits, gridRef.current must not be re-read (race / lost ref). */
   const resolveExportElement = useCallback((): HTMLElement | null => {
-    if (activeTool === "sensitivityAnalysis") {
-      return sensitivityChartRef.current;
-    }
     return weightedAverageChartRef.current;
-  }, [activeTool]);
+  }, []);
 
   const handleCopy = useCallback(() => {
     const el = resolveExportElement();
@@ -319,7 +301,7 @@ export default function WeightedAverageApp() {
 
     let clearAfterMs = 0;
     try {
-      const result = await saveChartAsWebp(el, rememberLocation, state.comps.length, activeTool);
+      const result = await saveChartAsWebp(el, rememberLocation, state.comps.length);
       if (result.success) {
         setSaveStatus("done");
         if (result.openedInNewTab) {
@@ -353,7 +335,7 @@ export default function WeightedAverageApp() {
         setSaveInfo("");
       }, clearAfterMs);
     }
-  }, [rememberLocation, state.comps.length, resolveExportElement, activeTool]);
+  }, [rememberLocation, state.comps.length, resolveExportElement]);
 
   const toggleRemember = useCallback((checked: boolean) => {
     setRememberLocation(checked);
@@ -364,12 +346,10 @@ export default function WeightedAverageApp() {
   const handleClear = useCallback(() => {
     setState((prev) => ({
       ...prev,
-      subjectGla: 0,
       comps: prev.comps.map((comp) => ({
         ...comp,
         salePrice: 0,
         weight: 0,
-        gla: 0,
       })),
     }));
     setCopyStatus("idle");
@@ -388,13 +368,11 @@ export default function WeightedAverageApp() {
         label: `Sale ${i + 1}`,
         salePrice: 0,
         weight: weight,
-        gla: 0,
       })),
       decimals: 0,
       layout: "horizontal",
       title: "Weighted Average Analysis",
       showTitle: false,
-      subjectGla: 0,
       weightDisplayFormat: hasDecimal ? "fraction" : "decimal",
     });
     setCopyStatus("idle");
@@ -407,21 +385,6 @@ export default function WeightedAverageApp() {
   const handleSelectBlankTemplate = useCallback((count: number) => {
     applyBlankTemplate(count);
   }, [applyBlankTemplate]);
-
-  const activateTool = useCallback((tool: ActiveTool) => {
-    setActiveTool((current) => {
-      if (current === tool) return current;
-      setToolSwapPulse(tool);
-      window.setTimeout(() => {
-        setToolSwapPulse((c) => (c === tool ? null : c));
-      }, 520);
-      return tool;
-    });
-  }, []);
-
-  const handleToolToggle = useCallback(() => {
-    activateTool(activeTool === "weightedAverage" ? "sensitivityAnalysis" : "weightedAverage");
-  }, [activeTool, activateTool]);
 
   if (!hydrated) {
     return (
@@ -472,6 +435,8 @@ export default function WeightedAverageApp() {
           })}
         </div>
 
+        <div className="hidden md:block w-px self-stretch bg-neutral-300 mx-1" aria-hidden="true" />
+
         <PercentChangeCalculator compact />
       </div>
 
@@ -483,23 +448,6 @@ export default function WeightedAverageApp() {
             className="mb-3 w-full flex flex-wrap items-center justify-center gap-1.5 px-1"
             data-exclude-export
           >
-            <button
-              type="button"
-              onClick={handleToolToggle}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer bg-white text-slate-700 border border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="w-3.5 h-3.5"
-              >
-                <path d="M8 2.25a5.75 5.75 0 0 0-5.18 3.25h1.43a.75.75 0 0 1 0 1.5H1.5a.75.75 0 0 1-.75-.75V3.5a.75.75 0 0 1 1.5 0v1.19A7.25 7.25 0 0 1 15.25 8a.75.75 0 0 1-1.5 0A5.75 5.75 0 0 0 8 2.25Z" />
-                <path d="M14.5 9a.75.75 0 0 1 .75.75v2.75a.75.75 0 0 1-1.5 0v-1.19A7.25 7.25 0 0 1 .75 8a.75.75 0 0 1 1.5 0A5.75 5.75 0 0 0 8 13.75a5.75 5.75 0 0 0 5.18-3.25H11.75a.75.75 0 0 1 0-1.5h2.75Z" />
-              </svg>
-              {activeTool === "sensitivityAnalysis" ? "Sensitivity Analysis" : "Weighted Average"}
-            </button>
-
             <button
               type="button"
               onClick={undo}
@@ -716,14 +664,7 @@ export default function WeightedAverageApp() {
           )}
 
           <div className="flex w-full flex-col items-center gap-10">
-            <section
-              className={`flex w-full flex-col items-center transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
-                activeTool === "weightedAverage" ? "order-1" : "order-2"
-              } ${toolSwapPulse === "weightedAverage" ? "card-lift-in" : ""}`}
-              data-exclude-export={activeTool !== "weightedAverage" ? true : undefined}
-              onFocusCapture={() => activateTool("weightedAverage")}
-              onMouseDownCapture={() => activateTool("weightedAverage")}
-            >
+            <section className="flex w-full flex-col items-center">
               <div className="mx-auto w-fit border border-neutral-300 bg-white shadow-sm">
                 {/* Exportable area */}
                 <div className="bg-white px-4 py-3 flex flex-col gap-2">
@@ -753,67 +694,23 @@ export default function WeightedAverageApp() {
                 </div>
               </div>
 
-              {activeTool === "weightedAverage" && (
-                <div className="mt-3 w-full max-w-4xl" data-exclude-export>
-                  <OptionsDrawer
-                    open={optionsOpen}
-                    decimals={state.decimals}
-                    layout={state.layout}
-                    showTitle={state.showTitle}
-                    weightDisplayFormat={state.weightDisplayFormat}
-                    onDecimalsChange={setDecimals}
-                    onLayoutChange={setLayout}
-                    onShowTitleChange={setShowTitle}
-                    onWeightDisplayFormatChange={setWeightDisplayFormat}
-                    templates={templates}
-                    onSaveTemplate={saveTemplate}
-                    onLoadTemplate={handleLoadTemplate}
-                    onDeleteTemplate={deleteTemplate}
-                    currentState={state}
-                  />
-                </div>
-              )}
-            </section>
-
-            <section
-              className={`flex w-full justify-center transition-all duration-500 ease-[cubic-bezier(.2,.7,.1,1)] ${
-                activeTool === "sensitivityAnalysis" ? "order-1" : "order-2"
-              } ${toolSwapPulse === "sensitivityAnalysis" ? "card-lift-in" : ""}`}
-              data-exclude-export
-              onFocusCapture={() => activateTool("sensitivityAnalysis")}
-              onMouseDownCapture={() => activateTool("sensitivityAnalysis")}
-            >
-              <div className="flex w-full max-w-4xl flex-col items-center">
-                <SensitivityAnalysisTool
-                  exportRef={sensitivityChartRef}
-                  comps={state.comps}
+              <div className="mt-3 w-full max-w-4xl" data-exclude-export>
+                <OptionsDrawer
+                  open={optionsOpen}
                   decimals={state.decimals}
-                  subjectGla={state.subjectGla}
-                  onSubjectGlaChange={setSubjectGla}
-                  onUpdateCompSalePrice={(id, value) => updateComp(id, "salePrice", value)}
-                  onUpdateCompGla={(id, value) => updateComp(id, "gla", value)}
+                  layout={state.layout}
+                  showTitle={state.showTitle}
+                  weightDisplayFormat={state.weightDisplayFormat}
+                  onDecimalsChange={setDecimals}
+                  onLayoutChange={setLayout}
+                  onShowTitleChange={setShowTitle}
+                  onWeightDisplayFormatChange={setWeightDisplayFormat}
+                  templates={templates}
+                  onSaveTemplate={saveTemplate}
+                  onLoadTemplate={handleLoadTemplate}
+                  onDeleteTemplate={deleteTemplate}
+                  currentState={state}
                 />
-
-                {activeTool === "sensitivityAnalysis" && (
-                  <div className="mt-3 w-full" data-exclude-export>
-                    <OptionsDrawer
-                      open={optionsOpen}
-                      decimals={state.decimals}
-                      layout={state.layout}
-                      showTitle={state.showTitle}
-                      weightDisplayFormat={state.weightDisplayFormat}
-                      onDecimalsChange={setDecimals}
-                      onLayoutChange={setLayout}
-                      onShowTitleChange={setShowTitle}
-                      onWeightDisplayFormatChange={setWeightDisplayFormat}
-                      templates={templates}
-                      onSaveTemplate={saveTemplate}
-                      onLoadTemplate={handleLoadTemplate}
-                      onDeleteTemplate={deleteTemplate}
-                      currentState={state}
-                    />
-                  </div>
-                )}
               </div>
             </section>
           </div>

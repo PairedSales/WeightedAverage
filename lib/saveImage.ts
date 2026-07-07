@@ -6,8 +6,6 @@ const DB_VERSION = 1;
 const STORE = "settings";
 const DIRECTORY_HANDLE_KEY = "save-directory-handle";
 
-export type ChartToolId = "weightedAverage" | "sensitivityAnalysis";
-
 export function getRememberLocation(): boolean {
   if (typeof window === "undefined") return false;
   return localStorage.getItem(PREF_KEY) === "true";
@@ -41,7 +39,7 @@ export function setRememberLocation(value: boolean) {
   }
 }
 
-function generateFilename(activeTool: ChartToolId, numComps: number): string {
+function generateFilename(numComps: number): string {
   const now = new Date();
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, "0");
@@ -49,8 +47,7 @@ function generateFilename(activeTool: ChartToolId, numComps: number): string {
   const hh = String(now.getHours()).padStart(2, "0");
   const min = String(now.getMinutes()).padStart(2, "0");
   const sec = String(now.getSeconds()).padStart(2, "0");
-  const prefix = activeTool === "sensitivityAnalysis" ? "sensitivity" : "weighted-avg";
-  return `${prefix}-${numComps}comps-${yyyy}${mm}${dd}-${hh}${min}${sec}.webp`;
+  return `weighted-avg-${numComps}comps-${yyyy}${mm}${dd}-${hh}${min}${sec}.webp`;
 }
 
 function openDb(): Promise<IDBDatabase> {
@@ -248,10 +245,9 @@ export interface SaveResult {
 export async function saveChartAsWebp(
   element: HTMLElement,
   rememberLocation: boolean,
-  numComps: number,
-  activeTool: ChartToolId
+  numComps: number
 ): Promise<SaveResult> {
-  const preferredName = generateFilename(activeTool, numComps);
+  const preferredName = generateFilename(numComps);
 
   const hasSaveFilePicker =
     typeof window !== "undefined" && typeof window.showSaveFilePicker === "function";

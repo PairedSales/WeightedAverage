@@ -4,7 +4,6 @@ export interface CompSale {
   salePrice: number;
   /** Numeric weight (%) or a free-text label (e.g. "Listing") for comps that shouldn't factor into the calculation. */
   weight: number | string;
-  gla: number;
 }
 
 export type DecimalPrecision = 0 | 1 | 2;
@@ -17,7 +16,6 @@ export interface AppState {
   layout: LayoutMode;
   title: string;
   showTitle: boolean;
-  subjectGla: number;
   weightDisplayFormat: WeightDisplayFormat;
 }
 
