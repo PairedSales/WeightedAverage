@@ -456,7 +456,7 @@ export default function WeightedAverageApp() {
 
       {/* Toolbar above card */}
       <div className="flex flex-col items-center w-full">
-        <div className="w-fit mx-auto flex flex-col items-stretch">
+        <div className="w-fit mx-auto flex flex-col items-stretch mt-16">
           {/* Tool toggle | Copy | Save — centered to card */}
           <div
             className="mb-3 w-full flex flex-wrap items-center justify-center gap-1.5 px-1"
@@ -677,7 +677,7 @@ export default function WeightedAverageApp() {
             </p>
           )}
 
-          <div className="flex w-full flex-col items-center gap-10 mt-32">
+          <div className="flex w-full flex-col items-center gap-10">
             <section className="flex w-full flex-col items-center">
               <div className="mx-auto w-fit border border-neutral-300 bg-white shadow-sm">
                 {/* Exportable area */}
