@@ -200,7 +200,7 @@ function VerticalGrid({
                 <td className="p-0 border border-neutral-300">
                   <EditableCell
                     value={comp.salePrice}
-                    formatted={formatCurrency(comp.salePrice, decimals)}
+                    formatted={formatCurrency(comp.salePrice)}
                     onChange={(v) => onUpdateComp(comp.id, "salePrice", v)}
                     type="currency"
                     placeholder="Enter price"
@@ -224,7 +224,7 @@ function VerticalGrid({
                 </td>
                 <td className="px-2 py-1.5 text-right tabular-nums font-medium text-slate-700 border border-neutral-300">
                   {weightsValid && comp.salePrice > 0 && !isTextWeight
-                    ? formatCurrency(contrib, decimals)
+                    ? formatCurrency(contrib)
                     : "\u2014"}
                 </td>
                 <td className="p-0 align-middle border-none" data-exclude-export>
@@ -249,7 +249,7 @@ function VerticalGrid({
               colSpan={2}
               className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 bg-slate-100 text-sm border border-neutral-300"
             >
-              {weightsValid ? formatCurrency(avg, decimals) : "\u2014"}
+              {weightsValid ? formatCurrency(avg) : "\u2014"}
             </td>
             <td className="border-none bg-transparent" data-exclude-export />
           </tr>
@@ -318,7 +318,7 @@ function HorizontalGrid({
               <td key={comp.id} className="p-0 min-w-[7rem] border border-neutral-300 hover:bg-slate-50 transition-colors">
                 <EditableCell
                   value={comp.salePrice}
-                  formatted={formatCurrency(comp.salePrice, decimals)}
+                  formatted={formatCurrency(comp.salePrice)}
                   onChange={(v) => onUpdateComp(comp.id, "salePrice", v)}
                   type="currency"
                   placeholder="Enter price"
@@ -375,13 +375,13 @@ function HorizontalGrid({
                   className="px-2 py-1.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-700 border border-neutral-300"
                 >
                   {weightsValid && comp.salePrice > 0 && !isTextWeight
-                    ? formatCurrency(contrib, decimals)
+                    ? formatCurrency(contrib)
                     : "\u2014"}
                 </td>
               );
             })}
             <td className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 bg-slate-100 text-sm border-2 border-neutral-400">
-              {weightsValid ? formatCurrency(avg, decimals) : "\u2014"}
+              {weightsValid ? formatCurrency(avg) : "\u2014"}
             </td>
           </tr>
         </tbody>

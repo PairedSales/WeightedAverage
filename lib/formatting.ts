@@ -1,15 +1,12 @@
 import type { DecimalPrecision, WeightDisplayFormat } from "./types";
 
-export function formatCurrency(
-  value: number,
-  decimals: DecimalPrecision
-): string {
+export function formatCurrency(value: number): string {
   if (!isFinite(value)) return "—";
   return value.toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 }
 
