@@ -43,7 +43,6 @@ export default function OptionsDrawer({
   return (
     <div data-exclude-export>
       <div className="bg-white border border-neutral-300 p-0 mt-1">
-        <div className="appraisal-section-header">Options</div>
         <div className="p-4 flex flex-wrap gap-x-8 gap-y-4">
           <div className="min-w-[140px]">
             <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
