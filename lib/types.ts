@@ -30,5 +30,7 @@ export interface Template {
 export interface HistorySnapshot {
   id: string;
   state: AppState;
+  /** Data URL (WebP, PNG fallback) of the exact grid image that was copied. */
+  image: string;
   createdAt: number;
 }

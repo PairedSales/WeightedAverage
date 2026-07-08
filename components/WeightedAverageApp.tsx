@@ -157,15 +157,19 @@ export default function WeightedAverageApp() {
   }, []);
 
   useEffect(() => {
-    const updateHeight = () => {
-      if (templateBarRef.current) {
-        setTemplateBarHeight(templateBarRef.current.offsetHeight);
-      }
-    };
+    if (!hydrated) return;
+    const el = templateBarRef.current;
+    if (!el) return;
+    const updateHeight = () => setTemplateBarHeight(el.offsetHeight);
     updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(el);
     window.addEventListener("resize", updateHeight);
-    return () => window.removeEventListener("resize", updateHeight);
-  }, []);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, [hydrated]);
 
   const { templates, saveTemplate, deleteTemplate, getTemplate } = useTemplates();
   const { history, addSnapshot } = useHistory();
@@ -274,8 +278,8 @@ export default function WeightedAverageApp() {
     void copyChartImageToClipboard(el).then((result) => {
       if (!result.ok) {
         setCopyDetail(copyFailureHint(result));
-      } else {
-        addSnapshot(state);
+      } else if (result.image) {
+        addSnapshot(state, result.image);
       }
       setCopyStatus(result.ok ? "done" : "error");
       setTimeout(() => {

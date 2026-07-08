@@ -10,14 +10,34 @@ function readHistory(): HistorySnapshot[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as HistorySnapshot[]) : [];
+    const parsed = raw ? (JSON.parse(raw) as HistorySnapshot[]) : [];
+    // Drop legacy entries saved before snapshots carried an image.
+    return parsed.filter((e) => typeof e.image === "string" && e.image.length > 0);
   } catch {
     return [];
   }
 }
 
-function writeHistory(history: HistorySnapshot[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+/**
+ * Persists history, dropping the oldest entries if the serialized images blow the
+ * localStorage quota. Returns what was actually stored so state stays in sync.
+ */
+function writeHistory(history: HistorySnapshot[]): HistorySnapshot[] {
+  let entries = history;
+  while (entries.length > 0) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      return entries;
+    } catch {
+      entries = entries.slice(0, -1);
+    }
+  }
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* ignore */
+  }
+  return entries;
 }
 
 export function useHistory() {
@@ -28,17 +48,14 @@ export function useHistory() {
   }, []);
 
   const addSnapshot = useCallback(
-    (state: AppState) => {
+    (state: AppState, image: string) => {
       const entry: HistorySnapshot = {
         id: crypto.randomUUID(),
         state: structuredClone(state),
+        image,
         createdAt: Date.now(),
       };
-      setHistory((prev) => {
-        const next = [entry, ...prev].slice(0, MAX_ENTRIES);
-        writeHistory(next);
-        return next;
-      });
+      setHistory((prev) => writeHistory([entry, ...prev].slice(0, MAX_ENTRIES)));
     },
     []
   );
