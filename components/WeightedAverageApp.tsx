@@ -677,7 +677,7 @@ export default function WeightedAverageApp() {
             </p>
           )}
 
-          <div className="flex w-full flex-col items-center gap-10">
+          <div className="flex w-full flex-col items-center gap-10 mt-32">
             <section className="flex w-full flex-col items-center">
               <div className="mx-auto w-fit border border-neutral-300 bg-white shadow-sm">
                 {/* Exportable area */}
