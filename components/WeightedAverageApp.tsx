@@ -107,7 +107,6 @@ export default function WeightedAverageApp() {
   const [saveInfo, setSaveInfo] = useState("");
   const [rememberLocation, setRememberLocationState] = useState(false);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
-  const [optionsOpen, setOptionsOpen] = useState(false);
   const [templateBarHeight, setTemplateBarHeight] = useState(0);
 
   const templateBarRef = useRef<HTMLDivElement>(null);
@@ -627,24 +626,6 @@ export default function WeightedAverageApp() {
             <button
               type="button"
               tabIndex={-1}
-              onClick={() => setOptionsOpen((open) => !open)}
-              aria-expanded={optionsOpen}
-              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer bg-white text-slate-700 border border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800 shrink-0"
-              title="App options"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
-                <path
-                  fillRule="evenodd"
-                  d="M9.045 1.29a.75.75 0 0 0-1.09 0L7.5 1.79a.75.75 0 0 1-.73.2l-.632-.174a.75.75 0 0 0-.89.513l-.19.642a.75.75 0 0 1-.53.53l-.641.19a.75.75 0 0 0-.514.89l.174.631a.75.75 0 0 1-.2.73l-.499.456a.75.75 0 0 0 0 1.09l.499.455a.75.75 0 0 1 .2.731l-.174.632a.75.75 0 0 0 .514.89l.641.19a.75.75 0 0 1 .53.53l.19.641a.75.75 0 0 0 .89.514l.632-.174a.75.75 0 0 1 .73.2l.455.499a.75.75 0 0 0 1.09 0l.456-.499a.75.75 0 0 1 .73-.2l.631.174a.75.75 0 0 0 .89-.514l.19-.641a.75.75 0 0 1 .53-.53l.642-.19a.75.75 0 0 0 .513-.89l-.174-.632a.75.75 0 0 1 .2-.73l.499-.456a.75.75 0 0 0 0-1.09l-.499-.455a.75.75 0 0 1-.2-.73l.174-.632a.75.75 0 0 0-.513-.89l-.642-.19a.75.75 0 0 1-.53-.53l-.19-.642a.75.75 0 0 0-.89-.513l-.631.174a.75.75 0 0 1-.73-.2l-.456-.5ZM8.5 10.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Options
-            </button>
-
-            <button
-              type="button"
-              tabIndex={-1}
               onClick={handleClear}
               className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer bg-white text-slate-700 border border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
               title="Clear table data"
@@ -710,7 +691,6 @@ export default function WeightedAverageApp() {
 
               <div className="mt-3 w-full max-w-4xl" data-exclude-export>
                 <OptionsDrawer
-                  open={optionsOpen}
                   decimals={state.decimals}
                   layout={state.layout}
                   showTitle={state.showTitle}
