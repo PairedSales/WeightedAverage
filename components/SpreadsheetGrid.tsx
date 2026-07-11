@@ -40,25 +40,58 @@ export default function SpreadsheetGrid({
   const n = comps.length;
 
   const handleNavigate = useCallback(
-    (direction: "up" | "down", currentTabIndex: number) => {
+    (direction: "up" | "down" | "next" | "prev", currentTabIndex: number) => {
       let targetTabIndex = -1;
-      if (layout === "horizontal") {
+      
+      if (direction === "next") {
+        if (currentTabIndex === 2 * n) {
+          targetTabIndex = 1;
+        } else {
+          targetTabIndex = currentTabIndex + 1;
+        }
+      } else if (direction === "prev") {
+        if (currentTabIndex === 1) {
+          targetTabIndex = 2 * n;
+        } else {
+          targetTabIndex = currentTabIndex - 1;
+        }
+      } else if (layout === "horizontal") {
         if (direction === "down") {
           if (currentTabIndex >= 1 && currentTabIndex <= n) {
             targetTabIndex = currentTabIndex + n;
+          } else if (currentTabIndex >= n + 1 && currentTabIndex <= 2 * n) {
+            if (currentTabIndex === 2 * n) {
+              targetTabIndex = 1;
+            } else {
+              targetTabIndex = currentTabIndex - n + 1;
+            }
           }
         } else { // up
           if (currentTabIndex >= n + 1 && currentTabIndex <= 2 * n) {
             targetTabIndex = currentTabIndex - n;
+          } else if (currentTabIndex >= 1 && currentTabIndex <= n) {
+            if (currentTabIndex === 1) {
+              targetTabIndex = 2 * n;
+            } else {
+              targetTabIndex = currentTabIndex + n - 1;
+            }
           }
         }
       } else { // vertical
         if (direction === "down") {
-          if (currentTabIndex !== n && currentTabIndex !== 2 * n) {
+          if (currentTabIndex === n) {
+            targetTabIndex = n + 1;
+          } else if (currentTabIndex === 2 * n) {
+            targetTabIndex = 1;
+          } else {
             targetTabIndex = currentTabIndex + 1;
           }
         } else { // up
-          if (currentTabIndex !== 1 && currentTabIndex !== n + 1) {
+          if (currentTabIndex === 1) {
+            targetTabIndex = 2 * n;
+          } else if (currentTabIndex === n + 1) {
+            targetTabIndex = n;
+          } else {
             targetTabIndex = currentTabIndex - 1;
           }
         }
@@ -132,7 +165,7 @@ interface GridInternalProps {
   onAddComp: () => void;
   onRemoveComp: (id: string) => void;
   onWeightDisplayFormatChange?: (format: WeightDisplayFormat) => void;
-  onNavigate: (direction: "up" | "down", currentTabIndex: number) => void;
+  onNavigate: (direction: "up" | "down" | "next" | "prev", currentTabIndex: number) => void;
 }
 
 function WeightWarning({ totalWeight, decimals }: { totalWeight: number; decimals: DecimalPrecision }) {
@@ -246,6 +279,7 @@ function VerticalGrid({
                     type="currency"
                     placeholder="Enter price"
                     tabIndex={i + 1}
+                    maxTabIndex={2 * n}
                     onNavigate={onNavigate}
                   />
                 </td>
@@ -261,6 +295,7 @@ function VerticalGrid({
                       tabIndex={n + i + 1}
                       onFormatChange={onWeightDisplayFormatChange}
                       allowText
+                      maxTabIndex={2 * n}
                       onNavigate={onNavigate}
                     />
                   </div>
@@ -367,6 +402,7 @@ function HorizontalGrid({
                   type="currency"
                   placeholder="Enter price"
                   tabIndex={i + 1}
+                  maxTabIndex={2 * n}
                   onNavigate={onNavigate}
                 />
               </td>
@@ -396,6 +432,7 @@ function HorizontalGrid({
                       tabIndex={n + i + 1}
                       onFormatChange={onWeightDisplayFormatChange}
                       allowText
+                      maxTabIndex={2 * n}
                       onNavigate={onNavigate}
                     />
                   </div>

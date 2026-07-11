@@ -27,8 +27,10 @@ interface EditableCellProps {
   onFormatChange?: (format: "decimal" | "fraction") => void;
   /** Allow committing free-text (non-numeric) input as-is, e.g. a "Listing" label in a weight cell. */
   allowText?: boolean;
-  /** Callback to navigate to another cell (e.g. on Enter/Shift+Enter). */
-  onNavigate?: (direction: "up" | "down", currentTabIndex: number) => void;
+  /** Maximum tab index in the grid (e.g. 2n) used for tab wrapping. */
+  maxTabIndex?: number;
+  /** Callback to navigate to another cell (e.g. on Enter/Shift+Enter, Tab/Shift+Tab). */
+  onNavigate?: (direction: "up" | "down" | "next" | "prev", currentTabIndex: number) => void;
 }
 
 function countDigitsBefore(str: string, pos: number): number {
@@ -60,6 +62,7 @@ export default function EditableCell({
   fullWidth = true,
   onFormatChange,
   allowText = false,
+  maxTabIndex,
   onNavigate,
 }: EditableCellProps) {
   const [editing, setEditing] = useState(false);
@@ -126,11 +129,22 @@ export default function EditableCell({
           e.preventDefault();
           onNavigate(e.shiftKey ? "up" : "down", tabIndex);
         }
+      } else if (e.key === "Tab") {
+        commit();
+        if (onNavigate && tabIndex !== undefined && tabIndex !== -1) {
+          if (e.shiftKey && tabIndex === 1) {
+            e.preventDefault();
+            onNavigate("prev", tabIndex);
+          } else if (!e.shiftKey && maxTabIndex !== undefined && tabIndex === maxTabIndex) {
+            e.preventDefault();
+            onNavigate("next", tabIndex);
+          }
+        }
       } else if (e.key === "Escape") {
         setEditing(false);
       }
     },
-    [commit, onNavigate, tabIndex]
+    [commit, onNavigate, tabIndex, maxTabIndex]
   );
 
   const handleChange = useCallback(
