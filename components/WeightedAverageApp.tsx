@@ -177,6 +177,15 @@ export default function WeightedAverageApp() {
     });
   }, [setState]);
 
+
+  const removeLastComp = useCallback(() => {
+    setState((prev) => {
+      if (prev.comps.length <= 3) return prev;
+      const filtered = prev.comps.slice(0, -1);
+      return { ...prev, comps: filtered };
+    });
+  }, [setState]);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === "z") {
@@ -203,14 +212,6 @@ export default function WeightedAverageApp() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [undo, redo, addComp, removeLastComp]);
-
-  const removeLastComp = useCallback(() => {
-    setState((prev) => {
-      if (prev.comps.length <= 3) return prev;
-      const filtered = prev.comps.slice(0, -1);
-      return { ...prev, comps: filtered };
-    });
-  }, [setState]);
 
   const removeComp = useCallback((id: string) => {
     setState((prev) => {
