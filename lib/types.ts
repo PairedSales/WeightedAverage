@@ -9,6 +9,7 @@ export interface CompSale {
 export type DecimalPrecision = 0 | 1 | 2;
 export type LayoutMode = "vertical" | "horizontal";
 export type WeightDisplayFormat = "decimal" | "fraction";
+export type GridThemeId = "classic" | "navy" | "evergreen" | "heritage";
 
 export interface AppState {
   comps: CompSale[];
@@ -17,6 +18,7 @@ export interface AppState {
   title: string;
   showTitle: boolean;
   weightDisplayFormat: WeightDisplayFormat;
+  theme: GridThemeId;
 }
 
 export interface Template {

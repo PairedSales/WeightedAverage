@@ -4,11 +4,14 @@ interface WeightBarProps {
   /** 0-1 normalized ratio (weight / maxWeight) */
   ratio: number;
   direction?: "horizontal" | "vertical";
+  /** RGB triple for the shading color, e.g. "0, 0, 0" (see GridTheme.weightBarRGB). */
+  colorRGB?: string;
 }
 
 export default function WeightBar({
   ratio,
   direction = "horizontal",
+  colorRGB = "0, 0, 0",
 }: WeightBarProps) {
   const clamped = Math.max(0, Math.min(1, ratio));
 
@@ -23,7 +26,7 @@ export default function WeightBar({
           className="absolute inset-x-0 bottom-0 transition-all duration-300 ease-out"
           style={{
             height: `${clamped * 100}%`,
-            backgroundColor: `rgba(0, 0, 0, ${opacity})`,
+            backgroundColor: `rgba(${colorRGB}, ${opacity})`,
           }}
         />
       </div>
@@ -36,7 +39,7 @@ export default function WeightBar({
         className="absolute inset-y-0 left-0 transition-all duration-300 ease-out"
         style={{
           width: `${clamped * 100}%`,
-          backgroundColor: `rgba(0, 0, 0, ${opacity})`,
+          backgroundColor: `rgba(${colorRGB}, ${opacity})`,
         }}
       />
     </div>

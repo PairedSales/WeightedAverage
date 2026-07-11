@@ -3,10 +3,12 @@
 import type {
   AppState,
   DecimalPrecision,
+  GridThemeId,
   LayoutMode,
   Template,
   WeightDisplayFormat,
 } from "@/lib/types";
+import { GRID_THEME_LIST } from "@/lib/themes";
 import TemplateManager from "./TemplateManager";
 
 interface OptionsDrawerProps {
@@ -14,10 +16,12 @@ interface OptionsDrawerProps {
   layout: LayoutMode;
   showTitle: boolean;
   weightDisplayFormat: WeightDisplayFormat;
+  theme: GridThemeId;
   onDecimalsChange: (d: DecimalPrecision) => void;
   onLayoutChange: (l: LayoutMode) => void;
   onShowTitleChange: (show: boolean) => void;
   onWeightDisplayFormatChange: (f: WeightDisplayFormat) => void;
+  onThemeChange: (t: GridThemeId) => void;
   templates: Template[];
   onSaveTemplate: (name: string, state: AppState) => void;
   onLoadTemplate: (template: Template) => void;
@@ -30,10 +34,12 @@ export default function OptionsDrawer({
   layout,
   showTitle,
   weightDisplayFormat,
+  theme,
   onDecimalsChange,
   onLayoutChange,
   onShowTitleChange,
   onWeightDisplayFormatChange,
+  onThemeChange,
   templates,
   onSaveTemplate,
   onLoadTemplate,
@@ -151,6 +157,44 @@ export default function OptionsDrawer({
                   {f === "decimal" ? "Decimal" : "Fraction"}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div className="min-w-[280px]">
+            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
+              Theme
+            </p>
+            <div className="flex gap-1.5">
+              {GRID_THEME_LIST.map((t) => {
+                const selected = theme === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => onThemeChange(t.id)}
+                    title={t.name}
+                    aria-pressed={selected}
+                    className={`flex flex-col items-center gap-1 px-2 pt-1.5 pb-1 border transition-all duration-150 cursor-pointer ${
+                      selected
+                        ? "border-neutral-800 bg-slate-50"
+                        : "border-neutral-300 bg-white hover:border-neutral-500"
+                    }`}
+                  >
+                    <span
+                      className="block w-12 h-7 border border-neutral-300 overflow-hidden"
+                      aria-hidden="true"
+                    >
+                      <span className="block h-2.5" style={{ backgroundColor: t.swatch.header }} />
+                      <span className="block h-2 bg-white" />
+                      <span className="block h-2" style={{ backgroundColor: t.swatch.body }} />
+                    </span>
+                    <span className={`text-[10px] leading-tight ${selected ? "font-semibold text-slate-800" : "text-slate-500"}`}>
+                      {t.name}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

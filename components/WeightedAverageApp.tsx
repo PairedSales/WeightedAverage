@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useCallback, useEffect, useMemo } from "react";
-import type { AppState, CompSale, DecimalPrecision, HistorySnapshot, LayoutMode, Template, WeightDisplayFormat } from "@/lib/types";
+import type { AppState, CompSale, DecimalPrecision, GridThemeId, HistorySnapshot, LayoutMode, Template, WeightDisplayFormat } from "@/lib/types";
+import { GRID_THEMES } from "@/lib/themes";
 import { copyChartImageToClipboard, type CopyResult } from "@/lib/chartClipboard";
 import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
 import { useAutoSave, loadSavedState } from "@/hooks/useAutoSave";
@@ -50,6 +51,7 @@ function defaultState(): AppState {
     title: "Weighted Average Analysis",
     showTitle: false,
     weightDisplayFormat: "decimal",
+    theme: "classic",
   };
 }
 
@@ -59,6 +61,7 @@ function normalizeState(state: AppState): AppState {
     showTitle: typeof state.showTitle === "boolean" ? state.showTitle : Boolean(state.title?.trim()),
     weightDisplayFormat:
       state.weightDisplayFormat === "fraction" ? "fraction" : "decimal",
+    theme: state.theme && state.theme in GRID_THEMES ? state.theme : "classic",
     comps: state.comps.map(normalizeComp),
   };
 }
@@ -245,6 +248,10 @@ export default function WeightedAverageApp() {
     setState((prev) => ({ ...prev, weightDisplayFormat }));
   }, [setState]);
 
+  const setTheme = useCallback((theme: GridThemeId) => {
+    setState((prev) => ({ ...prev, theme }));
+  }, [setState]);
+
 
   const handleLoadTemplate = useCallback(
     (template: Template) => {
@@ -393,7 +400,7 @@ export default function WeightedAverageApp() {
   const applyBlankTemplate = useCallback((count: number) => {
     const hasDecimal = (100 % count) !== 0;
     const weight = 100 / count;
-    setState({
+    setState((prev) => ({
       comps: Array.from({ length: count }, (_, i) => ({
         id: crypto.randomUUID(),
         label: `Sale ${i + 1}`,
@@ -405,7 +412,8 @@ export default function WeightedAverageApp() {
       title: "Weighted Average Analysis",
       showTitle: false,
       weightDisplayFormat: hasDecimal ? "fraction" : "decimal",
-    });
+      theme: prev.theme,
+    }));
     setCopyStatus("idle");
     setSaveStatus("idle");
     setCopyDetail("");
@@ -699,6 +707,7 @@ export default function WeightedAverageApp() {
                     decimals={state.decimals}
                     layout={state.layout}
                     weightDisplayFormat={state.weightDisplayFormat}
+                    theme={state.theme}
                     onUpdateComp={updateComp}
                     onAddComp={addComp}
                     onRemoveComp={removeComp}
@@ -713,10 +722,12 @@ export default function WeightedAverageApp() {
                   layout={state.layout}
                   showTitle={state.showTitle}
                   weightDisplayFormat={state.weightDisplayFormat}
+                  theme={state.theme}
                   onDecimalsChange={setDecimals}
                   onLayoutChange={setLayout}
                   onShowTitleChange={setShowTitle}
                   onWeightDisplayFormatChange={setWeightDisplayFormat}
+                  onThemeChange={setTheme}
                   templates={templates}
                   onSaveTemplate={saveTemplate}
                   onLoadTemplate={handleLoadTemplate}

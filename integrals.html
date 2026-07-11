@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integrals — an interactive introduction</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='78' font-size='84' text-anchor='middle' fill='%233987e5' font-family='Georgia,serif'%3E%E2%88%AB%3C/text%3E%3C/svg%3E">
+<style>
+  /* ---------- tokens (validated dark palette) ---------- */
+  :root{
+    --page:      #0d0d0d;
+    --surface:   #1a1a19;
+    --surface-2: #212120;
+    --ink:       #ffffff;
+    --ink-2:     #c3c2b7;
+    --muted:     #898781;
+    --grid:      #2c2c2a;
+    --axis:      #383835;
+    --border:    rgba(255,255,255,0.10);
+    --blue:      #3987e5;   /* f(x), positive area   */
+    --aqua:      #199e70;   /* exact / reference     */
+    --red:       #e66767;   /* negative area         */
+    --violet:    #9085e9;   /* accumulation F(x)     */
+    --radius: 16px;
+    --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0 }
+  html{ scroll-behavior:smooth }
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:var(--sans); line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:rgba(57,135,229,.35) }
+
+  /* ---------- layout ---------- */
+  .wrap{ max-width:1060px; margin:0 auto; padding:0 20px }
+  section{ padding:72px 0 }
+  h2{ font-size:clamp(26px,3.4vw,36px); letter-spacing:-.02em; line-height:1.15 }
+  .kicker{
+    display:inline-block; font-size:12px; font-weight:600; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--blue); margin-bottom:10px;
+  }
+  .lede{ color:var(--ink-2); max-width:640px; margin-top:12px; font-size:16.5px }
+  .lede b{ color:var(--ink); font-weight:600 }
+
+  /* ---------- top bar ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(13,13,13,.72); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+  }
+  nav .wrap{ display:flex; align-items:center; gap:26px; height:56px }
+  .logo{ font-family:Georgia,serif; font-size:24px; color:var(--blue); font-weight:700 }
+  nav a{ color:var(--ink-2); text-decoration:none; font-size:13.5px; font-weight:500 }
+  nav a:hover{ color:var(--ink) }
+  nav .links{ display:flex; gap:22px; margin-left:auto }
+  @media (max-width:640px){ nav .links{ display:none } }
+
+  /* ---------- hero ---------- */
+  header{ padding:84px 0 30px; position:relative; overflow:hidden }
+  header::before{
+    content:""; position:absolute; inset:-40% -20% auto;
+    height:130%; pointer-events:none;
+    background:
+      radial-gradient(600px 320px at 22% 10%, rgba(57,135,229,.16), transparent 70%),
+      radial-gradient(520px 300px at 78% 0%,  rgba(144,133,233,.13), transparent 70%);
+  }
+  h1{
+    position:relative; font-size:clamp(42px,7vw,76px); line-height:1.02;
+    letter-spacing:-.035em; font-weight:750;
+  }
+  h1 .grad{
+    background:linear-gradient(92deg,var(--blue),var(--violet));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero-sub{ position:relative; margin-top:18px; font-size:18px; color:var(--ink-2); max-width:560px }
+  .hero-viz{ margin-top:44px; position:relative }
+  .hero-cap{ margin-top:10px; font-size:13px; color:var(--muted) }
+  .hero-cap b{ color:var(--ink-2); font-variant-numeric:tabular-nums }
+
+  /* ---------- cards & controls ---------- */
+  .card{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:22px; margin-top:28px;
+  }
+  .controls{ display:flex; flex-wrap:wrap; gap:20px 32px; align-items:flex-end; margin-bottom:18px }
+  .ctl label{
+    display:block; font-size:11px; font-weight:600; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:8px;
+  }
+  .chips{ display:flex; gap:8px; flex-wrap:wrap }
+  .chip{
+    font:inherit; font-size:13.5px; font-weight:500; color:var(--ink-2);
+    background:var(--surface-2); border:1px solid var(--border); border-radius:999px;
+    padding:7px 14px; cursor:pointer; transition:all .15s;
+  }
+  .chip:hover{ color:var(--ink); border-color:rgba(255,255,255,.22) }
+  .chip[aria-pressed="true"]{
+    color:#fff; background:rgba(57,135,229,.18);
+    border-color:var(--blue); box-shadow:0 0 0 1px var(--blue) inset;
+  }
+  .sliderRow{ display:flex; align-items:center; gap:14px }
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:230px; height:4px; border-radius:2px;
+    background:linear-gradient(to right, var(--blue) var(--fill,50%), var(--axis) var(--fill,50%));
+    outline:none; cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%;
+    background:#fff; border:3px solid var(--blue); box-shadow:0 2px 8px rgba(0,0,0,.5);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:12px; height:12px; border-radius:50%;
+    background:#fff; border:3px solid var(--blue);
+  }
+  .nval{ font-variant-numeric:tabular-nums; font-weight:650; min-width:3ch; font-size:15px }
+  .play{
+    font:inherit; font-size:13.5px; font-weight:600; color:var(--ink);
+    background:linear-gradient(92deg, rgba(57,135,229,.28), rgba(144,133,233,.28));
+    border:1px solid var(--blue); border-radius:10px; padding:8px 16px; cursor:pointer;
+    transition:filter .15s;
+  }
+  .play:hover{ filter:brightness(1.2) }
+
+  /* ---------- plot ---------- */
+  .plot{ position:relative }
+  .plot svg{ display:block; width:100%; height:auto }
+  .gridline{ stroke:var(--grid); stroke-width:1 }
+  .axisline{ stroke:var(--axis); stroke-width:1.5 }
+  .ticktext{ fill:var(--muted); font-size:11px; font-family:var(--sans) }
+  .curve{ fill:none; stroke:var(--blue); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round }
+  .slice{ fill:rgba(57,135,229,.30); stroke:var(--surface); stroke-width:1; transition:fill .12s }
+  .slice:hover{ fill:rgba(57,135,229,.60) }
+  .serieslabel{ font-size:12.5px; font-weight:600; font-family:var(--sans) }
+
+  .tip{
+    position:absolute; pointer-events:none; z-index:5; opacity:0; transition:opacity .1s;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:8px 11px; font-size:12.5px; line-height:1.5; color:var(--ink-2);
+    box-shadow:0 6px 24px rgba(0,0,0,.5); white-space:nowrap;
+  }
+  .tip b{ color:var(--ink); font-variant-numeric:tabular-nums }
+
+  /* ---------- stat tiles ---------- */
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-top:18px }
+  .stat{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+    padding:14px 16px;
+  }
+  .stat .lbl{ font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--muted) }
+  .stat .val{ font-size:24px; font-weight:700; margin-top:4px; font-variant-numeric:tabular-nums; letter-spacing:-.01em }
+  .stat .sub{ font-size:12px; color:var(--muted); margin-top:2px; font-variant-numeric:tabular-nums }
+  .stat .dot{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:7px; vertical-align:1px }
+
+  /* ---------- formula strip ---------- */
+  .formula{
+    font-family:Georgia,"Times New Roman",serif; font-size:clamp(19px,2.6vw,25px);
+    color:var(--ink-2); margin-top:16px; text-align:center;
+  }
+  .formula .hl{ color:var(--blue) } .formula .hv{ color:var(--violet) }
+  .formula sup,.formula sub{ font-size:.55em }
+
+  /* ---------- notation anatomy ---------- */
+  .anatomy{ display:flex; flex-wrap:wrap; gap:36px; align-items:center; justify-content:center }
+  .bigform{
+    font-family:Georgia,"Times New Roman",serif; font-size:clamp(48px,8vw,84px);
+    display:flex; align-items:center; gap:6px; color:var(--ink);
+  }
+  .bigform .int{ color:var(--blue); font-size:1.5em; line-height:0.9 }
+  .bigform .lim{ display:flex; flex-direction:column; justify-content:space-between; height:1.5em; font-size:.38em; color:var(--violet); padding:2px 0 }
+  .bigform .dx{ color:var(--aqua) }
+  .legend{ display:grid; gap:12px; max-width:380px }
+  .legend .row{ display:flex; gap:12px; align-items:baseline; font-size:14.5px; color:var(--ink-2) }
+  .legend .sym{
+    font-family:Georgia,serif; font-size:22px; min-width:44px; text-align:center;
+    border:1px solid var(--border); border-radius:8px; padding:2px 6px; background:var(--surface-2);
+  }
+  .c-blue{ color:var(--blue) } .c-violet{ color:var(--violet) }
+  .c-aqua{ color:var(--aqua) } .c-red{ color:var(--red) }
+
+  /* ---------- reveal ---------- */
+  .reveal{ opacity:0; transform:translateY(22px); transition:opacity .6s ease, transform .6s ease }
+  .reveal.in{ opacity:1; transform:none }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{ opacity:1; transform:none; transition:none }
+    html{ scroll-behavior:auto }
+  }
+
+  footer{ border-top:1px solid var(--border); padding:34px 0 44px; color:var(--muted); font-size:13.5px }
+  footer .wrap{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="logo">∫</span>
+    <div class="links">
+      <a href="#riemann">Riemann sums</a>
+      <a href="#signed">Signed area</a>
+      <a href="#ftc">Fundamental theorem</a>
+      <a href="#notation">Notation</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <h1>The integral is<br><span class="grad">area, accumulated.</span></h1>
+    <p class="hero-sub">
+      One idea powers half of calculus: slice a region into rectangles, add them up,
+      and let the slices become infinitely thin. Watch it happen below — then take the controls.
+    </p>
+    <div class="hero-viz plot" id="heroPlot"></div>
+    <p class="hero-cap">Approximating the area under a curve with <b id="heroN">4</b> rectangles — the sum approaches the true area as the slices shrink.</p>
+  </div>
+</header>
+
+<!-- ============ 1. RIEMANN LAB ============ -->
+<section id="riemann">
+  <div class="wrap reveal">
+    <span class="kicker">01 · The core idea</span>
+    <h2>Build the area from rectangles</h2>
+    <p class="lede">
+      To find the area under <b>f(x)</b> between <b>a</b> and <b>b</b>, chop the interval into
+      <b>n</b> slices and stand a rectangle on each one. Their combined area is a
+      <b>Riemann sum</b> — crank <b>n</b> up and the error collapses toward zero.
+      Hover any slice to inspect its contribution.
+    </p>
+
+    <div class="card">
+      <div class="controls">
+        <div class="ctl">
+          <label>Function</label>
+          <div class="chips" id="fnChips" role="group" aria-label="Function"></div>
+        </div>
+        <div class="ctl">
+          <label>Sample point</label>
+          <div class="chips" id="methodChips" role="group" aria-label="Riemann method"></div>
+        </div>
+        <div class="ctl">
+          <label>Slices &nbsp;n</label>
+          <div class="sliderRow">
+            <input type="range" id="nSlider" min="1" max="150" value="10" aria-label="Number of slices">
+            <span class="nval" id="nVal">10</span>
+            <button class="play" id="playBtn">▶ Refine to 150</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="plot" id="riemannPlot"></div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="lbl"><span class="dot" style="background:var(--blue)"></span>Riemann sum</div>
+          <div class="val" id="statApprox">–</div>
+          <div class="sub" id="statApproxSub">n = 10</div>
+        </div>
+        <div class="stat">
+          <div class="lbl"><span class="dot" style="background:var(--aqua)"></span>Exact integral</div>
+          <div class="val" id="statExact">–</div>
+          <div class="sub" id="statExactSub">∫ f(x) dx</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">Error</div>
+          <div class="val" id="statErr">–</div>
+          <div class="sub" id="statErrPct">–</div>
+        </div>
+      </div>
+
+      <p class="formula" id="riemannFormula">
+        <span class="hl">Σ f(x<sub>i</sub>) Δx</span> &nbsp;⟶&nbsp; <span class="hl">∫<sub>a</sub><sup>b</sup> f(x) dx</span>
+        &nbsp; as n → ∞
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. SIGNED AREA ============ -->
+<section id="signed">
+  <div class="wrap reveal">
+    <span class="kicker">02 · A subtlety</span>
+    <h2>Area below the axis counts as negative</h2>
+    <p class="lede">
+      The integral doesn't measure raw area — it measures <b>signed</b> area. Where the curve dips
+      below the axis, the rectangles have negative height, so that region <b>subtracts</b>.
+      Drag the two handles to move the bounds <b>a</b> and <b>b</b> across a full wave of sin&nbsp;x.
+    </p>
+
+    <div class="card">
+      <div class="plot" id="signedPlot"></div>
+      <div class="stats">
+        <div class="stat">
+          <div class="lbl"><span class="dot" style="background:var(--blue)"></span>Above axis</div>
+          <div class="val c-blue" id="posArea">–</div>
+          <div class="sub">counts +</div>
+        </div>
+        <div class="stat">
+          <div class="lbl"><span class="dot" style="background:var(--red)"></span>Below axis</div>
+          <div class="val c-red" id="negArea">–</div>
+          <div class="sub">counts −</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">Net integral</div>
+          <div class="val" id="netArea">–</div>
+          <div class="sub" id="netBounds">∫ sin x dx</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">Total painted area</div>
+          <div class="val" id="totArea">–</div>
+          <div class="sub">∫ |sin x| dx</div>
+        </div>
+      </div>
+      <p class="formula">Over a full period, the two lobes cancel exactly: <span class="hl">∫<sub>0</sub><sup>2π</sup> sin x dx = 0</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. FTC ============ -->
+<section id="ftc">
+  <div class="wrap reveal">
+    <span class="kicker">03 · The punchline</span>
+    <h2>The Fundamental Theorem of Calculus</h2>
+    <p class="lede">
+      Let <b class="c-violet">F(x)</b> be the area accumulated under <b class="c-blue">f(t)</b> from 0 up to x.
+      Scrub x and watch: <b>the slope of the area function is the height of the curve.</b>
+      Accumulation and slope — integration and differentiation — are inverse operations.
+    </p>
+
+    <div class="card">
+      <div class="ctl" style="margin-bottom:14px">
+        <label>Sweep the upper bound &nbsp;x</label>
+        <div class="sliderRow">
+          <input type="range" id="ftcSlider" min="0" max="1000" value="380" aria-label="Upper bound x">
+          <span class="nval" id="ftcXVal" style="min-width:5ch">–</span>
+        </div>
+      </div>
+      <div class="plot" id="ftcTop"></div>
+      <div class="plot" id="ftcBottom" style="margin-top:6px"></div>
+      <div class="stats">
+        <div class="stat">
+          <div class="lbl"><span class="dot" style="background:var(--blue)"></span>f(x) — height of curve</div>
+          <div class="val c-blue" id="ftcF">–</div>
+          <div class="sub">= slope of F at x</div>
+        </div>
+        <div class="stat">
+          <div class="lbl"><span class="dot" style="background:var(--violet)"></span>F(x) — accumulated area</div>
+          <div class="val c-violet" id="ftcBigF">–</div>
+          <div class="sub">∫₀ˣ sin t dt = 1 − cos x</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">Reading the link</div>
+          <div class="val" style="font-size:15px; font-weight:500; color:var(--ink-2); line-height:1.45" id="ftcNote">–</div>
+        </div>
+      </div>
+      <p class="formula"><span class="hv">F′(x)</span> = <span class="hl">f(x)</span> &nbsp;&nbsp;—&nbsp;&nbsp; so &nbsp;<span class="hl">∫<sub>a</sub><sup>b</sup> f(x) dx</span> = <span class="hv">F(b) − F(a)</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. NOTATION ============ -->
+<section id="notation">
+  <div class="wrap reveal">
+    <span class="kicker">04 · Reading the symbol</span>
+    <h2>Anatomy of an integral</h2>
+    <p class="lede">
+      Leibniz designed the notation to <b>tell the story of the construction</b>: an elongated S for
+      “sum”, the function being sampled, and dx — a slice of width shrunk to the infinitesimal.
+    </p>
+
+    <div class="card">
+      <div class="anatomy">
+        <div class="bigform" aria-label="the integral from a to b of f of x, d x">
+          <span class="int">∫</span>
+          <span class="lim"><span>b</span><span>a</span></span>
+          <span>f(x)</span>
+          <span class="dx">dx</span>
+        </div>
+        <div class="legend">
+          <div class="row"><span class="sym c-blue">∫</span><span>A stretched <b>S</b>, for <b>sum</b> — add up infinitely many pieces.</span></div>
+          <div class="row"><span class="sym c-violet">a, b</span><span>The <b>bounds</b>: start and stop of the sweep along the x-axis.</span></div>
+          <div class="row"><span class="sym">f(x)</span><span>The <b>height</b> of each slice — the function being accumulated.</span></div>
+          <div class="row"><span class="sym c-aqua">dx</span><span>The <b>width</b> of each slice, taken to the limit of infinitely thin.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>∫ &nbsp;Integrals, interactively — built as a single HTML file.</span>
+    <span>Riemann → Leibniz → Newton</span>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ================= helpers ================= */
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const fmt = (v, d=4) => (Math.abs(v) < 1e-12 ? 0 : v).toFixed(d);
+
+/* composite Simpson — used as ground truth for "exact" values */
+function simpson(f, a, b, n=4096){
+  const h = (b - a) / n;
+  let s = f(a) + f(b);
+  for (let i = 1; i < n; i++) s += f(a + i*h) * (i % 2 ? 4 : 2);
+  return s * h / 3;
+}
+
+/* A minimal plot frame: grid, axes, scales. viewBox-based so it scales fluidly. */
+function makePlot(container, opts){
+  const { w=940, h=360, m={l:46,r:14,t:14,b:30}, xd, yd, xticks=[], yticks=[] } = opts;
+  const svg = svgEl("svg", { viewBox:`0 0 ${w} ${h}`, role:"img" }, container);
+  const iw = w - m.l - m.r, ih = h - m.t - m.b;
+  const x = v => m.l + (v - xd[0]) / (xd[1]-xd[0]) * iw;
+  const y = v => m.t + ih - (v - yd[0]) / (yd[1]-yd[0]) * ih;
+  const gGrid = svgEl("g", {}, svg);
+  yticks.forEach(t => {
+    svgEl("line", { x1:m.l, x2:w-m.r, y1:y(t), y2:y(t), class:"gridline" }, gGrid);
+    svgEl("text", { x:m.l-8, y:y(t)+4, "text-anchor":"end", class:"ticktext" }, gGrid).textContent = t;
+  });
+  xticks.forEach(t => {
+    const label = (typeof t === "object") ? t.label : t;
+    const val   = (typeof t === "object") ? t.v : t;
+    svgEl("text", { x:x(val), y:h-m.b+18, "text-anchor":"middle", class:"ticktext" }, gGrid).textContent = label;
+  });
+  /* zero baseline (or bottom axis if 0 not in range) */
+  const zy = (yd[0] <= 0 && yd[1] >= 0) ? y(0) : y(yd[0]);
+  svgEl("line", { x1:m.l, x2:w-m.r, y1:zy, y2:zy, class:"axisline" }, svg);
+  const gMain = svgEl("g", {}, svg);
+  return { svg, gMain, x, y, w, h, m, zeroY: zy };
+}
+
+function curvePath(f, xd, xs, ys, n=240){
+  let d = "";
+  for (let i = 0; i <= n; i++){
+    const t = xd[0] + (xd[1]-xd[0]) * i / n;
+    d += (i ? "L" : "M") + xs(t).toFixed(2) + " " + ys(f(t)).toFixed(2);
+  }
+  return d;
+}
+
+/* tooltip helper — one per plot container */
+function makeTip(container){
+  const tip = document.createElement("div");
+  tip.className = "tip";
+  container.appendChild(tip);
+  return {
+    show(html, cx, cy){
+      tip.innerHTML = html;
+      tip.style.opacity = 1;
+      const cw = container.clientWidth;
+      tip.style.left = Math.min(Math.max(cx - 60, 4), cw - 170) + "px";
+      tip.style.top  = Math.max(cy - 74, 4) + "px";
+    },
+    hide(){ tip.style.opacity = 0; }
+  };
+}
+
+/* keep the range-track fill in sync with its value */
+function trackFill(slider){
+  const p = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+  slider.style.setProperty("--fill", p + "%");
+}
+
+/* ================= HERO — auto-looping refinement ================= */
+(() => {
+  const box = document.getElementById("heroPlot");
+  const f = t => 1.15*Math.exp(-((t-1.25)**2)*1.15) + 0.85*Math.exp(-((t-3.55)**2)*0.75) + 0.12;
+  const xd = [0, 5], yd = [0, 1.45];
+  const p = makePlot(box, { w:940, h:280, m:{l:14,r:14,t:10,b:12}, xd, yd });
+  const gRects = svgEl("g", {}, p.gMain);
+  svgEl("path", { d:curvePath(f, xd, p.x, p.y), class:"curve" }, p.gMain);
+  const nLabel = document.getElementById("heroN");
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let last = -1;
+  function draw(n){
+    if (n === last) return;
+    last = n;
+    gRects.innerHTML = "";
+    const dx = (xd[1]-xd[0]) / n;
+    for (let i = 0; i < n; i++){
+      const x0 = xd[0] + i*dx, hgt = f(x0 + dx/2);
+      svgEl("rect", {
+        x:p.x(x0), y:p.y(hgt),
+        width:p.x(x0+dx)-p.x(x0), height:p.zeroY - p.y(hgt),
+        class:"slice"
+      }, gRects);
+    }
+    nLabel.textContent = n;
+  }
+  if (reduced){ draw(24); return; }
+  const t0 = performance.now();
+  (function loop(now){
+    const phase = ((now - t0) / 9000) % 1;                 // 9s cycle
+    const eased = 0.5 - 0.5 * Math.cos(phase * 2 * Math.PI); // 0→1→0
+    draw(Math.round(3 + eased * 45));
+    requestAnimationFrame(loop);
+  })(t0);
+})();
+
+/* ================= 1. RIEMANN LAB ================= */
+(() => {
+  const FNS = [
+    { key:"quad", label:"x²",         f:x => x*x,              a:0,  b:2,           tex:"f(x) = x²" },
+    { key:"sqrt", label:"√x",         f:x => Math.sqrt(x),     a:0,  b:4,           tex:"f(x) = √x" },
+    { key:"wave", label:"sin x + 1.4",f:x => Math.sin(x)+1.4,  a:0,  b:2*Math.PI,   tex:"f(x) = sin x + 1.4" },
+    { key:"bell", label:"e^(−x²)",    f:x => Math.exp(-x*x),   a:-2, b:2,           tex:"f(x) = e^(−x²)" },
+  ];
+  const METHODS = [
+    { key:"left",  label:"Left" },
+    { key:"mid",   label:"Midpoint" },
+    { key:"right", label:"Right" },
+    { key:"trap",  label:"Trapezoid" },
+  ];
+  let fn = FNS[0], method = "mid", n = 10;
+
+  const box = document.getElementById("riemannPlot");
+  const tip = makeTip(box);
+  let plot = null, gRects = null, curveEl = null, labelEl = null;
+
+  function rebuildFrame(){
+    box.querySelectorAll("svg").forEach(s => s.remove());
+    const { f, a, b } = fn;
+    let ymax = 0;
+    for (let i = 0; i <= 300; i++) ymax = Math.max(ymax, f(a + (b-a)*i/300));
+    const yd = [0, ymax * 1.12];
+    const step = ymax > 3 ? 1 : ymax > 1.4 ? 0.5 : 0.25;
+    const yticks = []; for (let t = step; t < yd[1]; t += step) yticks.push(+t.toFixed(2));
+    const xticks = fn.key === "wave"
+      ? [{v:0,label:"0"},{v:Math.PI,label:"π"},{v:2*Math.PI,label:"2π"}]
+      : [a, (a+b)/2, b].map(v => ({v, label:+v.toFixed(1)}));
+    plot = makePlot(box, { w:940, h:360, xd:[a,b], yd, xticks, yticks });
+    gRects = svgEl("g", {}, plot.gMain);
+    curveEl = svgEl("path", { d:curvePath(f, [a,b], plot.x, plot.y), class:"curve" }, plot.gMain);
+    labelEl = svgEl("text", {
+      x: plot.w - plot.m.r - 8, y: plot.m.t + 18, "text-anchor":"end",
+      class:"serieslabel", fill:"var(--blue)"
+    }, plot.gMain);
+    labelEl.textContent = fn.tex;
+  }
+
+  function render(){
+    const { f, a, b } = fn;
+    const dx = (b - a) / n;
+    gRects.innerHTML = "";
+    let sum = 0;
+    for (let i = 0; i < n; i++){
+      const x0 = a + i*dx, x1 = x0 + dx;
+      let shape, area;
+      if (method === "trap"){
+        const y0 = f(x0), y1 = f(x1);
+        area = (y0 + y1) / 2 * dx;
+        shape = svgEl("polygon", {
+          points:`${plot.x(x0)},${plot.zeroY} ${plot.x(x0)},${plot.y(y0)} ${plot.x(x1)},${plot.y(y1)} ${plot.x(x1)},${plot.zeroY}`,
+          class:"slice"
+        }, gRects);
+        shape.dataset.h = `${fmt((y0+y1)/2,3)} (avg)`;
+      } else {
+        const xs = method === "left" ? x0 : method === "right" ? x1 : x0 + dx/2;
+        const hgt = f(xs);
+        area = hgt * dx;
+        shape = svgEl("rect", {
+          x:plot.x(x0), y:plot.y(hgt),
+          width:plot.x(x1)-plot.x(x0), height:Math.max(plot.zeroY - plot.y(hgt), 0),
+          class:"slice"
+        }, gRects);
+        shape.dataset.h = fmt(hgt, 3);
+      }
+      sum += area;
+      shape.dataset.i = i + 1; shape.dataset.x0 = fmt(x0,2); shape.dataset.x1 = fmt(x1,2);
+      shape.dataset.area = fmt(area, 4);
+    }
+    const exact = simpson(f, a, b);
+    const err = Math.abs(sum - exact);
+    document.getElementById("statApprox").textContent = fmt(sum);
+    document.getElementById("statApproxSub").textContent =
+      `n = ${n} · ${METHODS.find(m => m.key === method).label.toLowerCase()}`;
+    document.getElementById("statExact").textContent = fmt(exact);
+    document.getElementById("statExactSub").textContent = `∫ over [${fmt(a,0)}, ${fn.key==="wave" ? "2π" : fmt(b,0)}]`;
+    document.getElementById("statErr").textContent = fmt(err);
+    document.getElementById("statErrPct").textContent = fmt(err / exact * 100, 3) + "% off";
+  }
+
+  /* slice hover */
+  box.addEventListener("mousemove", e => {
+    const t = e.target.closest(".slice");
+    if (!t){ tip.hide(); return; }
+    const r = box.getBoundingClientRect();
+    tip.show(
+      `slice <b>${t.dataset.i}</b> of ${n} &nbsp;·&nbsp; x ∈ [<b>${t.dataset.x0}</b>, <b>${t.dataset.x1}</b>]<br>` +
+      `height <b>${t.dataset.h}</b> &nbsp;·&nbsp; area <b>${t.dataset.area}</b>`,
+      e.clientX - r.left, e.clientY - r.top
+    );
+  });
+  box.addEventListener("mouseleave", () => tip.hide());
+
+  /* controls */
+  function chipRow(el, items, activeKey, onPick){
+    items.forEach(it => {
+      const btn = document.createElement("button");
+      btn.className = "chip"; btn.textContent = it.label;
+      btn.setAttribute("aria-pressed", it.key === activeKey);
+      btn.addEventListener("click", () => {
+        el.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed","false"));
+        btn.setAttribute("aria-pressed","true");
+        onPick(it);
+      });
+      el.appendChild(btn);
+    });
+  }
+  chipRow(document.getElementById("fnChips"), FNS, "quad", it => { fn = it; rebuildFrame(); render(); });
+  chipRow(document.getElementById("methodChips"), METHODS, "mid", it => { method = it.key; render(); });
+
+  const slider = document.getElementById("nSlider");
+  const nVal = document.getElementById("nVal");
+  slider.addEventListener("input", () => {
+    n = +slider.value; nVal.textContent = n; trackFill(slider); render();
+  });
+  trackFill(slider);
+
+  let playing = null;
+  document.getElementById("playBtn").addEventListener("click", () => {
+    if (playing) cancelAnimationFrame(playing);
+    const from = n, to = 150, dur = 2600, t0 = performance.now();
+    (function step(now){
+      const t = Math.min((now - t0) / dur, 1);
+      const e = 1 - Math.pow(1 - t, 3);
+      n = Math.round(from + (to - from) * e);
+      slider.value = n; nVal.textContent = n; trackFill(slider); render();
+      if (t < 1) playing = requestAnimationFrame(step); else playing = null;
+    })(t0);
+  });
+
+  rebuildFrame(); render();
+})();
+
+/* ================= 2. SIGNED AREA ================= */
+(() => {
+  const f = Math.sin, X0 = 0, X1 = 2*Math.PI;
+  let a = 0.55, b = 5.65;
+  const box = document.getElementById("signedPlot");
+  const p = makePlot(box, {
+    w:940, h:330, xd:[X0,X1], yd:[-1.25,1.25],
+    xticks:[{v:0,label:"0"},{v:Math.PI/2,label:"π/2"},{v:Math.PI,label:"π"},{v:3*Math.PI/2,label:"3π/2"},{v:2*Math.PI,label:"2π"}],
+    yticks:[-1,0,1]
+  });
+  const posFill = svgEl("path", { fill:"rgba(57,135,229,.35)" }, p.gMain);
+  const negFill = svgEl("path", { fill:"rgba(230,103,103,.35)" }, p.gMain);
+  svgEl("path", { d:curvePath(f, [X0,X1], p.x, p.y), class:"curve" }, p.gMain);
+  const posLab = svgEl("text", { class:"serieslabel", fill:"var(--blue)", "text-anchor":"middle" }, p.gMain);
+  const negLab = svgEl("text", { class:"serieslabel", fill:"var(--red)",  "text-anchor":"middle" }, p.gMain);
+  posLab.textContent = "+ area"; negLab.textContent = "− area";
+
+  /* draggable bound handles */
+  function makeHandle(name){
+    const g = svgEl("g", { style:"cursor:ew-resize", tabindex:"0", role:"slider",
+      "aria-label":`bound ${name}`, "aria-valuemin":"0", "aria-valuemax":"6.283" }, p.svg);
+    svgEl("line", { y1:p.m.t, y2:p.h-p.m.b, stroke:"var(--ink-2)", "stroke-width":1.5, "stroke-dasharray":"5 4" }, g);
+    svgEl("rect", { y:p.m.t, width:26, x:-13, height:p.h-p.m.t-p.m.b, fill:"transparent" }, g); // fat hit area
+    const knob = svgEl("g", {}, g);
+    svgEl("circle", { cy:p.m.t+2, r:9, fill:"var(--surface-2)", stroke:"var(--ink-2)", "stroke-width":1.5 }, knob);
+    const txt = svgEl("text", { y:p.m.t+6, "text-anchor":"middle", "font-size":"11", "font-weight":"700", fill:"var(--ink)" }, knob);
+    txt.textContent = name;
+    return g;
+  }
+  const hA = makeHandle("a"), hB = makeHandle("b");
+
+  function fillPath(clip){ // clip: v => max(v,0) or min(v,0)
+    let d = "M" + p.x(a).toFixed(1) + " " + p.zeroY;
+    const steps = 160;
+    for (let i = 0; i <= steps; i++){
+      const t = a + (b-a)*i/steps;
+      d += "L" + p.x(t).toFixed(1) + " " + p.y(clip(f(t))).toFixed(1);
+    }
+    return d + "L" + p.x(b).toFixed(1) + " " + p.zeroY + "Z";
+  }
+
+  function integrate(g){ // midpoint rule, fine grid
+    const N = 1500, h = (b-a)/N; let s = 0;
+    for (let i = 0; i < N; i++) s += g(f(a + (i+0.5)*h));
+    return s * h;
+  }
+
+  function render(){
+    posFill.setAttribute("d", fillPath(v => Math.max(v,0)));
+    negFill.setAttribute("d", fillPath(v => Math.min(v,0)));
+    hA.setAttribute("transform", `translate(${p.x(a)},0)`);
+    hB.setAttribute("transform", `translate(${p.x(b)},0)`);
+    hA.setAttribute("aria-valuenow", fmt(a,2));
+    hB.setAttribute("aria-valuenow", fmt(b,2));
+    /* direct labels roughly centered on each lobe within [a,b] */
+    const posMid = Math.min(Math.max(Math.PI/2, a), b), negMid = Math.min(Math.max(3*Math.PI/2, a), b);
+    posLab.setAttribute("x", p.x(posMid)); posLab.setAttribute("y", p.y(0.55));
+    negLab.setAttribute("x", p.x(negMid)); negLab.setAttribute("y", p.y(-0.55));
+    const pos = integrate(v => Math.max(v,0));
+    const neg = integrate(v => Math.min(v,0));
+    const net = Math.cos(a) - Math.cos(b);      // exact antiderivative
+    posLab.style.opacity = pos > 0.05 ? 1 : 0;
+    negLab.style.opacity = neg < -0.05 ? 1 : 0;
+    document.getElementById("posArea").textContent = "+" + fmt(pos,3);
+    document.getElementById("negArea").textContent = fmt(neg,3);
+    document.getElementById("netArea").textContent = fmt(net,3);
+    document.getElementById("totArea").textContent = fmt(pos - neg,3);
+    document.getElementById("netBounds").textContent = `∫ from ${fmt(a,2)} to ${fmt(b,2)}`;
+  }
+
+  /* pointer + keyboard interaction */
+  function dataX(clientX){
+    const r = p.svg.getBoundingClientRect();
+    const vx = (clientX - r.left) / r.width * p.w;
+    return Math.min(Math.max(X0 + (vx - p.m.l) / (p.w - p.m.l - p.m.r) * (X1-X0), X0), X1);
+  }
+  let drag = null;
+  [[hA,"a"],[hB,"b"]].forEach(([h, which]) => {
+    h.addEventListener("pointerdown", e => { drag = which; h.setPointerCapture(e.pointerId); e.preventDefault(); });
+    h.addEventListener("pointermove", e => {
+      if (!drag) return;
+      const v = dataX(e.clientX);
+      if (drag === "a") a = Math.min(v, b - 0.05); else b = Math.max(v, a + 0.05);
+      render();
+    });
+    h.addEventListener("pointerup",   () => drag = null);
+    h.addEventListener("keydown", e => {
+      const step = e.shiftKey ? 0.5 : 0.1;
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      const d = e.key === "ArrowLeft" ? -step : step;
+      if (which === "a") a = Math.min(Math.max(a + d, X0), b - 0.05);
+      else               b = Math.max(Math.min(b + d, X1), a + 0.05);
+      render(); e.preventDefault();
+    });
+  });
+
+  render();
+})();
+
+/* ================= 3. FUNDAMENTAL THEOREM ================= */
+(() => {
+  const f = Math.sin, F = x => 1 - Math.cos(x);
+  const X0 = 0, X1 = 4*Math.PI;
+  const xticks = [
+    {v:0,label:"0"},{v:Math.PI,label:"π"},{v:2*Math.PI,label:"2π"},
+    {v:3*Math.PI,label:"3π"},{v:4*Math.PI,label:"4π"}
+  ];
+  const topBox = document.getElementById("ftcTop");
+  const botBox = document.getElementById("ftcBottom");
+  const pT = makePlot(topBox, { w:940, h:230, m:{l:46,r:14,t:14,b:26}, xd:[X0,X1], yd:[-1.25,1.25], xticks, yticks:[-1,0,1] });
+  const pB = makePlot(botBox, { w:940, h:230, m:{l:46,r:14,t:14,b:26}, xd:[X0,X1], yd:[-0.15,2.3], xticks, yticks:[0,1,2] });
+
+  /* top: f with swept fill */
+  const posFill = svgEl("path", { fill:"rgba(57,135,229,.35)" }, pT.gMain);
+  const negFill = svgEl("path", { fill:"rgba(230,103,103,.35)" }, pT.gMain);
+  svgEl("path", { d:curvePath(f, [X0,X1], pT.x, pT.y), class:"curve" }, pT.gMain);
+  const fDot = svgEl("circle", { r:6, fill:"var(--blue)", stroke:"var(--surface)", "stroke-width":2 }, pT.gMain);
+  const fStem = svgEl("line", { stroke:"var(--blue)", "stroke-width":2, "stroke-dasharray":"3 3" }, pT.gMain);
+  const fLab = svgEl("text", { class:"serieslabel", fill:"var(--blue)", x:pT.m.l+8, y:pT.m.t+14 }, pT.gMain);
+  fLab.textContent = "f(t) = sin t — the curve being accumulated";
+
+  /* bottom: F traced up to x */
+  svgEl("path", { d:curvePath(F, [X0,X1], pB.x, pB.y), fill:"none",
+    stroke:"var(--axis)", "stroke-width":1.5, "stroke-dasharray":"4 5" }, pB.gMain);
+  const trace = svgEl("path", { fill:"none", stroke:"var(--violet)", "stroke-width":2.5,
+    "stroke-linecap":"round" }, pB.gMain);
+  const tangent = svgEl("line", { stroke:"var(--blue)", "stroke-width":2.5, "stroke-linecap":"round" }, pB.gMain);
+  const FDot = svgEl("circle", { r:6, fill:"var(--violet)", stroke:"var(--surface)", "stroke-width":2 }, pB.gMain);
+  const FLab = svgEl("text", { class:"serieslabel", fill:"var(--violet)", x:pB.m.l+8, y:pB.m.t+14 }, pB.gMain);
+  FLab.textContent = "F(x) = area so far · tangent slope = f(x)";
+
+  function sweepPath(plot, clip, x){
+    let d = "M" + plot.x(X0) + " " + plot.zeroY;
+    const steps = 200;
+    for (let i = 0; i <= steps; i++){
+      const t = X0 + (x - X0) * i / steps;
+      d += "L" + plot.x(t).toFixed(1) + " " + plot.y(clip(f(t))).toFixed(1);
+    }
+    return d + "L" + plot.x(x).toFixed(1) + " " + plot.zeroY + "Z";
+  }
+
+  const slider = document.getElementById("ftcSlider");
+  function render(){
+    const x = X0 + (X1 - X0) * slider.value / 1000;
+    trackFill(slider);
+    posFill.setAttribute("d", sweepPath(pT, v => Math.max(v,0), x));
+    negFill.setAttribute("d", sweepPath(pT, v => Math.min(v,0), x));
+    fDot.setAttribute("cx", pT.x(x)); fDot.setAttribute("cy", pT.y(f(x)));
+    fStem.setAttribute("x1", pT.x(x)); fStem.setAttribute("x2", pT.x(x));
+    fStem.setAttribute("y1", pT.zeroY); fStem.setAttribute("y2", pT.y(f(x)));
+
+    /* traced F */
+    let d = "";
+    const steps = 200;
+    for (let i = 0; i <= steps; i++){
+      const t = X0 + (x - X0) * i / steps;
+      d += (i ? "L" : "M") + pB.x(t).toFixed(1) + " " + pB.y(F(t)).toFixed(1);
+    }
+    trace.setAttribute("d", d);
+    FDot.setAttribute("cx", pB.x(x)); FDot.setAttribute("cy", pB.y(F(x)));
+
+    /* tangent segment with slope f(x), ±0.9 in data units */
+    const dt = 0.9, m = f(x);
+    tangent.setAttribute("x1", pB.x(x - dt)); tangent.setAttribute("y1", pB.y(F(x) - m*dt));
+    tangent.setAttribute("x2", pB.x(x + dt)); tangent.setAttribute("y2", pB.y(F(x) + m*dt));
+
+    document.getElementById("ftcXVal").textContent = (x / Math.PI).toFixed(2) + "π";
+    document.getElementById("ftcF").textContent = fmt(f(x), 3);
+    document.getElementById("ftcBigF").textContent = fmt(F(x), 3);
+    const note = f(x) > 0.05 ? "f is positive → area is growing → F climbs."
+               : f(x) < -0.05 ? "f is negative → area is being removed → F falls."
+               : "f crosses zero → F pauses at a peak or valley.";
+    document.getElementById("ftcNote").textContent = note;
+  }
+  slider.addEventListener("input", render);
+  render();
+})();
+
+/* ================= scroll reveal ================= */
+(() => {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+})();
+</script>
+</body>
+</html>

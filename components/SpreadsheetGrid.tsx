@@ -2,7 +2,8 @@
 
 import { useCallback } from "react";
 import type { RefObject } from "react";
-import type { CompSale, DecimalPrecision, LayoutMode, WeightDisplayFormat } from "@/lib/types";
+import type { CompSale, DecimalPrecision, GridThemeId, LayoutMode, WeightDisplayFormat } from "@/lib/types";
+import { getGridTheme, type GridTheme } from "@/lib/themes";
 import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/calculations";
 import { formatCurrency, formatPercent, formatWeight } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
@@ -13,6 +14,7 @@ interface SpreadsheetGridProps {
   decimals: DecimalPrecision;
   layout: LayoutMode;
   weightDisplayFormat: WeightDisplayFormat;
+  theme: GridThemeId;
   gridExportRef?: RefObject<HTMLDivElement | null>;
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number | string) => void;
   onAddComp: () => void;
@@ -25,12 +27,14 @@ export default function SpreadsheetGrid({
   decimals,
   layout,
   weightDisplayFormat,
+  theme,
   gridExportRef,
   onUpdateComp,
   onAddComp,
   onRemoveComp,
   onWeightDisplayFormatChange,
 }: SpreadsheetGridProps) {
+  const resolvedTheme = getGridTheme(theme);
   const totalWeight = sumWeights(comps);
   const avg = weightedAverage(comps);
   const maxWeight = Math.max(...comps.map((c) => numericWeight(c)), 1);
@@ -113,6 +117,7 @@ export default function SpreadsheetGrid({
         comps={comps}
         decimals={decimals}
         weightDisplayFormat={weightDisplayFormat}
+        theme={resolvedTheme}
         totalWeight={totalWeight}
         avg={avg}
         maxWeight={maxWeight}
@@ -134,6 +139,7 @@ export default function SpreadsheetGrid({
       comps={comps}
       decimals={decimals}
       weightDisplayFormat={weightDisplayFormat}
+      theme={resolvedTheme}
       totalWeight={totalWeight}
       avg={avg}
       maxWeight={maxWeight}
@@ -154,6 +160,7 @@ interface GridInternalProps {
   comps: CompSale[];
   decimals: DecimalPrecision;
   weightDisplayFormat: WeightDisplayFormat;
+  theme: GridTheme;
   totalWeight: number;
   avg: number;
   maxWeight: number;
@@ -223,6 +230,7 @@ function VerticalGrid({
   comps,
   decimals,
   weightDisplayFormat,
+  theme,
   totalWeight,
   avg,
   maxWeight,
@@ -243,16 +251,16 @@ function VerticalGrid({
       <table className="border-collapse text-sm whitespace-nowrap">
         <thead>
           <tr>
-            <th className="px-3 py-1.5 text-left text-xs font-bold text-white bg-neutral-800 border border-neutral-300 w-28">
+            <th className={`px-3 py-1.5 text-left text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} w-28`}>
               Comparable
             </th>
-            <th className="px-3 py-1.5 text-right text-xs font-bold text-white bg-neutral-800 border border-neutral-300 min-w-[10rem]">
+            <th className={`px-3 py-1.5 text-right text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} min-w-[10rem]`}>
               Sale Price
             </th>
-            <th className="px-3 py-1.5 text-right text-xs font-bold text-white bg-neutral-800 border border-neutral-300 w-32">
+            <th className={`px-3 py-1.5 text-right text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} w-32`}>
               Weight
             </th>
-            <th className="px-3 py-1.5 text-right text-xs font-bold text-white bg-neutral-800 border border-neutral-300 min-w-[10rem]">
+            <th className={`px-3 py-1.5 text-right text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} min-w-[10rem]`}>
               Contribution
             </th>
             <th className="w-7 border-none bg-transparent" data-exclude-export />
@@ -266,12 +274,12 @@ function VerticalGrid({
             return (
               <tr
                 key={comp.id}
-                className="group hover:bg-slate-50 transition-colors"
+                className={`group ${theme.hoverBg} transition-colors`}
               >
-                <td className="px-3 py-1.5 font-medium text-slate-700 text-center text-[13px] border border-neutral-300">
+                <td className={`px-3 py-1.5 font-medium text-slate-700 text-center text-[13px] border ${theme.borderColor}`}>
                   {comp.label}
                 </td>
-                <td className="p-0 border border-neutral-300">
+                <td className={`p-0 border ${theme.borderColor}`}>
                   <EditableCell
                     value={comp.salePrice}
                     formatted={formatCurrency(comp.salePrice)}
@@ -283,8 +291,8 @@ function VerticalGrid({
                     onNavigate={onNavigate}
                   />
                 </td>
-                <td className="p-0 relative border border-neutral-300">
-                  <WeightBar ratio={weightRatio} direction="horizontal" />
+                <td className={`p-0 relative border ${theme.borderColor}`}>
+                  <WeightBar ratio={weightRatio} direction="horizontal" colorRGB={theme.weightBarRGB} />
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
@@ -300,7 +308,7 @@ function VerticalGrid({
                     />
                   </div>
                 </td>
-                <td className="px-2 py-1.5 text-right tabular-nums font-medium text-slate-700 border border-neutral-300">
+                <td className={`px-2 py-1.5 text-right tabular-nums font-medium text-slate-700 border ${theme.borderColor}`}>
                   {weightsValid && comp.salePrice > 0 && !isTextWeight
                     ? formatCurrency(contrib)
                     : "\u2014"}
@@ -318,14 +326,14 @@ function VerticalGrid({
           <tr>
             <td
               colSpan={2}
-              className="px-3 py-2 font-bold text-slate-900 bg-slate-100 text-sm border border-neutral-300"
+              className={`px-3 py-2 font-bold ${theme.footerText} ${theme.footerBg} text-sm border ${theme.borderColor}`}
             >
               Weighted Average
               <WeightWarning totalWeight={totalWeight} decimals={decimals} />
             </td>
             <td
               colSpan={2}
-              className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 bg-slate-100 text-sm border border-neutral-300"
+              className={`px-2 py-2 text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm border ${theme.borderColor}`}
             >
               {weightsValid ? formatCurrency(avg) : "\u2014"}
             </td>
@@ -346,6 +354,7 @@ function HorizontalGrid({
   comps,
   decimals,
   weightDisplayFormat,
+  theme,
   totalWeight,
   avg,
   maxWeight,
@@ -366,13 +375,13 @@ function HorizontalGrid({
       <table className="border-collapse text-sm whitespace-nowrap">
         <thead>
           <tr>
-            <th className="px-3 py-1.5 text-left text-xs font-bold text-white bg-neutral-800 border border-neutral-300 w-32">
+            <th className={`px-3 py-1.5 text-left text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} w-32`}>
               &nbsp;
             </th>
             {comps.map((comp) => (
               <th
                 key={comp.id}
-                className="px-3 py-1.5 text-center text-xs font-bold text-white bg-neutral-800 border border-neutral-300 group relative"
+                className={`px-3 py-1.5 text-center text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} group relative`}
               >
                 <span>{comp.label}</span>
                 {canRemove && (
@@ -382,7 +391,7 @@ function HorizontalGrid({
                 )}
               </th>
             ))}
-            <th className="px-3 py-1.5 text-center text-xs font-bold text-white bg-neutral-700 border border-neutral-300">
+            <th className={`px-3 py-1.5 text-center text-xs font-bold text-white ${theme.headerAccentBg} border ${theme.borderColor}`}>
               Result
             </th>
           </tr>
@@ -390,11 +399,11 @@ function HorizontalGrid({
         <tbody>
           {/* Sale Price Row */}
           <tr className="group">
-            <td className="px-3 py-1.5 font-bold text-slate-700 text-xs border border-neutral-300 bg-slate-50">
+            <td className={`px-3 py-1.5 font-bold text-slate-700 text-xs border ${theme.borderColor} ${theme.labelBg}`}>
               Sale Price
             </td>
             {comps.map((comp, i) => (
-              <td key={comp.id} className="p-0 min-w-[7rem] border border-neutral-300 hover:bg-slate-50 transition-colors">
+              <td key={comp.id} className={`p-0 min-w-[7rem] border ${theme.borderColor} ${theme.hoverBg} transition-colors`}>
                 <EditableCell
                   value={comp.salePrice}
                   formatted={formatCurrency(comp.salePrice)}
@@ -407,12 +416,12 @@ function HorizontalGrid({
                 />
               </td>
             ))}
-            <td className="border border-neutral-300 bg-slate-50/60" />
+            <td className={`border ${theme.borderColor} ${theme.resultColBg}`} />
           </tr>
 
           {/* Weight Row */}
           <tr className="group">
-            <td className="px-3 py-1.5 font-bold text-slate-700 text-xs border border-neutral-300 bg-slate-50">
+            <td className={`px-3 py-1.5 font-bold text-slate-700 text-xs border ${theme.borderColor} ${theme.labelBg}`}>
               Weight
               <WeightWarning totalWeight={totalWeight} decimals={decimals} />
             </td>
@@ -420,8 +429,8 @@ function HorizontalGrid({
               const isTextWeight = typeof comp.weight === "string";
               const weightRatio = numericWeight(comp) / maxWeight;
               return (
-                <td key={comp.id} className="p-0 min-w-[7rem] relative border border-neutral-300 hover:bg-slate-50 transition-colors">
-                  <WeightBar ratio={weightRatio} direction="vertical" />
+                <td key={comp.id} className={`p-0 min-w-[7rem] relative border ${theme.borderColor} ${theme.hoverBg} transition-colors`}>
+                  <WeightBar ratio={weightRatio} direction="vertical" colorRGB={theme.weightBarRGB} />
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
@@ -439,14 +448,14 @@ function HorizontalGrid({
                 </td>
               );
             })}
-            <td className="px-2 py-1.5 text-right tabular-nums font-semibold text-slate-700 border border-neutral-300 bg-slate-50/60">
+            <td className={`px-2 py-1.5 text-right tabular-nums font-semibold text-slate-700 border ${theme.borderColor} ${theme.resultColBg}`}>
               {formatWeight(totalWeight, decimals, weightDisplayFormat)}
             </td>
           </tr>
 
           {/* Contribution Row */}
           <tr className="group">
-            <td className="px-3 py-1.5 font-bold text-slate-700 text-xs border border-neutral-300 bg-slate-50">
+            <td className={`px-3 py-1.5 font-bold text-slate-700 text-xs border ${theme.borderColor} ${theme.labelBg}`}>
               Contribution
             </td>
             {comps.map((comp) => {
@@ -455,7 +464,7 @@ function HorizontalGrid({
               return (
                 <td
                   key={comp.id}
-                  className="px-2 py-1.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-700 border border-neutral-300"
+                  className={`px-2 py-1.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-700 border ${theme.borderColor}`}
                 >
                   {weightsValid && comp.salePrice > 0 && !isTextWeight
                     ? formatCurrency(contrib)
@@ -463,7 +472,7 @@ function HorizontalGrid({
                 </td>
               );
             })}
-            <td className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 bg-slate-100 text-sm border-2 border-neutral-400">
+            <td className={`px-2 py-2 text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm ${theme.resultBorder}`}>
               {weightsValid ? formatCurrency(avg) : "\u2014"}
             </td>
           </tr>
