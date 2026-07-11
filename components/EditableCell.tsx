@@ -130,15 +130,10 @@ export default function EditableCell({
           onNavigate(e.shiftKey ? "up" : "down", tabIndex);
         }
       } else if (e.key === "Tab") {
-        commit();
         if (onNavigate && tabIndex !== undefined && tabIndex !== -1) {
-          if (e.shiftKey && tabIndex === 1) {
-            e.preventDefault();
-            onNavigate("prev", tabIndex);
-          } else if (!e.shiftKey && maxTabIndex !== undefined && tabIndex === maxTabIndex) {
-            e.preventDefault();
-            onNavigate("next", tabIndex);
-          }
+          e.preventDefault();
+          commit();
+          onNavigate(e.shiftKey ? "prev" : "next", tabIndex);
         }
       } else if (e.key === "Escape") {
         setEditing(false);
