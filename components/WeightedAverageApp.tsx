@@ -195,11 +195,22 @@ export default function WeightedAverageApp() {
         e.preventDefault();
         addComp();
       }
+      if (e.shiftKey && (e.key === "d" || e.key === "D") && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        removeLastComp();
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [undo, redo, addComp]);
+  }, [undo, redo, addComp, removeLastComp]);
 
+  const removeLastComp = useCallback(() => {
+    setState((prev) => {
+      if (prev.comps.length <= 3) return prev;
+      const filtered = prev.comps.slice(0, -1);
+      return { ...prev, comps: filtered };
+    });
+  }, [setState]);
 
   const removeComp = useCallback((id: string) => {
     setState((prev) => {
