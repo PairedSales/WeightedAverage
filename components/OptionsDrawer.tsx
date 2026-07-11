@@ -7,6 +7,7 @@ import type {
   LayoutMode,
   Template,
   WeightDisplayFormat,
+  WeightIndicatorStyle,
 } from "@/lib/types";
 import { GRID_THEME_LIST } from "@/lib/themes";
 import TemplateManager from "./TemplateManager";
@@ -17,11 +18,13 @@ interface OptionsDrawerProps {
   showTitle: boolean;
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridThemeId;
+  weightIndicator: WeightIndicatorStyle;
   onDecimalsChange: (d: DecimalPrecision) => void;
   onLayoutChange: (l: LayoutMode) => void;
   onShowTitleChange: (show: boolean) => void;
   onWeightDisplayFormatChange: (f: WeightDisplayFormat) => void;
   onThemeChange: (t: GridThemeId) => void;
+  onWeightIndicatorChange: (s: WeightIndicatorStyle) => void;
   templates: Template[];
   onSaveTemplate: (name: string, state: AppState) => void;
   onLoadTemplate: (template: Template) => void;
@@ -35,11 +38,13 @@ export default function OptionsDrawer({
   showTitle,
   weightDisplayFormat,
   theme,
+  weightIndicator,
   onDecimalsChange,
   onLayoutChange,
   onShowTitleChange,
   onWeightDisplayFormatChange,
   onThemeChange,
+  onWeightIndicatorChange,
   templates,
   onSaveTemplate,
   onLoadTemplate,
@@ -155,6 +160,29 @@ export default function OptionsDrawer({
                   }`}
                 >
                   {f === "decimal" ? "Decimal" : "Fraction"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="min-w-[180px]">
+            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
+              Weight Indicator
+            </p>
+            <div className="flex border border-neutral-300">
+              {(["shading", "pie"] as WeightIndicatorStyle[]).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => onWeightIndicatorChange(s)}
+                  className={`flex-1 py-1 px-3 text-sm font-medium transition-all duration-150 cursor-pointer border-r border-neutral-300 last:border-r-0 ${
+                    weightIndicator === s
+                      ? "bg-neutral-800 text-white"
+                      : "bg-white text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {s === "shading" ? "Shading" : "Pie"}
                 </button>
               ))}
             </div>

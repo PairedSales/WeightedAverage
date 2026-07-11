@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import type { ReactNode } from "react";
 import {
   parseNumericInput,
   formatCurrencyLive,
@@ -31,6 +32,8 @@ interface EditableCellProps {
   maxTabIndex?: number;
   /** Callback to navigate to another cell (e.g. on Enter/Shift+Enter, Tab/Shift+Tab). */
   onNavigate?: (direction: "up" | "down" | "next" | "prev", currentTabIndex: number) => void;
+  /** Small icon rendered immediately to the left of the committed value (e.g. weight pie). */
+  indicator?: ReactNode;
 }
 
 function countDigitsBefore(str: string, pos: number): number {
@@ -64,6 +67,7 @@ export default function EditableCell({
   allowText = false,
   maxTabIndex,
   onNavigate,
+  indicator,
 }: EditableCellProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -191,7 +195,14 @@ export default function EditableCell({
         isEmpty ? "text-slate-400 italic" : "text-slate-800"
       } ${className}`}
     >
-      {isEmpty ? placeholder : formatted}
+      {indicator ? (
+        <span className="inline-flex items-center gap-1 align-top">
+          {indicator}
+          <span>{isEmpty ? placeholder : formatted}</span>
+        </span>
+      ) : (
+        isEmpty ? placeholder : formatted
+      )}
     </div>
   );
 }
