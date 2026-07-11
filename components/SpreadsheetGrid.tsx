@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import type { RefObject } from "react";
 import type { CompSale, DecimalPrecision, LayoutMode, WeightDisplayFormat } from "@/lib/types";
 import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/calculations";
@@ -36,6 +37,42 @@ export default function SpreadsheetGrid({
   const canAdd = comps.length < 12;
   const canRemove = comps.length > 3;
   const weightsValid = totalWeight > 0;
+  const n = comps.length;
+
+  const handleNavigate = useCallback(
+    (direction: "up" | "down", currentTabIndex: number) => {
+      let targetTabIndex = -1;
+      if (layout === "horizontal") {
+        if (direction === "down") {
+          if (currentTabIndex >= 1 && currentTabIndex <= n) {
+            targetTabIndex = currentTabIndex + n;
+          }
+        } else { // up
+          if (currentTabIndex >= n + 1 && currentTabIndex <= 2 * n) {
+            targetTabIndex = currentTabIndex - n;
+          }
+        }
+      } else { // vertical
+        if (direction === "down") {
+          if (currentTabIndex !== n && currentTabIndex !== 2 * n) {
+            targetTabIndex = currentTabIndex + 1;
+          }
+        } else { // up
+          if (currentTabIndex !== 1 && currentTabIndex !== n + 1) {
+            targetTabIndex = currentTabIndex - 1;
+          }
+        }
+      }
+
+      if (targetTabIndex !== -1) {
+        const target = document.querySelector(`[tabindex="${targetTabIndex}"]`) as HTMLElement;
+        if (target) {
+          target.focus();
+        }
+      }
+    },
+    [layout, n]
+  );
 
   if (layout === "horizontal") {
     return (
@@ -54,6 +91,7 @@ export default function SpreadsheetGrid({
         onAddComp={onAddComp}
         onRemoveComp={onRemoveComp}
         onWeightDisplayFormatChange={onWeightDisplayFormatChange}
+        onNavigate={handleNavigate}
       />
     );
   }
@@ -74,6 +112,7 @@ export default function SpreadsheetGrid({
       onAddComp={onAddComp}
       onRemoveComp={onRemoveComp}
       onWeightDisplayFormatChange={onWeightDisplayFormatChange}
+      onNavigate={handleNavigate}
     />
   );
 }
@@ -93,6 +132,7 @@ interface GridInternalProps {
   onAddComp: () => void;
   onRemoveComp: (id: string) => void;
   onWeightDisplayFormatChange?: (format: WeightDisplayFormat) => void;
+  onNavigate: (direction: "up" | "down", currentTabIndex: number) => void;
 }
 
 function WeightWarning({ totalWeight, decimals }: { totalWeight: number; decimals: DecimalPrecision }) {
@@ -161,6 +201,7 @@ function VerticalGrid({
   onAddComp,
   onRemoveComp,
   onWeightDisplayFormatChange,
+  onNavigate,
 }: GridInternalProps) {
   const n = comps.length;
   return (
@@ -205,6 +246,7 @@ function VerticalGrid({
                     type="currency"
                     placeholder="Enter price"
                     tabIndex={i + 1}
+                    onNavigate={onNavigate}
                   />
                 </td>
                 <td className="p-0 relative border border-neutral-300">
@@ -219,6 +261,7 @@ function VerticalGrid({
                       tabIndex={n + i + 1}
                       onFormatChange={onWeightDisplayFormatChange}
                       allowText
+                      onNavigate={onNavigate}
                     />
                   </div>
                 </td>
@@ -279,6 +322,7 @@ function HorizontalGrid({
   onAddComp,
   onRemoveComp,
   onWeightDisplayFormatChange,
+  onNavigate,
 }: GridInternalProps) {
   const n = comps.length;
   return (
@@ -323,6 +367,7 @@ function HorizontalGrid({
                   type="currency"
                   placeholder="Enter price"
                   tabIndex={i + 1}
+                  onNavigate={onNavigate}
                 />
               </td>
             ))}
@@ -351,6 +396,7 @@ function HorizontalGrid({
                       tabIndex={n + i + 1}
                       onFormatChange={onWeightDisplayFormatChange}
                       allowText
+                      onNavigate={onNavigate}
                     />
                   </div>
                 </td>

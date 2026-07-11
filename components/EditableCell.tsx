@@ -27,6 +27,8 @@ interface EditableCellProps {
   onFormatChange?: (format: "decimal" | "fraction") => void;
   /** Allow committing free-text (non-numeric) input as-is, e.g. a "Listing" label in a weight cell. */
   allowText?: boolean;
+  /** Callback to navigate to another cell (e.g. on Enter/Shift+Enter). */
+  onNavigate?: (direction: "up" | "down", currentTabIndex: number) => void;
 }
 
 function countDigitsBefore(str: string, pos: number): number {
@@ -58,6 +60,7 @@ export default function EditableCell({
   fullWidth = true,
   onFormatChange,
   allowText = false,
+  onNavigate,
 }: EditableCellProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -119,11 +122,15 @@ export default function EditableCell({
     (e: React.KeyboardEvent) => {
       if (e.key === "Enter") {
         commit();
+        if (onNavigate && tabIndex !== undefined && tabIndex !== -1) {
+          e.preventDefault();
+          onNavigate(e.shiftKey ? "up" : "down", tabIndex);
+        }
       } else if (e.key === "Escape") {
         setEditing(false);
       }
     },
-    [commit]
+    [commit, onNavigate, tabIndex]
   );
 
   const handleChange = useCallback(
