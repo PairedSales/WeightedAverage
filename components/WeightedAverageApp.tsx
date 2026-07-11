@@ -192,8 +192,6 @@ export default function WeightedAverageApp() {
         redo();
       }
       if (e.shiftKey && (e.key === "a" || e.key === "A") && !e.ctrlKey && !e.metaKey) {
-        const tag = (e.target as HTMLElement)?.tagName;
-        if (tag === "INPUT" || tag === "TEXTAREA") return;
         e.preventDefault();
         addComp();
       }
