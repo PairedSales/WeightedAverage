@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useCallback, useEffect, useMemo } from "react";
+import { toast } from "sonner";
 import type { AppState, CompSale, DecimalPrecision, GridThemeId, HistorySnapshot, LayoutMode, Template, WeightDisplayFormat, WeightIndicatorStyle } from "@/lib/types";
 import { GRID_THEMES } from "@/lib/themes";
 import { copyChartImageToClipboard, type CopyResult } from "@/lib/chartClipboard";
@@ -269,6 +270,7 @@ export default function WeightedAverageApp() {
           id: crypto.randomUUID(),
         }));
         setState(normalizeState(loaded));
+        toast.success(`Template "${template.name}" loaded!`);
       }
     },
     [getTemplate, setState]
@@ -290,16 +292,10 @@ export default function WeightedAverageApp() {
     const el = resolveExportElement();
     if (!el) {
       console.error("[WeightedAverage] Copy failed: export element missing");
-      setCopyDetail("Chart area not ready — try again.");
-      setCopyStatus("error");
-      setTimeout(() => {
-        setCopyStatus("idle");
-        setCopyDetail("");
-      }, 4000);
+      toast.error("Chart area not ready — try again.");
       return;
     }
 
-    setCopyDetail("");
     setCopyStatus("copying");
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
@@ -307,9 +303,11 @@ export default function WeightedAverageApp() {
 
     void copyChartImageToClipboard(el).then((result) => {
       if (!result.ok) {
-        setCopyDetail(copyFailureHint(result));
+        const hint = copyFailureHint(result);
+        toast.error(hint || "Failed to copy chart to clipboard.");
       } else if (result.image) {
         addSnapshot(state, result.image);
+        toast.success("Chart copied to clipboard!");
       }
       setCopyStatus(result.ok ? "done" : "error");
       setTimeout(() => {
@@ -327,57 +325,44 @@ export default function WeightedAverageApp() {
     }
     if (!el) {
       console.error("[WeightedAverage] Save failed: export element missing");
-      setSaveDetail("Chart area not ready — try again.");
-      setSaveStatus("error");
-      setTimeout(() => {
-        setSaveStatus("idle");
-        setSaveDetail("");
-      }, 4000);
+      toast.error("Chart area not ready — try again.");
       return;
     }
 
-    setSaveDetail("");
-    setSaveInfo("");
     setSaveStatus("saving");
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
 
-    let clearAfterMs = 0;
     try {
       const result = await saveChartAsWebp(el, rememberLocation, state.comps.length);
       if (result.success) {
         setSaveStatus("done");
         if (result.openedInNewTab) {
-          setSaveInfo("Image opened in a new tab — use the browser menu to save if needed.");
-          clearAfterMs = 5000;
+          toast.info("Image opened in a new tab — use the browser menu to save if needed.");
         } else {
-          clearAfterMs = 2000;
+          toast.success("Chart saved successfully!");
         }
+        setTimeout(() => {
+          setSaveStatus("idle");
+        }, result.openedInNewTab ? 5000 : 2000);
       } else if (result.canceled) {
         setSaveStatus("idle");
       } else {
-        setSaveDetail(clipExportHint(result.errorMessage ?? "Save failed."));
+        const errorMsg = clipExportHint(result.errorMessage ?? "Save failed.");
+        toast.error(errorMsg);
         setSaveStatus("error");
         if (result.errorMessage) {
           console.error("[WeightedAverage] Save failed:", result.errorMessage);
         }
-        clearAfterMs = 4000;
+        setTimeout(() => setSaveStatus("idle"), 4000);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error("[WeightedAverage] Save threw:", e);
-      setSaveDetail(clipExportHint(msg));
+      toast.error(clipExportHint(msg));
       setSaveStatus("error");
-      clearAfterMs = 4000;
-    }
-
-    if (clearAfterMs > 0) {
-      window.setTimeout(() => {
-        setSaveStatus("idle");
-        setSaveDetail("");
-        setSaveInfo("");
-      }, clearAfterMs);
+      setTimeout(() => setSaveStatus("idle"), 4000);
     }
   }, [rememberLocation, state.comps.length, resolveExportElement]);
 
@@ -401,6 +386,7 @@ export default function WeightedAverageApp() {
     setCopyDetail("");
     setSaveDetail("");
     setSaveInfo("");
+    toast.info("Table cleared!");
   }, [setState]);
 
   const applyBlankTemplate = useCallback((count: number) => {
@@ -430,6 +416,7 @@ export default function WeightedAverageApp() {
 
   const handleSelectBlankTemplate = useCallback((count: number) => {
     applyBlankTemplate(count);
+    toast.success(`${count}-comp template applied!`);
   }, [applyBlankTemplate]);
 
   if (!hydrated) {
@@ -488,7 +475,7 @@ export default function WeightedAverageApp() {
 
       {/* Toolbar above card */}
       <div className="flex flex-col items-center w-full">
-        <div className="w-fit mx-auto flex flex-col items-stretch mt-16">
+        <div className="w-fit mx-auto flex flex-col items-stretch mt-8">
           {/* Tool toggle | Copy | Save — centered to card */}
           <div
             className="mb-3 w-full flex flex-wrap items-center justify-center gap-1.5 px-1"
@@ -746,7 +733,9 @@ export default function WeightedAverageApp() {
                 />
               </div>
 
-              <HistoryPanel history={history} onLoad={handleLoadHistory} />
+              <div className="mt-4 w-full max-w-4xl max-h-64 overflow-y-auto" data-exclude-export>
+                <HistoryPanel history={history} onLoad={handleLoadHistory} />
+              </div>
             </section>
           </div>
         </div>
