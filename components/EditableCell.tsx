@@ -196,7 +196,7 @@ export default function EditableCell({
       } ${className}`}
     >
       {indicator ? (
-        <span className="inline-flex items-center gap-1 align-top">
+        <span className="flex items-center justify-between gap-2.5">
           {indicator}
           <span>{isEmpty ? placeholder : formatted}</span>
         </span>

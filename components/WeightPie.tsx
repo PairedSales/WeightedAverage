@@ -3,31 +3,40 @@
 interface WeightPieProps {
   /** Numeric weights of every comp in grid order (coerce via numericWeight before passing). */
   segments: number[];
-  /** Index into `segments` of the comp this icon belongs to — its slice gets the accent fill. */
+  /** Index into `segments` of the comp this icon belongs to — its cumulative wedge gets the accent fill. */
   index: number;
   /** RGB triple for the accent color, e.g. "0, 0, 0" (see GridTheme.weightBarRGB). */
   colorRGB?: string;
 }
 
-const SIZE = 16;
-const CENTER = SIZE / 2;
-const RADIUS = CENTER - 0.75;
+/* Rendered on a generous viewBox for crisp arcs, downscaled by width/height. */
+const VB = 40;
+const CENTER = VB / 2;
+const RADIUS = 18;
+
+/**
+ * A point on the circle at cumulative fraction `f` (0–1), measured from the
+ * 6 o'clock position (bottom-center) and progressing clockwise.
+ */
+function point(f: number): [number, number] {
+  const angle = Math.PI / 2 + 2 * Math.PI * f; // 90° = bottom; increasing = clockwise (y-down)
+  return [CENTER + RADIUS * Math.cos(angle), CENTER + RADIUS * Math.sin(angle)];
+}
 
 function wedgePath(startFrac: number, endFrac: number): string {
-  const a0 = 2 * Math.PI * startFrac - Math.PI / 2;
-  const a1 = 2 * Math.PI * endFrac - Math.PI / 2;
-  const x0 = CENTER + RADIUS * Math.cos(a0);
-  const y0 = CENTER + RADIUS * Math.sin(a0);
-  const x1 = CENTER + RADIUS * Math.cos(a1);
-  const y1 = CENTER + RADIUS * Math.sin(a1);
+  const [x0, y0] = point(startFrac);
+  const [x1, y1] = point(endFrac);
   const largeArc = endFrac - startFrac > 0.5 ? 1 : 0;
   return `M ${CENTER} ${CENTER} L ${x0} ${y0} A ${RADIUS} ${RADIUS} 0 ${largeArc} 1 ${x1} ${y1} Z`;
 }
 
 /**
- * Compact pie icon showing every comp's weight as a slice, with only this
- * comp's slice highlighted. The full circle is always drawn (muted base disc
- * covers any unweighted remainder), so the pie never renders partially.
+ * Compact pie indicator showing the weights as one cumulative 0–100% scale
+ * starting at 6 o'clock and sweeping clockwise. Each comp owns a sequential
+ * wedge (Sale 1 = 0→w1, Sale 2 = w1→w1+w2, …). Every row renders the full set
+ * of divisions but highlights only its own wedge in the accent color, leaving
+ * the rest muted — so the complete circle is always drawn and, across all rows,
+ * the highlights account for the entire 100%.
  */
 export default function WeightPie({
   segments,
@@ -35,7 +44,8 @@ export default function WeightPie({
   colorRGB = "0, 0, 0",
 }: WeightPieProps) {
   const accent = `rgb(${colorRGB})`;
-  const muted = `rgba(${colorRGB}, 0.16)`;
+  const muted = `rgba(${colorRGB}, 0.13)`;
+  const ring = `rgba(${colorRGB}, 0.30)`;
   const total = segments.reduce((sum, w) => sum + Math.max(0, w), 0);
 
   const wedges: { path?: string; full?: boolean; active: boolean }[] = [];
@@ -55,40 +65,33 @@ export default function WeightPie({
 
   return (
     <svg
-      width={13}
-      height={13}
-      viewBox={`0 0 ${SIZE} ${SIZE}`}
+      width={20}
+      height={20}
+      viewBox={`0 0 ${VB} ${VB}`}
       className="shrink-0"
       aria-hidden="true"
     >
-      <circle
-        cx={CENTER}
-        cy={CENTER}
-        r={RADIUS}
-        fill={muted}
-        stroke={`rgba(${colorRGB}, 0.35)`}
-        strokeWidth={0.5}
-      />
+      {/* Muted base disc — guarantees a complete circle even with 0/partial weights. */}
+      <circle cx={CENTER} cy={CENTER} r={RADIUS} fill={muted} />
+
+      {/* Inactive wedges first, then the active wedge on top so it always reads cleanly. */}
       {wedges.map((w, i) =>
-        w.full ? (
-          <circle
-            key={i}
-            cx={CENTER}
-            cy={CENTER}
-            r={RADIUS}
-            fill={w.active ? accent : muted}
-          />
+        w.active ? null : w.full ? (
+          <circle key={i} cx={CENTER} cy={CENTER} r={RADIUS} fill={muted} stroke="#fff" strokeWidth={1.25} />
         ) : (
-          <path
-            key={i}
-            d={w.path}
-            fill={w.active ? accent : muted}
-            stroke="#fff"
-            strokeWidth={0.75}
-            strokeLinejoin="round"
-          />
+          <path key={i} d={w.path} fill={muted} stroke="#fff" strokeWidth={1.25} strokeLinejoin="round" />
         )
       )}
+      {wedges.map((w, i) =>
+        !w.active ? null : w.full ? (
+          <circle key={i} cx={CENTER} cy={CENTER} r={RADIUS} fill={accent} />
+        ) : (
+          <path key={i} d={w.path} fill={accent} stroke="#fff" strokeWidth={1.25} strokeLinejoin="round" />
+        )
+      )}
+
+      {/* Crisp outer ring for definition. */}
+      <circle cx={CENTER} cy={CENTER} r={RADIUS} fill="none" stroke={ring} strokeWidth={1} />
     </svg>
   );
 }
