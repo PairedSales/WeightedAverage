@@ -15,6 +15,10 @@ export type GridThemeId = "classic" | "navy" | "evergreen" | "heritage";
 export const WEIGHT_VIZ_MODES = ["shade", "meter", "scale", "pie", "pie-classic", "pie-large", "bar", "bar-fill"] as const;
 export type WeightVizMode = (typeof WEIGHT_VIZ_MODES)[number];
 
+/** Which row "bar-fill" paints its segments across. */
+export const WEIGHT_VIZ_ROWS = ["weight", "contribution"] as const;
+export type WeightVizRow = (typeof WEIGHT_VIZ_ROWS)[number];
+
 export interface AppState {
   comps: CompSale[];
   decimals: DecimalPrecision;
@@ -26,6 +30,8 @@ export interface AppState {
   weightViz: WeightVizMode;
   /** Also render the active weight viz in the result/total cells. */
   showResultViz: boolean;
+  /** Row "bar-fill" renders its segments in (weight or contribution). */
+  barFillRow: WeightVizRow;
 }
 
 export interface Template {

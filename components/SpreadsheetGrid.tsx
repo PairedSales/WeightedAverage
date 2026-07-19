@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import type { RefObject } from "react";
-import type { CompSale, DecimalPrecision, GridThemeId, LayoutMode, WeightDisplayFormat, WeightVizMode } from "@/lib/types";
+import type { CompSale, DecimalPrecision, GridThemeId, LayoutMode, WeightDisplayFormat, WeightVizMode, WeightVizRow } from "@/lib/types";
 import { getGridTheme, type GridTheme } from "@/lib/themes";
 import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/calculations";
 import { formatCurrency, formatPercent, formatWeight } from "@/lib/formatting";
@@ -18,6 +18,7 @@ interface SpreadsheetGridProps {
   theme: GridThemeId;
   weightViz: WeightVizMode;
   showResultViz: boolean;
+  barFillRow: WeightVizRow;
   gridExportRef?: RefObject<HTMLDivElement | null>;
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number | string) => void;
   onAddComp: () => void;
@@ -33,6 +34,7 @@ export default function SpreadsheetGrid({
   theme,
   weightViz,
   showResultViz,
+  barFillRow,
   gridExportRef,
   onUpdateComp,
   onAddComp,
@@ -125,6 +127,7 @@ export default function SpreadsheetGrid({
         theme={resolvedTheme}
         weightViz={weightViz}
         showResultViz={showResultViz}
+        barFillRow={barFillRow}
         totalWeight={totalWeight}
         avg={avg}
         maxWeight={maxWeight}
@@ -149,6 +152,7 @@ export default function SpreadsheetGrid({
       theme={resolvedTheme}
       weightViz={weightViz}
       showResultViz={showResultViz}
+      barFillRow={barFillRow}
       totalWeight={totalWeight}
       avg={avg}
       maxWeight={maxWeight}
@@ -172,6 +176,7 @@ interface GridInternalProps {
   theme: GridTheme;
   weightViz: WeightVizMode;
   showResultViz: boolean;
+  barFillRow: WeightVizRow;
   totalWeight: number;
   avg: number;
   maxWeight: number;
@@ -244,6 +249,7 @@ function VerticalGrid({
   theme,
   weightViz,
   showResultViz,
+  barFillRow,
   totalWeight,
   avg,
   maxWeight,
@@ -317,6 +323,9 @@ function VerticalGrid({
                   {weightViz === "pie-classic" && !isTextWeight && (
                     <PieClassicGlyph pct={numericWeight(comp)} colorRGB={theme.weightBarRGB} />
                   )}
+                  {weightViz === "bar-fill" && barFillRow === "weight" && totalWeight > 0 && numericWeight(comp) > 0 && (
+                    <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
@@ -341,7 +350,7 @@ function VerticalGrid({
                   </div>
                 </td>
                 <td className={`px-2 py-1.5 text-right tabular-nums font-medium text-slate-700 relative border ${theme.borderColor}`}>
-                  {weightViz === "bar-fill" && totalWeight > 0 && numericWeight(comp) > 0 && (
+                  {weightViz === "bar-fill" && barFillRow === "contribution" && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
                   <span className="relative z-10">
@@ -416,6 +425,7 @@ function HorizontalGrid({
   theme,
   weightViz,
   showResultViz,
+  barFillRow,
   totalWeight,
   avg,
   maxWeight,
@@ -503,6 +513,9 @@ function HorizontalGrid({
                   {weightViz === "pie-classic" && !isTextWeight && (
                     <PieClassicGlyph pct={numericWeight(comp)} colorRGB={theme.weightBarRGB} />
                   )}
+                  {weightViz === "bar-fill" && barFillRow === "weight" && totalWeight > 0 && numericWeight(comp) > 0 && (
+                    <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
@@ -543,6 +556,9 @@ function HorizontalGrid({
                   {weightViz === "bar" && (
                     <BarGlyph comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
+                  {weightViz === "bar-fill" && barFillRow === "weight" && (
+                    <BarFillBackground comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
                 </>
               )}
               <div className="relative z-10">
@@ -567,7 +583,7 @@ function HorizontalGrid({
                   key={comp.id}
                   className={`px-2 py-1.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-700 relative border ${theme.borderColor}`}
                 >
-                  {weightViz === "bar-fill" && totalWeight > 0 && numericWeight(comp) > 0 && (
+                  {weightViz === "bar-fill" && barFillRow === "contribution" && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
                   <span className="relative z-10">
@@ -579,7 +595,7 @@ function HorizontalGrid({
               );
             })}
             <td className={`px-2 py-2 relative text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm ${theme.resultBorder}`}>
-              {showResultViz && weightViz === "bar-fill" && totalWeight > 0 && (
+              {showResultViz && weightViz === "bar-fill" && barFillRow === "contribution" && totalWeight > 0 && (
                 <BarFillBackground comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
               )}
               <span className="relative z-10">{weightsValid ? formatCurrency(avg) : "\u2014"}</span>

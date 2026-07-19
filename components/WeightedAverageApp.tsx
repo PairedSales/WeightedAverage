@@ -2,8 +2,8 @@
 
 import { useRef, useCallback, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import type { AppState, CompSale, DecimalPrecision, GridThemeId, HistorySnapshot, LayoutMode, Template, WeightDisplayFormat, WeightVizMode } from "@/lib/types";
-import { WEIGHT_VIZ_MODES } from "@/lib/types";
+import type { AppState, CompSale, DecimalPrecision, GridThemeId, HistorySnapshot, LayoutMode, Template, WeightDisplayFormat, WeightVizMode, WeightVizRow } from "@/lib/types";
+import { WEIGHT_VIZ_MODES, WEIGHT_VIZ_ROWS } from "@/lib/types";
 import { GRID_THEMES } from "@/lib/themes";
 import { copyChartImageToClipboard, type CopyResult } from "@/lib/chartClipboard";
 import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
@@ -56,6 +56,7 @@ function defaultState(): AppState {
     theme: "classic",
     weightViz: "shade",
     showResultViz: false,
+    barFillRow: "contribution",
   };
 }
 
@@ -68,6 +69,7 @@ function normalizeState(state: AppState): AppState {
     theme: state.theme && state.theme in GRID_THEMES ? state.theme : "classic",
     weightViz: WEIGHT_VIZ_MODES.includes(state.weightViz) ? state.weightViz : "shade",
     showResultViz: state.showResultViz === true,
+    barFillRow: WEIGHT_VIZ_ROWS.includes(state.barFillRow) ? state.barFillRow : "contribution",
     comps: state.comps.map(normalizeComp),
   };
 }
@@ -266,6 +268,10 @@ export default function WeightedAverageApp() {
     setState((prev) => ({ ...prev, showResultViz }));
   }, [setState]);
 
+  const setBarFillRow = useCallback((barFillRow: WeightVizRow) => {
+    setState((prev) => ({ ...prev, barFillRow }));
+  }, [setState]);
+
   const handleLoadTemplate = useCallback(
     (template: Template) => {
       const t = getTemplate(template.id);
@@ -413,6 +419,7 @@ export default function WeightedAverageApp() {
       theme: prev.theme,
       weightViz: prev.weightViz,
       showResultViz: prev.showResultViz,
+      barFillRow: prev.barFillRow,
     }));
     setCopyStatus("idle");
     setSaveStatus("idle");
@@ -711,6 +718,7 @@ export default function WeightedAverageApp() {
                     theme={state.theme}
                     weightViz={state.weightViz}
                     showResultViz={state.showResultViz}
+                    barFillRow={state.barFillRow}
                     onUpdateComp={updateComp}
                     onAddComp={addComp}
                     onRemoveComp={removeComp}
@@ -728,6 +736,7 @@ export default function WeightedAverageApp() {
                   theme={state.theme}
                   weightViz={state.weightViz}
                   showResultViz={state.showResultViz}
+                  barFillRow={state.barFillRow}
                   onDecimalsChange={setDecimals}
                   onLayoutChange={setLayout}
                   onShowTitleChange={setShowTitle}
@@ -735,6 +744,7 @@ export default function WeightedAverageApp() {
                   onThemeChange={setTheme}
                   onWeightVizChange={setWeightViz}
                   onShowResultVizChange={setShowResultViz}
+                  onBarFillRowChange={setBarFillRow}
                   templates={templates}
                   onSaveTemplate={saveTemplate}
                   onLoadTemplate={handleLoadTemplate}

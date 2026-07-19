@@ -13,7 +13,7 @@ export const WEIGHT_VIZ_OPTIONS: { id: WeightVizMode; label: string; title: stri
   { id: "pie-classic", label: "Pie Classic", title: "Classic pie — a filled wedge equal to the comp's weight %" },
   { id: "pie-large", label: "Pie Large", title: "Large pie — the shared pie sized to fill the row height" },
   { id: "bar", label: "Bar", title: "Mini bar — each cell highlights that comp's segment of the total weight" },
-  { id: "bar-fill", label: "Bar Fill", title: "Cell bar — weight segments painted across the entire contribution cell" },
+  { id: "bar-fill", label: "Bar Fill", title: "Cell bar — weight segments painted across the entire weight or contribution cell" },
 ];
 
 

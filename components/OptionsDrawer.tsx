@@ -8,6 +8,7 @@ import type {
   Template,
   WeightDisplayFormat,
   WeightVizMode,
+  WeightVizRow,
 } from "@/lib/types";
 import { GRID_THEME_LIST } from "@/lib/themes";
 import { WEIGHT_VIZ_OPTIONS } from "./WeightViz";
@@ -81,6 +82,7 @@ interface OptionsDrawerProps {
   theme: GridThemeId;
   weightViz: WeightVizMode;
   showResultViz: boolean;
+  barFillRow: WeightVizRow;
   onDecimalsChange: (d: DecimalPrecision) => void;
   onLayoutChange: (l: LayoutMode) => void;
   onShowTitleChange: (show: boolean) => void;
@@ -88,6 +90,7 @@ interface OptionsDrawerProps {
   onThemeChange: (t: GridThemeId) => void;
   onWeightVizChange: (v: WeightVizMode) => void;
   onShowResultVizChange: (show: boolean) => void;
+  onBarFillRowChange: (row: WeightVizRow) => void;
   templates: Template[];
   onSaveTemplate: (name: string, state: AppState) => void;
   onLoadTemplate: (template: Template) => void;
@@ -103,6 +106,7 @@ export default function OptionsDrawer({
   theme,
   weightViz,
   showResultViz,
+  barFillRow,
   onDecimalsChange,
   onLayoutChange,
   onShowTitleChange,
@@ -110,6 +114,7 @@ export default function OptionsDrawer({
   onThemeChange,
   onWeightVizChange,
   onShowResultVizChange,
+  onBarFillRowChange,
   templates,
   onSaveTemplate,
   onLoadTemplate,
@@ -278,6 +283,28 @@ export default function OptionsDrawer({
                 );
               })}
             </div>
+            {weightViz === "bar-fill" && (
+              <div className="flex items-center gap-2 mt-2">
+                <p className="text-[11px] text-slate-500">Row:</p>
+                <div className="flex border border-neutral-300">
+                  {(["weight", "contribution"] as WeightVizRow[]).map((row) => (
+                    <button
+                      key={row}
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => onBarFillRowChange(row)}
+                      className={`py-1 px-2.5 text-xs font-medium transition-all duration-150 cursor-pointer border-r border-neutral-300 last:border-r-0 ${
+                        barFillRow === row
+                          ? "bg-neutral-800 text-white"
+                          : "bg-white text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {row === "weight" ? "Weight" : "Contribution"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="min-w-[280px]">
