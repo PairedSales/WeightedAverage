@@ -101,7 +101,7 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
   if (entries.length === 0) return null;
 
   return (
-    <div className="mt-4 w-full max-w-4xl" data-exclude-export>
+    <div className="mt-4 mx-auto w-fit" data-exclude-export>
       <div className="appraisal-section-header text-center">History</div>
       <div
         className="overflow-y-auto bg-white p-3"
