@@ -7,9 +7,48 @@ import type {
   LayoutMode,
   Template,
   WeightDisplayFormat,
+  WeightVizMode,
 } from "@/lib/types";
 import { GRID_THEME_LIST } from "@/lib/themes";
+import { WEIGHT_VIZ_OPTIONS } from "./WeightViz";
 import TemplateManager from "./TemplateManager";
+
+/** 16×16 glyph hinting at how each weight-viz mode draws. */
+function WeightVizIcon({ mode }: { mode: WeightVizMode }) {
+  const cls = "w-3.5 h-3.5";
+  switch (mode) {
+    case "shade": // square, left portion filled
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
+          <path d="M2 3h12v10H2V3Zm1 1v8h5V4H3Z" fillRule="evenodd" />
+        </svg>
+      );
+    case "meter": // row of discrete blocks
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
+          <path d="M1.5 6h3v4h-3V6Zm4.5 0h3v4H6V6Zm4.5 0h3v4h-3V6Z" />
+        </svg>
+      );
+    case "scale": // axis with marker
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
+          <path d="M1 7.5h14v1H1v-1Zm1-2h1v5H2v-5Zm11 0h1v5h-1v-5ZM8.5 5.5h3v5h-3v-5Z" />
+        </svg>
+      );
+    case "strip": // segmented band
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
+          <path d="M1 5h14v6H1V5Zm1 1v4h5V6H2Zm6 0v4h3V6H8Z" fillRule="evenodd" />
+        </svg>
+      );
+    case "rank": // ranked list — bars of decreasing length
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
+          <path d="M2 3h12v2H2V3Zm0 4h8v2H2V7Zm0 4h5v2H2v-2Z" />
+        </svg>
+      );
+  }
+}
 
 interface OptionsDrawerProps {
   decimals: DecimalPrecision;
@@ -17,11 +56,13 @@ interface OptionsDrawerProps {
   showTitle: boolean;
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridThemeId;
+  weightViz: WeightVizMode;
   onDecimalsChange: (d: DecimalPrecision) => void;
   onLayoutChange: (l: LayoutMode) => void;
   onShowTitleChange: (show: boolean) => void;
   onWeightDisplayFormatChange: (f: WeightDisplayFormat) => void;
   onThemeChange: (t: GridThemeId) => void;
+  onWeightVizChange: (v: WeightVizMode) => void;
   templates: Template[];
   onSaveTemplate: (name: string, state: AppState) => void;
   onLoadTemplate: (template: Template) => void;
@@ -35,11 +76,13 @@ export default function OptionsDrawer({
   showTitle,
   weightDisplayFormat,
   theme,
+  weightViz,
   onDecimalsChange,
   onLayoutChange,
   onShowTitleChange,
   onWeightDisplayFormatChange,
   onThemeChange,
+  onWeightVizChange,
   templates,
   onSaveTemplate,
   onLoadTemplate,
@@ -155,6 +198,32 @@ export default function OptionsDrawer({
                   }`}
                 >
                   {f === "decimal" ? "Decimal" : "Fraction"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="min-w-[300px]">
+            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
+              Weight Style
+            </p>
+            <div className="flex border border-neutral-300">
+              {WEIGHT_VIZ_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => onWeightVizChange(opt.id)}
+                  title={opt.title}
+                  aria-pressed={weightViz === opt.id}
+                  className={`flex-1 py-1 px-2 text-xs font-medium transition-all duration-150 flex items-center justify-center gap-1 cursor-pointer border-r border-neutral-300 last:border-r-0 ${
+                    weightViz === opt.id
+                      ? "bg-neutral-800 text-white"
+                      : "bg-white text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  <WeightVizIcon mode={opt.id} />
+                  {opt.label}
                 </button>
               ))}
             </div>

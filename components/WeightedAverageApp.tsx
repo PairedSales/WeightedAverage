@@ -2,7 +2,8 @@
 
 import { useRef, useCallback, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import type { AppState, CompSale, DecimalPrecision, GridThemeId, HistorySnapshot, LayoutMode, Template, WeightDisplayFormat } from "@/lib/types";
+import type { AppState, CompSale, DecimalPrecision, GridThemeId, HistorySnapshot, LayoutMode, Template, WeightDisplayFormat, WeightVizMode } from "@/lib/types";
+import { WEIGHT_VIZ_MODES } from "@/lib/types";
 import { GRID_THEMES } from "@/lib/themes";
 import { copyChartImageToClipboard, type CopyResult } from "@/lib/chartClipboard";
 import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
@@ -53,6 +54,7 @@ function defaultState(): AppState {
     showTitle: false,
     weightDisplayFormat: "decimal",
     theme: "classic",
+    weightViz: "shade",
   };
 }
 
@@ -63,6 +65,7 @@ function normalizeState(state: AppState): AppState {
     weightDisplayFormat:
       state.weightDisplayFormat === "fraction" ? "fraction" : "decimal",
     theme: state.theme && state.theme in GRID_THEMES ? state.theme : "classic",
+    weightViz: WEIGHT_VIZ_MODES.includes(state.weightViz) ? state.weightViz : "shade",
     comps: state.comps.map(normalizeComp),
   };
 }
@@ -253,6 +256,10 @@ export default function WeightedAverageApp() {
     setState((prev) => ({ ...prev, theme }));
   }, [setState]);
 
+  const setWeightViz = useCallback((weightViz: WeightVizMode) => {
+    setState((prev) => ({ ...prev, weightViz }));
+  }, [setState]);
+
   const handleLoadTemplate = useCallback(
     (template: Template) => {
       const t = getTemplate(template.id);
@@ -398,6 +405,7 @@ export default function WeightedAverageApp() {
       showTitle: false,
       weightDisplayFormat: hasDecimal ? "fraction" : "decimal",
       theme: prev.theme,
+      weightViz: prev.weightViz,
     }));
     setCopyStatus("idle");
     setSaveStatus("idle");
@@ -694,6 +702,7 @@ export default function WeightedAverageApp() {
                     layout={state.layout}
                     weightDisplayFormat={state.weightDisplayFormat}
                     theme={state.theme}
+                    weightViz={state.weightViz}
                     onUpdateComp={updateComp}
                     onAddComp={addComp}
                     onRemoveComp={removeComp}
@@ -709,11 +718,13 @@ export default function WeightedAverageApp() {
                   showTitle={state.showTitle}
                   weightDisplayFormat={state.weightDisplayFormat}
                   theme={state.theme}
+                  weightViz={state.weightViz}
                   onDecimalsChange={setDecimals}
                   onLayoutChange={setLayout}
                   onShowTitleChange={setShowTitle}
                   onWeightDisplayFormatChange={setWeightDisplayFormat}
                   onThemeChange={setTheme}
+                  onWeightVizChange={setWeightViz}
                   templates={templates}
                   onSaveTemplate={saveTemplate}
                   onLoadTemplate={handleLoadTemplate}
