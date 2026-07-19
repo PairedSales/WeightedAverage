@@ -11,6 +11,8 @@ export const WEIGHT_VIZ_OPTIONS: { id: WeightVizMode; label: string; title: stri
   { id: "scale", label: "Scale", title: "Marker on a 0–100% scale" },
   { id: "pie", label: "Pie", title: "Mini pie — each cell highlights that comp's slice of the total weight" },
   { id: "pie-classic", label: "Pie Classic", title: "Classic pie — a filled wedge equal to the comp's weight %" },
+  { id: "pie-large", label: "Pie Large", title: "Large pie — the shared pie sized to fill the row height" },
+  { id: "pie-fill", label: "Pie Fill", title: "Cell pie — the shared pie painted across the entire weight cell" },
 ];
 
 
@@ -116,13 +118,15 @@ export function PieGlyph({
   compId,
   totalWeight,
   colorRGB,
+  size = 18,
 }: {
   comps: CompSale[];
   compId: string;
   totalWeight: number;
   colorRGB: string;
+  /** Diameter in px; "pie-large" passes 26 to fill the row height. */
+  size?: number;
 }) {
-  const size = 18;
   const c = size / 2;
   const r = c - 0.5;
 
@@ -155,6 +159,53 @@ export function PieGlyph({
       })}
       <circle cx={c} cy={c} r={r} fill="none" stroke={`rgba(${colorRGB}, 0.45)`} strokeWidth="1" />
     </svg>
+  );
+}
+
+/* ── Pie Fill: shared pie painted across the entire weight cell ───── */
+
+/**
+ * Same shared pie as PieGlyph, but rendered as a conic-gradient background
+ * covering the whole cell — slices radiate from the cell center out to its
+ * edges, with this comp's slice emphasized. Sits behind the weight text
+ * (which the grids already lift with `relative z-10`).
+ */
+export function PieFillBackground({
+  comps,
+  compId,
+  totalWeight,
+  colorRGB,
+}: {
+  comps: CompSale[];
+  compId: string;
+  totalWeight: number;
+  colorRGB: string;
+}) {
+  let cum = 0;
+  const slices = comps
+    .map((comp) => {
+      const frac = numericWeight(comp) / totalWeight;
+      const start = cum;
+      cum += frac;
+      return { id: comp.id, start: start * 100, end: cum * 100, frac };
+    })
+    .filter((s) => s.frac > 0);
+
+  // White sliver at each slice boundary (as % of the full turn) so adjacent
+  // ghost slices stay distinguishable; skipped for a single full-circle slice.
+  const gap = slices.length > 1 ? 0.7 : 0;
+  const stops = slices.flatMap((s) => {
+    const fill = s.id === compId ? `rgba(${colorRGB}, 0.3)` : `rgba(${colorRGB}, 0.08)`;
+    const inset = Math.min(gap, s.end - s.start);
+    return [`white ${s.start}% ${s.start + inset}%`, `${fill} ${s.start + inset}% ${s.end}%`];
+  });
+
+  return (
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{ background: `conic-gradient(from 0deg, ${stops.join(", ")})` }}
+      aria-hidden="true"
+    />
   );
 }
 

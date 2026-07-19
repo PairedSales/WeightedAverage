@@ -49,6 +49,20 @@ function WeightVizIcon({ mode }: { mode: WeightVizMode }) {
           <path d="M8 8V2.5A5.5 5.5 0 0 1 13.5 8H8Z" />
         </svg>
       );
+    case "pie-large": // full-bleed circle with one solid slice
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
+          <path d="M8 .5A7.5 7.5 0 1 0 15.5 8H8V.5Z" fillOpacity="0.35" />
+          <path d="M9.5.65A7.5 7.5 0 0 1 15.35 6.5H9.5V.65Z" />
+        </svg>
+      );
+    case "pie-fill": // square cell with a wedge radiating from its center
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
+          <path d="M2 2h12v12H2V2Zm1 1v10h10V3H3Z" fillOpacity="0.45" fillRule="evenodd" />
+          <path d="M8 8V3h6v5H8Z" />
+        </svg>
+      );
   }
 }
 
