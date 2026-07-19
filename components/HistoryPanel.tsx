@@ -104,7 +104,7 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
     <div className="mt-4 w-full max-w-4xl" data-exclude-export>
       <div className="appraisal-section-header text-center">History</div>
       <div
-        className="overflow-y-auto border border-t-0 border-neutral-300 bg-white p-3"
+        className="overflow-y-auto bg-white p-3"
         style={{ height }}
       >
         <div className="flex flex-wrap justify-center gap-3">
