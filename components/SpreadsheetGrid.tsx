@@ -594,7 +594,7 @@ function HorizontalGrid({
                 </td>
               );
             })}
-            <td className={`px-2 py-2 relative text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm ${theme.resultBorder}`}>
+            <td className={`px-2 py-2 relative text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm ${weightViz === "bar-fill" ? `border ${theme.borderColor}` : theme.resultBorder}`}>
               {showResultViz && weightViz === "bar-fill" && barFillRow === "contribution" && totalWeight > 0 && (
                 <BarFillBackground comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
               )}
