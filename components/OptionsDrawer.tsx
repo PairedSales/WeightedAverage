@@ -80,12 +80,14 @@ interface OptionsDrawerProps {
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridThemeId;
   weightViz: WeightVizMode;
+  showResultViz: boolean;
   onDecimalsChange: (d: DecimalPrecision) => void;
   onLayoutChange: (l: LayoutMode) => void;
   onShowTitleChange: (show: boolean) => void;
   onWeightDisplayFormatChange: (f: WeightDisplayFormat) => void;
   onThemeChange: (t: GridThemeId) => void;
   onWeightVizChange: (v: WeightVizMode) => void;
+  onShowResultVizChange: (show: boolean) => void;
   templates: Template[];
   onSaveTemplate: (name: string, state: AppState) => void;
   onLoadTemplate: (template: Template) => void;
@@ -100,12 +102,14 @@ export default function OptionsDrawer({
   weightDisplayFormat,
   theme,
   weightViz,
+  showResultViz,
   onDecimalsChange,
   onLayoutChange,
   onShowTitleChange,
   onWeightDisplayFormatChange,
   onThemeChange,
   onWeightVizChange,
+  onShowResultVizChange,
   templates,
   onSaveTemplate,
   onLoadTemplate,
@@ -227,9 +231,24 @@ export default function OptionsDrawer({
           </div>
 
           <div className="min-w-[200px]">
-            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
-              Weight Style
-            </p>
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+                Weight Style
+              </p>
+              <label
+                className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer select-none"
+                title="Also draw the visualization in the result cells"
+              >
+                <input
+                  type="checkbox"
+                  tabIndex={-1}
+                  checked={showResultViz}
+                  onChange={(e) => onShowResultVizChange(e.target.checked)}
+                  className="border-slate-400 text-neutral-800 focus:ring-slate-500 w-3.5 h-3.5 cursor-pointer"
+                />
+                Results
+              </label>
+            </div>
             <div className="grid grid-cols-3 gap-0 border border-neutral-300">
               {WEIGHT_VIZ_OPTIONS.map((opt, i) => {
                 const row = Math.floor(i / 3);

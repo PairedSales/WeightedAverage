@@ -55,6 +55,7 @@ function defaultState(): AppState {
     weightDisplayFormat: "decimal",
     theme: "classic",
     weightViz: "shade",
+    showResultViz: false,
   };
 }
 
@@ -66,6 +67,7 @@ function normalizeState(state: AppState): AppState {
       state.weightDisplayFormat === "fraction" ? "fraction" : "decimal",
     theme: state.theme && state.theme in GRID_THEMES ? state.theme : "classic",
     weightViz: WEIGHT_VIZ_MODES.includes(state.weightViz) ? state.weightViz : "shade",
+    showResultViz: state.showResultViz === true,
     comps: state.comps.map(normalizeComp),
   };
 }
@@ -260,6 +262,10 @@ export default function WeightedAverageApp() {
     setState((prev) => ({ ...prev, weightViz }));
   }, [setState]);
 
+  const setShowResultViz = useCallback((showResultViz: boolean) => {
+    setState((prev) => ({ ...prev, showResultViz }));
+  }, [setState]);
+
   const handleLoadTemplate = useCallback(
     (template: Template) => {
       const t = getTemplate(template.id);
@@ -406,6 +412,7 @@ export default function WeightedAverageApp() {
       weightDisplayFormat: hasDecimal ? "fraction" : "decimal",
       theme: prev.theme,
       weightViz: prev.weightViz,
+      showResultViz: prev.showResultViz,
     }));
     setCopyStatus("idle");
     setSaveStatus("idle");
@@ -703,6 +710,7 @@ export default function WeightedAverageApp() {
                     weightDisplayFormat={state.weightDisplayFormat}
                     theme={state.theme}
                     weightViz={state.weightViz}
+                    showResultViz={state.showResultViz}
                     onUpdateComp={updateComp}
                     onAddComp={addComp}
                     onRemoveComp={removeComp}
@@ -719,12 +727,14 @@ export default function WeightedAverageApp() {
                   weightDisplayFormat={state.weightDisplayFormat}
                   theme={state.theme}
                   weightViz={state.weightViz}
+                  showResultViz={state.showResultViz}
                   onDecimalsChange={setDecimals}
                   onLayoutChange={setLayout}
                   onShowTitleChange={setShowTitle}
                   onWeightDisplayFormatChange={setWeightDisplayFormat}
                   onThemeChange={setTheme}
                   onWeightVizChange={setWeightViz}
+                  onShowResultVizChange={setShowResultViz}
                   templates={templates}
                   onSaveTemplate={saveTemplate}
                   onLoadTemplate={handleLoadTemplate}

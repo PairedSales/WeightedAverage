@@ -94,6 +94,32 @@ export function WeightCellViz({
   );
 }
 
+/**
+ * Meter/scale for result cells that have no room below the value (the
+ * vertical layout's footer): a fixed-width strip pinned to the cell's left,
+ * vertically centered beside the total.
+ */
+export function ResultStrip({
+  mode,
+  pct,
+  colorRGB,
+}: {
+  mode: "meter" | "scale";
+  pct: number;
+  colorRGB: string;
+}) {
+  const clamped = Math.max(0, Math.min(100, pct));
+  return (
+    <div className="absolute left-2 top-1/2 -translate-y-1/2 w-16 pointer-events-none" aria-hidden="true">
+      {mode === "meter" ? (
+        <BlocksMeter pct={clamped} colorRGB={colorRGB} />
+      ) : (
+        <ScaleAxis pct={clamped} colorRGB={colorRGB} />
+      )}
+    </div>
+  );
+}
+
 /* ── Pie: mini pie in each cell, this comp's slice emphasized ─────── */
 
 function polarPoint(cx: number, cy: number, r: number, frac: number): [number, number] {
@@ -112,7 +138,8 @@ function slicePath(cx: number, cy: number, r: number, startFrac: number, endFrac
 /**
  * Every cell draws the same full pie (all comps' slices, in table order from
  * 12 o'clock) with only this comp's slice filled solid — so each cell shows
- * its own slice of one shared pie.
+ * its own slice of one shared pie. Omit `compId` for the result cell's
+ * "final" pie: every slice solid.
  */
 export function PieGlyph({
   comps,
@@ -122,7 +149,7 @@ export function PieGlyph({
   size = 18,
 }: {
   comps: CompSale[];
-  compId: string;
+  compId?: string;
   totalWeight: number;
   colorRGB: string;
   /** Diameter in px; "pie-large" passes 26 to fill the row height. */
@@ -150,7 +177,7 @@ export function PieGlyph({
       aria-hidden="true"
     >
       {slices.map((s) => {
-        const emphasized = s.id === compId;
+        const emphasized = compId === undefined || s.id === compId;
         const fill = emphasized ? `rgb(${colorRGB})` : `rgba(${colorRGB}, 0.15)`;
         return s.frac >= 0.9999 ? (
           <circle key={s.id} cx={c} cy={c} r={r} fill={fill} />
@@ -178,7 +205,8 @@ function barSegments(comps: CompSale[], totalWeight: number) {
 /**
  * Rectangular analogue of PieGlyph: every cell draws the same full stacked
  * bar (all comps' segments, left to right in table order) with only this
- * comp's segment filled solid.
+ * comp's segment filled solid. Omit `compId` for the result cell's "final"
+ * bar: every segment solid.
  */
 export function BarGlyph({
   comps,
@@ -187,7 +215,7 @@ export function BarGlyph({
   colorRGB,
 }: {
   comps: CompSale[];
-  compId: string;
+  compId?: string;
   totalWeight: number;
   colorRGB: string;
 }) {
@@ -203,7 +231,7 @@ export function BarGlyph({
           className="basis-0 transition-all duration-300"
           style={{
             flexGrow: s.frac,
-            backgroundColor: s.id === compId ? `rgb(${colorRGB})` : `rgba(${colorRGB}, 0.15)`,
+            backgroundColor: compId === undefined || s.id === compId ? `rgb(${colorRGB})` : `rgba(${colorRGB}, 0.15)`,
           }}
         />
       ))}
@@ -218,6 +246,7 @@ export function BarGlyph({
  * comp's segment is a full-height rectangle sized by its share of total
  * weight, with this comp's segment emphasized. Rendered in the contribution
  * cells, behind the dollar amount (which the grids lift with `relative z-10`).
+ * Omit `compId` for the result cell's "final" bar: every segment emphasized.
  */
 export function BarFillBackground({
   comps,
@@ -226,7 +255,7 @@ export function BarFillBackground({
   colorRGB,
 }: {
   comps: CompSale[];
-  compId: string;
+  compId?: string;
   totalWeight: number;
   colorRGB: string;
 }) {
@@ -238,7 +267,7 @@ export function BarFillBackground({
           className="basis-0 transition-all duration-300"
           style={{
             flexGrow: s.frac,
-            backgroundColor: s.id === compId ? `rgba(${colorRGB}, 0.3)` : `rgba(${colorRGB}, 0.08)`,
+            backgroundColor: compId === undefined || s.id === compId ? `rgba(${colorRGB}, 0.3)` : `rgba(${colorRGB}, 0.08)`,
           }}
         />
       ))}

@@ -8,7 +8,7 @@ import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/
 import { formatCurrency, formatPercent, formatWeight } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
 import WeightBar from "./WeightBar";
-import { BarFillBackground, BarGlyph, PieClassicGlyph, PieGlyph, WeightCellViz } from "./WeightViz";
+import { BarFillBackground, BarGlyph, PieClassicGlyph, PieGlyph, ResultStrip, WeightCellViz } from "./WeightViz";
 
 interface SpreadsheetGridProps {
   comps: CompSale[];
@@ -17,6 +17,7 @@ interface SpreadsheetGridProps {
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridThemeId;
   weightViz: WeightVizMode;
+  showResultViz: boolean;
   gridExportRef?: RefObject<HTMLDivElement | null>;
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number | string) => void;
   onAddComp: () => void;
@@ -31,6 +32,7 @@ export default function SpreadsheetGrid({
   weightDisplayFormat,
   theme,
   weightViz,
+  showResultViz,
   gridExportRef,
   onUpdateComp,
   onAddComp,
@@ -122,6 +124,7 @@ export default function SpreadsheetGrid({
         weightDisplayFormat={weightDisplayFormat}
         theme={resolvedTheme}
         weightViz={weightViz}
+        showResultViz={showResultViz}
         totalWeight={totalWeight}
         avg={avg}
         maxWeight={maxWeight}
@@ -145,6 +148,7 @@ export default function SpreadsheetGrid({
       weightDisplayFormat={weightDisplayFormat}
       theme={resolvedTheme}
       weightViz={weightViz}
+      showResultViz={showResultViz}
       totalWeight={totalWeight}
       avg={avg}
       maxWeight={maxWeight}
@@ -167,6 +171,7 @@ interface GridInternalProps {
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridTheme;
   weightViz: WeightVizMode;
+  showResultViz: boolean;
   totalWeight: number;
   avg: number;
   maxWeight: number;
@@ -238,6 +243,7 @@ function VerticalGrid({
   weightDisplayFormat,
   theme,
   weightViz,
+  showResultViz,
   totalWeight,
   avg,
   maxWeight,
@@ -364,9 +370,31 @@ function VerticalGrid({
             </td>
             <td
               colSpan={2}
-              className={`px-2 py-2 text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm border ${theme.borderColor}`}
+              className={`px-2 py-2 relative text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm border ${theme.borderColor}`}
             >
-              {weightsValid ? formatCurrency(avg) : "\u2014"}
+              {showResultViz && totalWeight > 0 && (
+                <>
+                  {weightViz === "shade" && (
+                    <WeightBar ratio={totalWeight / 100} direction="horizontal" colorRGB={theme.weightBarRGB} />
+                  )}
+                  {(weightViz === "meter" || weightViz === "scale") && (
+                    <ResultStrip mode={weightViz} pct={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                  {(weightViz === "pie" || weightViz === "pie-large") && (
+                    <PieGlyph comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} size={weightViz === "pie-large" ? 26 : 18} />
+                  )}
+                  {weightViz === "pie-classic" && (
+                    <PieClassicGlyph pct={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                  {weightViz === "bar" && (
+                    <BarGlyph comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                  {weightViz === "bar-fill" && (
+                    <BarFillBackground comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                </>
+              )}
+              <span className="relative z-10">{weightsValid ? formatCurrency(avg) : "\u2014"}</span>
             </td>
             <td className="border-none bg-transparent" data-exclude-export />
           </tr>
@@ -387,6 +415,7 @@ function HorizontalGrid({
   weightDisplayFormat,
   theme,
   weightViz,
+  showResultViz,
   totalWeight,
   avg,
   maxWeight,
@@ -499,8 +528,29 @@ function HorizontalGrid({
                 </td>
               );
             })}
-            <td className={`px-2 py-1.5 text-right tabular-nums font-semibold text-slate-700 border ${theme.borderColor} ${theme.resultColBg}`}>
-              {formatWeight(totalWeight, decimals, weightDisplayFormat)}
+            <td className={`p-0 relative text-right tabular-nums font-semibold text-slate-700 border ${theme.borderColor} ${theme.resultColBg}`}>
+              {showResultViz && totalWeight > 0 && (
+                <>
+                  {weightViz === "shade" && (
+                    <WeightBar ratio={totalWeight / 100} direction="vertical" colorRGB={theme.weightBarRGB} />
+                  )}
+                  {(weightViz === "pie" || weightViz === "pie-large") && (
+                    <PieGlyph comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} size={weightViz === "pie-large" ? 26 : 18} />
+                  )}
+                  {weightViz === "pie-classic" && (
+                    <PieClassicGlyph pct={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                  {weightViz === "bar" && (
+                    <BarGlyph comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                </>
+              )}
+              <div className="relative z-10">
+                <div className="px-2 py-1.5">{formatWeight(totalWeight, decimals, weightDisplayFormat)}</div>
+                {showResultViz && (weightViz === "meter" || weightViz === "scale") && (
+                  <WeightCellViz mode={weightViz} pct={totalWeight} colorRGB={theme.weightBarRGB} />
+                )}
+              </div>
             </td>
           </tr>
 
@@ -528,8 +578,11 @@ function HorizontalGrid({
                 </td>
               );
             })}
-            <td className={`px-2 py-2 text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm ${theme.resultBorder}`}>
-              {weightsValid ? formatCurrency(avg) : "\u2014"}
+            <td className={`px-2 py-2 relative text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm ${theme.resultBorder}`}>
+              {showResultViz && weightViz === "bar-fill" && totalWeight > 0 && (
+                <BarFillBackground comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+              )}
+              <span className="relative z-10">{weightsValid ? formatCurrency(avg) : "\u2014"}</span>
             </td>
           </tr>
         </tbody>

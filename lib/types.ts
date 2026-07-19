@@ -24,6 +24,8 @@ export interface AppState {
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridThemeId;
   weightViz: WeightVizMode;
+  /** Also render the active weight viz in the result/total cells. */
+  showResultViz: boolean;
 }
 
 export interface Template {
