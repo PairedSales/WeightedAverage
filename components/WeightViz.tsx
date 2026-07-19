@@ -13,7 +13,7 @@ export const WEIGHT_VIZ_OPTIONS: { id: WeightVizMode; label: string; title: stri
   { id: "pie-classic", label: "Pie Classic", title: "Classic pie — a filled wedge equal to the comp's weight %" },
   { id: "pie-large", label: "Pie Large", title: "Large pie — the shared pie sized to fill the row height" },
   { id: "bar", label: "Bar", title: "Mini bar — each cell highlights that comp's segment of the total weight" },
-  { id: "bar-fill", label: "Bar Fill", title: "Cell bar — weight segments painted across the entire weight cell" },
+  { id: "bar-fill", label: "Bar Fill", title: "Cell bar — weight segments painted across the entire contribution cell" },
 ];
 
 
@@ -211,13 +211,13 @@ export function BarGlyph({
   );
 }
 
-/* ── Bar Fill: shared stacked bar painted across the entire weight cell ── */
+/* ── Bar Fill: shared stacked bar painted across the contribution cell ── */
 
 /**
  * Same shared stacked bar as BarGlyph, but covering the whole cell — each
  * comp's segment is a full-height rectangle sized by its share of total
- * weight, with this comp's segment emphasized. Sits behind the weight text
- * (which the grids already lift with `relative z-10`).
+ * weight, with this comp's segment emphasized. Rendered in the contribution
+ * cells, behind the dollar amount (which the grids lift with `relative z-10`).
  */
 export function BarFillBackground({
   comps,

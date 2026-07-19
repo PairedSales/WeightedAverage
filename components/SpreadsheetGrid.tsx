@@ -308,9 +308,6 @@ function VerticalGrid({
                   {weightViz === "bar" && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <BarGlyph comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
-                  {weightViz === "bar-fill" && totalWeight > 0 && numericWeight(comp) > 0 && (
-                    <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
-                  )}
                   {weightViz === "pie-classic" && !isTextWeight && (
                     <PieClassicGlyph pct={numericWeight(comp)} colorRGB={theme.weightBarRGB} />
                   )}
@@ -337,10 +334,15 @@ function VerticalGrid({
                     )}
                   </div>
                 </td>
-                <td className={`px-2 py-1.5 text-right tabular-nums font-medium text-slate-700 border ${theme.borderColor}`}>
-                  {weightsValid && comp.salePrice > 0 && !isTextWeight
-                    ? formatCurrency(contrib)
-                    : "\u2014"}
+                <td className={`px-2 py-1.5 text-right tabular-nums font-medium text-slate-700 relative border ${theme.borderColor}`}>
+                  {weightViz === "bar-fill" && totalWeight > 0 && numericWeight(comp) > 0 && (
+                    <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                  <span className="relative z-10">
+                    {weightsValid && comp.salePrice > 0 && !isTextWeight
+                      ? formatCurrency(contrib)
+                      : "\u2014"}
+                  </span>
                 </td>
                 <td className="p-0 align-middle border-none" data-exclude-export>
                   {canRemove && (
@@ -469,9 +471,6 @@ function HorizontalGrid({
                   {weightViz === "bar" && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <BarGlyph comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
-                  {weightViz === "bar-fill" && totalWeight > 0 && numericWeight(comp) > 0 && (
-                    <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
-                  )}
                   {weightViz === "pie-classic" && !isTextWeight && (
                     <PieClassicGlyph pct={numericWeight(comp)} colorRGB={theme.weightBarRGB} />
                   )}
@@ -516,11 +515,16 @@ function HorizontalGrid({
               return (
                 <td
                   key={comp.id}
-                  className={`px-2 py-1.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-700 border ${theme.borderColor}`}
+                  className={`px-2 py-1.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-700 relative border ${theme.borderColor}`}
                 >
-                  {weightsValid && comp.salePrice > 0 && !isTextWeight
-                    ? formatCurrency(contrib)
-                    : "\u2014"}
+                  {weightViz === "bar-fill" && totalWeight > 0 && numericWeight(comp) > 0 && (
+                    <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                  <span className="relative z-10">
+                    {weightsValid && comp.salePrice > 0 && !isTextWeight
+                      ? formatCurrency(contrib)
+                      : "\u2014"}
+                  </span>
                 </td>
               );
             })}
