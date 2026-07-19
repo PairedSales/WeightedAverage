@@ -11,6 +11,7 @@ export const WEIGHT_VIZ_OPTIONS: { id: WeightVizMode; label: string; title: stri
   { id: "scale", label: "Scale", title: "Marker on a 0–100% scale" },
   { id: "strip", label: "Strip", title: "Allocation strip — one band showing each comp's share of total weight" },
   { id: "rank", label: "Rank", title: "Rank badges — comps numbered by weight, heaviest emphasized" },
+  { id: "pie", label: "Pie", title: "Mini pie — each cell highlights that comp's slice of the total weight" },
 ];
 
 /**
@@ -118,6 +119,73 @@ export function RankChip({ rank, colorRGB }: { rank: number; colorRGB: string })
     >
       {rank}
     </span>
+  );
+}
+
+/* ── Pie: mini pie in each cell, this comp's slice emphasized ─────── */
+
+function polarPoint(cx: number, cy: number, r: number, frac: number): [number, number] {
+  // frac 0 → 12 o'clock, clockwise.
+  const rad = (frac * 360 - 90) * (Math.PI / 180);
+  return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+}
+
+function slicePath(cx: number, cy: number, r: number, startFrac: number, endFrac: number): string {
+  const [x0, y0] = polarPoint(cx, cy, r, startFrac);
+  const [x1, y1] = polarPoint(cx, cy, r, endFrac);
+  const large = endFrac - startFrac > 0.5 ? 1 : 0;
+  return `M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z`;
+}
+
+/**
+ * Every cell draws the same full pie (all comps' slices, in table order from
+ * 12 o'clock) with only this comp's slice filled solid — so each cell shows
+ * its own slice of one shared pie.
+ */
+export function PieGlyph({
+  comps,
+  compId,
+  totalWeight,
+  colorRGB,
+}: {
+  comps: CompSale[];
+  compId: string;
+  totalWeight: number;
+  colorRGB: string;
+}) {
+  const size = 18;
+  const c = size / 2;
+  const r = c - 0.5;
+
+  let cum = 0;
+  const slices = comps
+    .map((comp) => {
+      const frac = numericWeight(comp) / totalWeight;
+      const start = cum;
+      cum += frac;
+      return { id: comp.id, start, end: cum, frac };
+    })
+    .filter((s) => s.frac > 0);
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 pointer-events-none"
+      aria-hidden="true"
+    >
+      {slices.map((s) => {
+        const emphasized = s.id === compId;
+        const fill = emphasized ? `rgb(${colorRGB})` : `rgba(${colorRGB}, 0.15)`;
+        return s.frac >= 0.9999 ? (
+          <circle key={s.id} cx={c} cy={c} r={r} fill={fill} />
+        ) : (
+          <path key={s.id} d={slicePath(c, c, r, s.start, s.end)} fill={fill} stroke="white" strokeWidth="1" />
+        );
+      })}
+      <circle cx={c} cy={c} r={r} fill="none" stroke={`rgba(${colorRGB}, 0.45)`} strokeWidth="1" />
+    </svg>
   );
 }
 

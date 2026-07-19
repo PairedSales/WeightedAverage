@@ -47,6 +47,13 @@ function WeightVizIcon({ mode }: { mode: WeightVizMode }) {
           <path d="M2 3h12v2H2V3Zm0 4h8v2H2V7Zm0 4h5v2H2v-2Z" />
         </svg>
       );
+    case "pie": // circle with one solid slice
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
+          <path d="M8 1.5a6.5 6.5 0 1 0 6.5 6.5H8V1.5Z" fillOpacity="0.35" />
+          <path d="M9.5 1.67A6.5 6.5 0 0 1 14.83 7H9.5V1.67Z" />
+        </svg>
+      );
   }
 }
 
@@ -203,7 +210,7 @@ export default function OptionsDrawer({
             </div>
           </div>
 
-          <div className="min-w-[300px]">
+          <div className="min-w-[360px]">
             <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
               Weight Style
             </p>

@@ -12,7 +12,7 @@ export type WeightDisplayFormat = "decimal" | "fraction";
 export type GridThemeId = "classic" | "navy" | "evergreen" | "heritage";
 
 /** How individual weights are visualized in the grid (see components/WeightViz.tsx). */
-export const WEIGHT_VIZ_MODES = ["shade", "meter", "scale", "strip", "rank"] as const;
+export const WEIGHT_VIZ_MODES = ["shade", "meter", "scale", "strip", "rank", "pie"] as const;
 export type WeightVizMode = (typeof WEIGHT_VIZ_MODES)[number];
 
 export interface AppState {
