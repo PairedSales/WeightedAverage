@@ -246,7 +246,9 @@ export function BarGlyph({
  * comp's segment is a full-height rectangle sized by its share of total
  * weight, with this comp's segment emphasized. Rendered in the contribution
  * cells, behind the dollar amount (which the grids lift with `relative z-10`).
- * Omit `compId` for the result cell's "final" bar: every segment emphasized.
+ * Omit `compId` for the result cell's "final" bar: every segment ghosted
+ * (no single comp to emphasize there, and full-strength everywhere reads
+ * as a solid dark band rather than a breakdown).
  */
 export function BarFillBackground({
   comps,
@@ -267,7 +269,7 @@ export function BarFillBackground({
           className="basis-0 transition-all duration-300"
           style={{
             flexGrow: s.frac,
-            backgroundColor: compId === undefined || s.id === compId ? `rgba(${colorRGB}, 0.3)` : `rgba(${colorRGB}, 0.08)`,
+            backgroundColor: compId !== undefined && s.id === compId ? `rgba(${colorRGB}, 0.3)` : `rgba(${colorRGB}, 0.08)`,
           }}
         />
       ))}
