@@ -66,6 +66,8 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
     dragRef.current = null;
     window.removeEventListener("pointermove", handlePointerMove);
     window.removeEventListener("pointerup", handlePointerUp);
+    document.body.style.overflow = "";
+    document.body.style.userSelect = "";
     setHeight((h) => {
       try {
         localStorage.setItem(HEIGHT_STORAGE_KEY, String(h));
@@ -79,6 +81,8 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       dragRef.current = { startY: e.clientY, startHeight: height };
+      document.body.style.overflow = "hidden";
+      document.body.style.userSelect = "none";
       window.addEventListener("pointermove", handlePointerMove);
       window.addEventListener("pointerup", handlePointerUp);
     },
@@ -89,6 +93,8 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
+      document.body.style.overflow = "";
+      document.body.style.userSelect = "";
     };
   }, [handlePointerMove, handlePointerUp]);
 
@@ -131,7 +137,7 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
       </div>
       <div
         onPointerDown={handlePointerDown}
-        className="flex h-2.5 cursor-row-resize items-center justify-center border border-t-0 border-neutral-300 bg-neutral-50 hover:bg-neutral-100"
+        className="flex h-2.5 cursor-row-resize items-center justify-center bg-neutral-50 hover:bg-neutral-100"
         title="Drag to resize"
       >
         <div className="h-0.5 w-8 rounded-full bg-neutral-300" />
