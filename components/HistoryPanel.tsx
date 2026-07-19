@@ -101,12 +101,22 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
   if (entries.length === 0) return null;
 
   return (
-    <div className="mt-4 mx-auto w-fit" data-exclude-export>
-      <div className="appraisal-section-header text-center">History</div>
-      <div
-        className="overflow-y-auto bg-white p-3"
-        style={{ height }}
-      >
+    <>
+      <style>{`
+        .history-scroll::-webkit-scrollbar {
+          display: none;
+        }
+        .history-scroll {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+      `}</style>
+      <div className="mt-4 mx-auto w-fit" data-exclude-export>
+        <div className="appraisal-section-header text-center">History</div>
+        <div
+          className="overflow-y-auto bg-white p-3 history-scroll"
+          style={{ height }}
+        >
         <div className="flex flex-wrap justify-center gap-3">
           {entries.map((entry) => {
             const { weekday, date, time } = formatTimestampParts(entry.createdAt);
@@ -143,5 +153,6 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
         <div className="h-0.5 w-8 rounded-full bg-neutral-300" />
       </div>
     </div>
+    </>
   );
 }
