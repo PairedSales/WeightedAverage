@@ -8,7 +8,7 @@ import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/
 import { formatCurrency, formatPercent, formatWeight } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
 import WeightBar from "./WeightBar";
-import { AllocationStrip, PieClassicGlyph, PieGlyph, RankChip, WeightCellViz, computeWeightRanks } from "./WeightViz";
+import { PieClassicGlyph, PieGlyph, WeightCellViz } from "./WeightViz";
 
 interface SpreadsheetGridProps {
   comps: CompSale[];
@@ -45,7 +45,6 @@ export default function SpreadsheetGrid({
   const canRemove = comps.length > 3;
   const weightsValid = totalWeight > 0;
   const n = comps.length;
-  const ranks = weightViz === "rank" ? computeWeightRanks(comps) : undefined;
 
   const handleNavigate = useCallback(
     (direction: "up" | "down" | "next" | "prev", currentTabIndex: number) => {
@@ -123,7 +122,6 @@ export default function SpreadsheetGrid({
         weightDisplayFormat={weightDisplayFormat}
         theme={resolvedTheme}
         weightViz={weightViz}
-        ranks={ranks}
         totalWeight={totalWeight}
         avg={avg}
         maxWeight={maxWeight}
@@ -147,7 +145,6 @@ export default function SpreadsheetGrid({
       weightDisplayFormat={weightDisplayFormat}
       theme={resolvedTheme}
       weightViz={weightViz}
-      ranks={ranks}
       totalWeight={totalWeight}
       avg={avg}
       maxWeight={maxWeight}
@@ -170,8 +167,6 @@ interface GridInternalProps {
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridTheme;
   weightViz: WeightVizMode;
-  /** Comp id → dense rank by weight; only computed when weightViz === "rank". */
-  ranks?: Map<string, number>;
   totalWeight: number;
   avg: number;
   maxWeight: number;
@@ -243,7 +238,6 @@ function VerticalGrid({
   weightDisplayFormat,
   theme,
   weightViz,
-  ranks,
   totalWeight,
   avg,
   maxWeight,
@@ -308,9 +302,6 @@ function VerticalGrid({
                   {weightViz === "shade" && (
                     <WeightBar ratio={weightRatio} direction="horizontal" colorRGB={theme.weightBarRGB} />
                   )}
-                  {weightViz === "rank" && ranks?.has(comp.id) && (
-                    <RankChip rank={ranks.get(comp.id)!} colorRGB={theme.weightBarRGB} />
-                  )}
                   {weightViz === "pie" && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <PieGlyph comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
@@ -329,7 +320,6 @@ function VerticalGrid({
                       allowText
                       maxTabIndex={2 * n}
                       onNavigate={onNavigate}
-                      className={weightViz === "rank" && ranks?.get(comp.id) === 1 ? "font-bold!" : ""}
                     />
                     {(weightViz === "meter" || weightViz === "scale") && (
                       <WeightCellViz
@@ -374,15 +364,6 @@ function VerticalGrid({
           </tr>
         </tfoot>
       </table>
-      {weightViz === "strip" && (
-        <AllocationStrip
-          comps={comps}
-          totalWeight={totalWeight}
-          decimals={decimals}
-          colorRGB={theme.weightBarRGB}
-          borderColor={theme.borderColor}
-        />
-      )}
       </div>
 
       {canAdd && <AddButton onClick={onAddComp} />}
@@ -398,7 +379,6 @@ function HorizontalGrid({
   weightDisplayFormat,
   theme,
   weightViz,
-  ranks,
   totalWeight,
   avg,
   maxWeight,
@@ -477,9 +457,6 @@ function HorizontalGrid({
                   {weightViz === "shade" && (
                     <WeightBar ratio={weightRatio} direction="vertical" colorRGB={theme.weightBarRGB} />
                   )}
-                  {weightViz === "rank" && ranks?.has(comp.id) && (
-                    <RankChip rank={ranks.get(comp.id)!} colorRGB={theme.weightBarRGB} />
-                  )}
                   {weightViz === "pie" && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <PieGlyph comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
@@ -498,7 +475,6 @@ function HorizontalGrid({
                       allowText
                       maxTabIndex={2 * n}
                       onNavigate={onNavigate}
-                      className={weightViz === "rank" && ranks?.get(comp.id) === 1 ? "font-bold!" : ""}
                     />
                     {(weightViz === "meter" || weightViz === "scale") && (
                       <WeightCellViz
@@ -542,15 +518,6 @@ function HorizontalGrid({
           </tr>
         </tbody>
       </table>
-      {weightViz === "strip" && (
-        <AllocationStrip
-          comps={comps}
-          totalWeight={totalWeight}
-          decimals={decimals}
-          colorRGB={theme.weightBarRGB}
-          borderColor={theme.borderColor}
-        />
-      )}
       </div>
 
       {canAdd && <AddButton onClick={onAddComp} />}

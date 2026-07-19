@@ -35,18 +35,6 @@ function WeightVizIcon({ mode }: { mode: WeightVizMode }) {
           <path d="M1 7.5h14v1H1v-1Zm1-2h1v5H2v-5Zm11 0h1v5h-1v-5ZM8.5 5.5h3v5h-3v-5Z" />
         </svg>
       );
-    case "strip": // segmented band
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
-          <path d="M1 5h14v6H1V5Zm1 1v4h5V6H2Zm6 0v4h3V6H8Z" fillRule="evenodd" />
-        </svg>
-      );
-    case "rank": // ranked list — bars of decreasing length
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
-          <path d="M2 3h12v2H2V3Zm0 4h8v2H2V7Zm0 4h5v2H2v-2Z" />
-        </svg>
-      );
     case "pie": // circle with one solid slice
       return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
