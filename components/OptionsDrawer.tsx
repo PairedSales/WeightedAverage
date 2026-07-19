@@ -54,6 +54,13 @@ function WeightVizIcon({ mode }: { mode: WeightVizMode }) {
           <path d="M9.5 1.67A6.5 6.5 0 0 1 14.83 7H9.5V1.67Z" />
         </svg>
       );
+    case "pie-classic": // ringed circle with a quarter wedge from 12 o'clock
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
+          <path d="M8 2.5a5.5 5.5 0 1 0 5.5 5.5A5.5 5.5 0 0 0 8 2.5ZM8 1a7 7 0 1 1-7 7 7 7 0 0 1 7-7Z" fillOpacity="0.45" fillRule="evenodd" />
+          <path d="M8 8V2.5A5.5 5.5 0 0 1 13.5 8H8Z" />
+        </svg>
+      );
   }
 }
 
@@ -210,7 +217,7 @@ export default function OptionsDrawer({
             </div>
           </div>
 
-          <div className="min-w-[360px]">
+          <div className="min-w-[440px]">
             <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
               Weight Style
             </p>
@@ -223,7 +230,7 @@ export default function OptionsDrawer({
                   onClick={() => onWeightVizChange(opt.id)}
                   title={opt.title}
                   aria-pressed={weightViz === opt.id}
-                  className={`flex-1 py-1 px-2 text-xs font-medium transition-all duration-150 flex items-center justify-center gap-1 cursor-pointer border-r border-neutral-300 last:border-r-0 ${
+                  className={`flex-1 py-1 px-2 text-xs font-medium whitespace-nowrap transition-all duration-150 flex items-center justify-center gap-1 cursor-pointer border-r border-neutral-300 last:border-r-0 ${
                     weightViz === opt.id
                       ? "bg-neutral-800 text-white"
                       : "bg-white text-slate-600 hover:bg-slate-50"

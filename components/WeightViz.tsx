@@ -12,6 +12,7 @@ export const WEIGHT_VIZ_OPTIONS: { id: WeightVizMode; label: string; title: stri
   { id: "strip", label: "Strip", title: "Allocation strip — one band showing each comp's share of total weight" },
   { id: "rank", label: "Rank", title: "Rank badges — comps numbered by weight, heaviest emphasized" },
   { id: "pie", label: "Pie", title: "Mini pie — each cell highlights that comp's slice of the total weight" },
+  { id: "pie-classic", label: "Pie Classic", title: "Classic pie — a filled wedge equal to the comp's weight %" },
 ];
 
 /**
@@ -184,6 +185,38 @@ export function PieGlyph({
           <path key={s.id} d={slicePath(c, c, r, s.start, s.end)} fill={fill} stroke="white" strokeWidth="1" />
         );
       })}
+      <circle cx={c} cy={c} r={r} fill="none" stroke={`rgba(${colorRGB}, 0.45)`} strokeWidth="1" />
+    </svg>
+  );
+}
+
+/* ── Pie Classic: Harvey-ball wedge equal to the comp's weight % ──── */
+
+/**
+ * The pre-redesign pie, cleaned up: a light track circle with one solid
+ * wedge from 12 o'clock sized by the comp's own weight % (not its share
+ * of total), so 20% always draws a fifth of the circle.
+ */
+export function PieClassicGlyph({ pct, colorRGB }: { pct: number; colorRGB: string }) {
+  const size = 18;
+  const c = size / 2;
+  const r = c - 0.5;
+  const frac = Math.max(0, Math.min(100, pct)) / 100;
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 pointer-events-none"
+      aria-hidden="true"
+    >
+      <circle cx={c} cy={c} r={r} fill={`rgba(${colorRGB}, 0.12)`} />
+      {frac >= 0.9999 ? (
+        <circle cx={c} cy={c} r={r} fill={`rgb(${colorRGB})`} />
+      ) : frac > 0 ? (
+        <path d={slicePath(c, c, r, 0, frac)} fill={`rgb(${colorRGB})`} />
+      ) : null}
       <circle cx={c} cy={c} r={r} fill="none" stroke={`rgba(${colorRGB}, 0.45)`} strokeWidth="1" />
     </svg>
   );

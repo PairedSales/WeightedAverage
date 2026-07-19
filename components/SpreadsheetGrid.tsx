@@ -8,7 +8,7 @@ import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/
 import { formatCurrency, formatPercent, formatWeight } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
 import WeightBar from "./WeightBar";
-import { AllocationStrip, PieGlyph, RankChip, WeightCellViz, computeWeightRanks } from "./WeightViz";
+import { AllocationStrip, PieClassicGlyph, PieGlyph, RankChip, WeightCellViz, computeWeightRanks } from "./WeightViz";
 
 interface SpreadsheetGridProps {
   comps: CompSale[];
@@ -314,6 +314,9 @@ function VerticalGrid({
                   {weightViz === "pie" && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <PieGlyph comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
+                  {weightViz === "pie-classic" && !isTextWeight && (
+                    <PieClassicGlyph pct={numericWeight(comp)} colorRGB={theme.weightBarRGB} />
+                  )}
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
@@ -479,6 +482,9 @@ function HorizontalGrid({
                   )}
                   {weightViz === "pie" && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <PieGlyph comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                  {weightViz === "pie-classic" && !isTextWeight && (
+                    <PieClassicGlyph pct={numericWeight(comp)} colorRGB={theme.weightBarRGB} />
                   )}
                   <div className="relative z-10">
                     <EditableCell
