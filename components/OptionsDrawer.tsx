@@ -217,29 +217,38 @@ export default function OptionsDrawer({
             </div>
           </div>
 
-          <div className="min-w-[440px]">
+          <div className="min-w-[200px]">
             <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
               Weight Style
             </p>
-            <div className="flex border border-neutral-300">
-              {WEIGHT_VIZ_OPTIONS.map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  tabIndex={-1}
-                  onClick={() => onWeightVizChange(opt.id)}
-                  title={opt.title}
-                  aria-pressed={weightViz === opt.id}
-                  className={`flex-1 py-1 px-2 text-xs font-medium whitespace-nowrap transition-all duration-150 flex items-center justify-center gap-1 cursor-pointer border-r border-neutral-300 last:border-r-0 ${
-                    weightViz === opt.id
-                      ? "bg-neutral-800 text-white"
-                      : "bg-white text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  <WeightVizIcon mode={opt.id} />
-                  {opt.label}
-                </button>
-              ))}
+            <div className="grid grid-cols-3 gap-0 border border-neutral-300">
+              {WEIGHT_VIZ_OPTIONS.map((opt, i) => {
+                const row = Math.floor(i / 3);
+                const col = i % 3;
+                const totalRows = Math.ceil(WEIGHT_VIZ_OPTIONS.length / 3);
+                const isLastRow = row === totalRows - 1;
+                const isLastCol = col === 2;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => onWeightVizChange(opt.id)}
+                    title={opt.title}
+                    aria-pressed={weightViz === opt.id}
+                    className={`py-1 px-2 text-xs font-medium transition-all duration-150 flex items-center justify-center gap-1 cursor-pointer flex-col ${
+                      !isLastCol ? "border-r border-neutral-300" : ""
+                    } ${!isLastRow ? "border-b border-neutral-300" : ""} ${
+                      weightViz === opt.id
+                        ? "bg-neutral-800 text-white"
+                        : "bg-white text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    <WeightVizIcon mode={opt.id} />
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
