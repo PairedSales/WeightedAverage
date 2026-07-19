@@ -12,7 +12,8 @@ export const WEIGHT_VIZ_OPTIONS: { id: WeightVizMode; label: string; title: stri
   { id: "pie", label: "Pie", title: "Mini pie — each cell highlights that comp's slice of the total weight" },
   { id: "pie-classic", label: "Pie Classic", title: "Classic pie — a filled wedge equal to the comp's weight %" },
   { id: "pie-large", label: "Pie Large", title: "Large pie — the shared pie sized to fill the row height" },
-  { id: "pie-fill", label: "Pie Fill", title: "Cell pie — the shared pie painted across the entire weight cell" },
+  { id: "bar", label: "Bar", title: "Mini bar — each cell highlights that comp's segment of the total weight" },
+  { id: "bar-fill", label: "Bar Fill", title: "Cell bar — weight segments painted across the entire weight cell" },
 ];
 
 
@@ -162,15 +163,24 @@ export function PieGlyph({
   );
 }
 
-/* ── Pie Fill: shared pie painted across the entire weight cell ───── */
+/**
+ * Each comp's share of total weight as one segment of a shared stacked bar,
+ * in table order. Used by both bar modes.
+ */
+function barSegments(comps: CompSale[], totalWeight: number) {
+  return comps
+    .map((comp) => ({ id: comp.id, frac: numericWeight(comp) / totalWeight }))
+    .filter((s) => s.frac > 0);
+}
+
+/* ── Bar: mini stacked bar in each cell, this comp's segment emphasized ── */
 
 /**
- * Same shared pie as PieGlyph, but rendered as a conic-gradient background
- * covering the whole cell — slices radiate from the cell center out to its
- * edges, with this comp's slice emphasized. Sits behind the weight text
- * (which the grids already lift with `relative z-10`).
+ * Rectangular analogue of PieGlyph: every cell draws the same full stacked
+ * bar (all comps' segments, left to right in table order) with only this
+ * comp's segment filled solid.
  */
-export function PieFillBackground({
+export function BarGlyph({
   comps,
   compId,
   totalWeight,
@@ -181,31 +191,58 @@ export function PieFillBackground({
   totalWeight: number;
   colorRGB: string;
 }) {
-  let cum = 0;
-  const slices = comps
-    .map((comp) => {
-      const frac = numericWeight(comp) / totalWeight;
-      const start = cum;
-      cum += frac;
-      return { id: comp.id, start: start * 100, end: cum * 100, frac };
-    })
-    .filter((s) => s.frac > 0);
-
-  // White sliver at each slice boundary (as % of the full turn) so adjacent
-  // ghost slices stay distinguishable; skipped for a single full-circle slice.
-  const gap = slices.length > 1 ? 0.7 : 0;
-  const stops = slices.flatMap((s) => {
-    const fill = s.id === compId ? `rgba(${colorRGB}, 0.3)` : `rgba(${colorRGB}, 0.08)`;
-    const inset = Math.min(gap, s.end - s.start);
-    return [`white ${s.start}% ${s.start + inset}%`, `${fill} ${s.start + inset}% ${s.end}%`];
-  });
-
   return (
     <div
-      className="absolute inset-0 pointer-events-none"
-      style={{ background: `conic-gradient(from 0deg, ${stops.join(", ")})` }}
+      className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 pointer-events-none flex w-9 h-2.5 gap-px bg-white border"
+      style={{ borderColor: `rgba(${colorRGB}, 0.45)` }}
       aria-hidden="true"
-    />
+    >
+      {barSegments(comps, totalWeight).map((s) => (
+        <div
+          key={s.id}
+          className="basis-0 transition-all duration-300"
+          style={{
+            flexGrow: s.frac,
+            backgroundColor: s.id === compId ? `rgb(${colorRGB})` : `rgba(${colorRGB}, 0.15)`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ── Bar Fill: shared stacked bar painted across the entire weight cell ── */
+
+/**
+ * Same shared stacked bar as BarGlyph, but covering the whole cell — each
+ * comp's segment is a full-height rectangle sized by its share of total
+ * weight, with this comp's segment emphasized. Sits behind the weight text
+ * (which the grids already lift with `relative z-10`).
+ */
+export function BarFillBackground({
+  comps,
+  compId,
+  totalWeight,
+  colorRGB,
+}: {
+  comps: CompSale[];
+  compId: string;
+  totalWeight: number;
+  colorRGB: string;
+}) {
+  return (
+    <div className="absolute inset-0 pointer-events-none flex gap-px" aria-hidden="true">
+      {barSegments(comps, totalWeight).map((s) => (
+        <div
+          key={s.id}
+          className="basis-0 transition-all duration-300"
+          style={{
+            flexGrow: s.frac,
+            backgroundColor: s.id === compId ? `rgba(${colorRGB}, 0.3)` : `rgba(${colorRGB}, 0.08)`,
+          }}
+        />
+      ))}
+    </div>
   );
 }
 

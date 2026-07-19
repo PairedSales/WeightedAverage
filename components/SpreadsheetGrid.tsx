@@ -8,7 +8,7 @@ import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/
 import { formatCurrency, formatPercent, formatWeight } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
 import WeightBar from "./WeightBar";
-import { PieClassicGlyph, PieFillBackground, PieGlyph, WeightCellViz } from "./WeightViz";
+import { BarFillBackground, BarGlyph, PieClassicGlyph, PieGlyph, WeightCellViz } from "./WeightViz";
 
 interface SpreadsheetGridProps {
   comps: CompSale[];
@@ -305,8 +305,11 @@ function VerticalGrid({
                   {(weightViz === "pie" || weightViz === "pie-large") && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <PieGlyph comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} size={weightViz === "pie-large" ? 26 : 18} />
                   )}
-                  {weightViz === "pie-fill" && totalWeight > 0 && numericWeight(comp) > 0 && (
-                    <PieFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  {weightViz === "bar" && totalWeight > 0 && numericWeight(comp) > 0 && (
+                    <BarGlyph comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                  {weightViz === "bar-fill" && totalWeight > 0 && numericWeight(comp) > 0 && (
+                    <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
                   {weightViz === "pie-classic" && !isTextWeight && (
                     <PieClassicGlyph pct={numericWeight(comp)} colorRGB={theme.weightBarRGB} />
@@ -463,8 +466,11 @@ function HorizontalGrid({
                   {(weightViz === "pie" || weightViz === "pie-large") && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <PieGlyph comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} size={weightViz === "pie-large" ? 26 : 18} />
                   )}
-                  {weightViz === "pie-fill" && totalWeight > 0 && numericWeight(comp) > 0 && (
-                    <PieFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  {weightViz === "bar" && totalWeight > 0 && numericWeight(comp) > 0 && (
+                    <BarGlyph comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
+                  )}
+                  {weightViz === "bar-fill" && totalWeight > 0 && numericWeight(comp) > 0 && (
+                    <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
                   {weightViz === "pie-classic" && !isTextWeight && (
                     <PieClassicGlyph pct={numericWeight(comp)} colorRGB={theme.weightBarRGB} />

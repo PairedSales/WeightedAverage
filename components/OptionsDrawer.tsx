@@ -56,11 +56,18 @@ function WeightVizIcon({ mode }: { mode: WeightVizMode }) {
           <path d="M9.5.65A7.5 7.5 0 0 1 15.35 6.5H9.5V.65Z" />
         </svg>
       );
-    case "pie-fill": // square cell with a wedge radiating from its center
+    case "bar": // segmented bar strip with one solid segment
       return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
-          <path d="M2 2h12v12H2V2Zm1 1v10h10V3H3Z" fillOpacity="0.45" fillRule="evenodd" />
-          <path d="M8 8V3h6v5H8Z" />
+          <path d="M1 5h4v6H1V5Zm10 0h4v6h-4V5Z" fillOpacity="0.35" />
+          <path d="M6 5h4v6H6V5Z" />
+        </svg>
+      );
+    case "bar-fill": // square cell divided into vertical segments, one solid
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={cls}>
+          <path d="M2 2h3.5v12H2V2Zm8.5 0H14v12h-3.5V2Z" fillOpacity="0.35" />
+          <path d="M6.5 2h3v12h-3V2Z" />
         </svg>
       );
   }
