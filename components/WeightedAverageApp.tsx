@@ -2,7 +2,7 @@
 
 import { useRef, useCallback, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import type { AppState, CompSale, DecimalPrecision, GridThemeId, HistorySnapshot, LayoutMode, Template, WeightDisplayFormat, WeightIndicatorStyle } from "@/lib/types";
+import type { AppState, CompSale, DecimalPrecision, GridThemeId, HistorySnapshot, LayoutMode, Template, WeightDisplayFormat } from "@/lib/types";
 import { GRID_THEMES } from "@/lib/themes";
 import { copyChartImageToClipboard, type CopyResult } from "@/lib/chartClipboard";
 import { saveChartAsWebp, getRememberLocation, setRememberLocation } from "@/lib/saveImage";
@@ -53,7 +53,6 @@ function defaultState(): AppState {
     showTitle: false,
     weightDisplayFormat: "decimal",
     theme: "classic",
-    weightIndicator: "shading",
   };
 }
 
@@ -64,7 +63,6 @@ function normalizeState(state: AppState): AppState {
     weightDisplayFormat:
       state.weightDisplayFormat === "fraction" ? "fraction" : "decimal",
     theme: state.theme && state.theme in GRID_THEMES ? state.theme : "classic",
-    weightIndicator: state.weightIndicator === "pie" ? "pie" : "shading",
     comps: state.comps.map(normalizeComp),
   };
 }
@@ -255,11 +253,6 @@ export default function WeightedAverageApp() {
     setState((prev) => ({ ...prev, theme }));
   }, [setState]);
 
-  const setWeightIndicator = useCallback((weightIndicator: WeightIndicatorStyle) => {
-    setState((prev) => ({ ...prev, weightIndicator }));
-  }, [setState]);
-
-
   const handleLoadTemplate = useCallback(
     (template: Template) => {
       const t = getTemplate(template.id);
@@ -405,7 +398,6 @@ export default function WeightedAverageApp() {
       showTitle: false,
       weightDisplayFormat: hasDecimal ? "fraction" : "decimal",
       theme: prev.theme,
-      weightIndicator: prev.weightIndicator,
     }));
     setCopyStatus("idle");
     setSaveStatus("idle");
@@ -702,7 +694,6 @@ export default function WeightedAverageApp() {
                     layout={state.layout}
                     weightDisplayFormat={state.weightDisplayFormat}
                     theme={state.theme}
-                    weightIndicator={state.weightIndicator}
                     onUpdateComp={updateComp}
                     onAddComp={addComp}
                     onRemoveComp={removeComp}
@@ -718,13 +709,11 @@ export default function WeightedAverageApp() {
                   showTitle={state.showTitle}
                   weightDisplayFormat={state.weightDisplayFormat}
                   theme={state.theme}
-                  weightIndicator={state.weightIndicator}
                   onDecimalsChange={setDecimals}
                   onLayoutChange={setLayout}
                   onShowTitleChange={setShowTitle}
                   onWeightDisplayFormatChange={setWeightDisplayFormat}
                   onThemeChange={setTheme}
-                  onWeightIndicatorChange={setWeightIndicator}
                   templates={templates}
                   onSaveTemplate={saveTemplate}
                   onLoadTemplate={handleLoadTemplate}
@@ -733,9 +722,7 @@ export default function WeightedAverageApp() {
                 />
               </div>
 
-              <div className="mt-4 w-full max-w-4xl max-h-64 overflow-y-auto" data-exclude-export>
-                <HistoryPanel history={history} onLoad={handleLoadHistory} />
-              </div>
+              <HistoryPanel history={history} onLoad={handleLoadHistory} />
             </section>
           </div>
         </div>

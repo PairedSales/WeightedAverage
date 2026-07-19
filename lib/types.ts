@@ -10,8 +10,6 @@ export type DecimalPrecision = 0 | 1 | 2;
 export type LayoutMode = "vertical" | "horizontal";
 export type WeightDisplayFormat = "decimal" | "fraction";
 export type GridThemeId = "classic" | "navy" | "evergreen" | "heritage";
-/** How a comp's weight is visualized in the grid: cell shading or a pie icon next to the value. */
-export type WeightIndicatorStyle = "shading" | "pie";
 
 export interface AppState {
   comps: CompSale[];
@@ -21,7 +19,6 @@ export interface AppState {
   showTitle: boolean;
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridThemeId;
-  weightIndicator: WeightIndicatorStyle;
 }
 
 export interface Template {

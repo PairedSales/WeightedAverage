@@ -2,13 +2,12 @@
 
 import { useCallback } from "react";
 import type { RefObject } from "react";
-import type { CompSale, DecimalPrecision, GridThemeId, LayoutMode, WeightDisplayFormat, WeightIndicatorStyle } from "@/lib/types";
+import type { CompSale, DecimalPrecision, GridThemeId, LayoutMode, WeightDisplayFormat } from "@/lib/types";
 import { getGridTheme, type GridTheme } from "@/lib/themes";
 import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/calculations";
 import { formatCurrency, formatPercent, formatWeight } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
 import WeightBar from "./WeightBar";
-import WeightPie from "./WeightPie";
 
 interface SpreadsheetGridProps {
   comps: CompSale[];
@@ -16,7 +15,6 @@ interface SpreadsheetGridProps {
   layout: LayoutMode;
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridThemeId;
-  weightIndicator: WeightIndicatorStyle;
   gridExportRef?: RefObject<HTMLDivElement | null>;
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number | string) => void;
   onAddComp: () => void;
@@ -30,7 +28,6 @@ export default function SpreadsheetGrid({
   layout,
   weightDisplayFormat,
   theme,
-  weightIndicator,
   gridExportRef,
   onUpdateComp,
   onAddComp,
@@ -121,7 +118,6 @@ export default function SpreadsheetGrid({
         decimals={decimals}
         weightDisplayFormat={weightDisplayFormat}
         theme={resolvedTheme}
-        weightIndicator={weightIndicator}
         totalWeight={totalWeight}
         avg={avg}
         maxWeight={maxWeight}
@@ -144,7 +140,6 @@ export default function SpreadsheetGrid({
       decimals={decimals}
       weightDisplayFormat={weightDisplayFormat}
       theme={resolvedTheme}
-      weightIndicator={weightIndicator}
       totalWeight={totalWeight}
       avg={avg}
       maxWeight={maxWeight}
@@ -166,7 +161,6 @@ interface GridInternalProps {
   decimals: DecimalPrecision;
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridTheme;
-  weightIndicator: WeightIndicatorStyle;
   totalWeight: number;
   avg: number;
   maxWeight: number;
@@ -237,7 +231,6 @@ function VerticalGrid({
   decimals,
   weightDisplayFormat,
   theme,
-  weightIndicator,
   totalWeight,
   avg,
   maxWeight,
@@ -252,7 +245,6 @@ function VerticalGrid({
   onNavigate,
 }: GridInternalProps) {
   const n = comps.length;
-  const weightSegments = comps.map((c) => numericWeight(c));
   return (
     <div className="w-fit">
       <div ref={gridExportRef} className="w-fit" data-chart-export>
@@ -300,9 +292,7 @@ function VerticalGrid({
                   />
                 </td>
                 <td className={`p-0 relative border ${theme.borderColor}`}>
-                  {weightIndicator === "shading" && (
-                    <WeightBar ratio={weightRatio} direction="horizontal" colorRGB={theme.weightBarRGB} />
-                  )}
+                  <WeightBar ratio={weightRatio} direction="horizontal" colorRGB={theme.weightBarRGB} />
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
@@ -315,11 +305,6 @@ function VerticalGrid({
                       allowText
                       maxTabIndex={2 * n}
                       onNavigate={onNavigate}
-                      indicator={
-                        weightIndicator === "pie" ? (
-                          <WeightPie segments={weightSegments} index={i} colorRGB={theme.weightBarRGB} />
-                        ) : undefined
-                      }
                     />
                   </div>
                 </td>
@@ -370,7 +355,6 @@ function HorizontalGrid({
   decimals,
   weightDisplayFormat,
   theme,
-  weightIndicator,
   totalWeight,
   avg,
   maxWeight,
@@ -385,7 +369,6 @@ function HorizontalGrid({
   onNavigate,
 }: GridInternalProps) {
   const n = comps.length;
-  const weightSegments = comps.map((c) => numericWeight(c));
   return (
     <div className="w-fit">
       <div ref={gridExportRef} className="w-fit" data-chart-export>
@@ -447,9 +430,7 @@ function HorizontalGrid({
               const weightRatio = numericWeight(comp) / maxWeight;
               return (
                 <td key={comp.id} className={`p-0 min-w-[7rem] relative border ${theme.borderColor} ${theme.hoverBg} transition-colors`}>
-                  {weightIndicator === "shading" && (
-                    <WeightBar ratio={weightRatio} direction="vertical" colorRGB={theme.weightBarRGB} />
-                  )}
+                  <WeightBar ratio={weightRatio} direction="vertical" colorRGB={theme.weightBarRGB} />
                   <div className="relative z-10">
                     <EditableCell
                       value={comp.weight}
@@ -462,11 +443,6 @@ function HorizontalGrid({
                       allowText
                       maxTabIndex={2 * n}
                       onNavigate={onNavigate}
-                      indicator={
-                        weightIndicator === "pie" ? (
-                          <WeightPie segments={weightSegments} index={i} colorRGB={theme.weightBarRGB} />
-                        ) : undefined
-                      }
                     />
                   </div>
                 </td>
