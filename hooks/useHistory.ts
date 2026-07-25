@@ -40,6 +40,17 @@ function writeHistory(history: HistorySnapshot[]): HistorySnapshot[] {
   return entries;
 }
 
+/**
+ * Content identity of a state, ignoring comp `id`s (they're regenerated whenever a
+ * template or snapshot is loaded, so identical grids would otherwise look different).
+ */
+function stateFingerprint(state: AppState): string {
+  return JSON.stringify({
+    ...state,
+    comps: state.comps.map(({ id: _id, ...rest }) => rest),
+  });
+}
+
 export function useHistory() {
   const [history, setHistory] = useState<HistorySnapshot[]>([]);
 
@@ -55,7 +66,13 @@ export function useHistory() {
         image,
         createdAt: Date.now(),
       };
-      setHistory((prev) => writeHistory([entry, ...prev].slice(0, MAX_ENTRIES)));
+      setHistory((prev) => {
+        // Repeated copies of an unchanged grid shouldn't stack duplicate entries.
+        if (prev.length > 0 && stateFingerprint(prev[0].state) === stateFingerprint(state)) {
+          return prev;
+        }
+        return writeHistory([entry, ...prev].slice(0, MAX_ENTRIES));
+      });
     },
     []
   );
