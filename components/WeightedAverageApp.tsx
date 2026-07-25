@@ -18,6 +18,18 @@ import PercentChangeCalculator from "./PercentChangeCalculator";
 import HistoryPanel from "./HistoryPanel";
 import { useState } from "react";
 
+/** True when the event target is a field the user could be typing into. */
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  return (
+    tag === "INPUT" ||
+    tag === "TEXTAREA" ||
+    tag === "SELECT" ||
+    target.isContentEditable
+  );
+}
+
 function createComp(index: number): CompSale {
   return {
     id: crypto.randomUUID(),
@@ -168,12 +180,18 @@ export default function WeightedAverageApp() {
 
   const updateComp = useCallback(
     (id: string, field: "salePrice" | "weight", value: number | string) => {
-      setState((prev) => ({
-        ...prev,
-        comps: prev.comps.map((c) =>
-          c.id === id ? { ...c, [field]: value } : c
-        ),
-      }));
+      setState((prev) => {
+        // A cell commits on blur even when untouched (e.g. clicking Undo blurs it).
+        // Pushing that no-op onto the stack would make the next undo do nothing visible.
+        const target = prev.comps.find((c) => c.id === id);
+        if (!target || target[field] === value) return prev;
+        return {
+          ...prev,
+          comps: prev.comps.map((c) =>
+            c.id === id ? { ...c, [field]: value } : c
+          ),
+        };
+      });
     },
     [setState]
   );
@@ -199,23 +217,33 @@ export default function WeightedAverageApp() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === "z") {
-        const tag = (e.target as HTMLElement)?.tagName;
-        if (tag === "INPUT" || tag === "TEXTAREA") return;
+      const key = e.key.toLowerCase();
+      const mod = e.ctrlKey || e.metaKey;
+
+      if (mod && !e.altKey && (key === "z" || key === "y")) {
+        // Grid cells are text inputs whenever they have focus, and their draft is
+        // rewritten on every keystroke, so the browser's own input-level undo is
+        // useless there. Undo/redo drive the app's history everywhere except
+        // widgets with their own local state (the % change calculator).
+        if (
+          e.target instanceof HTMLElement &&
+          e.target.closest("[data-native-undo]")
+        ) {
+          return;
+        }
         e.preventDefault();
-        undo();
+        if (key === "y" || e.shiftKey) redo();
+        else undo();
+        return;
       }
-      if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.shiftKey && e.key === "z") || (e.shiftKey && e.key === "Z"))) {
-        const tag = (e.target as HTMLElement)?.tagName;
-        if (tag === "INPUT" || tag === "TEXTAREA") return;
-        e.preventDefault();
-        redo();
-      }
-      if (e.shiftKey && (e.key === "a" || e.key === "A") && !e.ctrlKey && !e.metaKey) {
+
+      // Bare Shift+A / Shift+D must never hijack a capital letter the user is typing.
+      if (mod || e.altKey || !e.shiftKey || e.repeat) return;
+      if (isEditableTarget(e.target)) return;
+      if (key === "a") {
         e.preventDefault();
         addComp();
-      }
-      if (e.shiftKey && (e.key === "d" || e.key === "D") && !e.ctrlKey && !e.metaKey) {
+      } else if (key === "d") {
         e.preventDefault();
         removeLastComp();
       }
@@ -245,7 +273,10 @@ export default function WeightedAverageApp() {
   }, [setState]);
 
   const setTitle = useCallback((title: string) => {
-    setState((prev) => ({ ...prev, title }));
+    // Typed one character at a time; collapse a typing burst into a single undo step.
+    setState((prev) => (prev.title === title ? prev : { ...prev, title }), {
+      coalesceKey: "title",
+    });
   }, [setState]);
 
   const setShowTitle = useCallback((showTitle: boolean) => {

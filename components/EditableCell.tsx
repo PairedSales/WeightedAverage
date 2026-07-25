@@ -69,6 +69,7 @@ export default function EditableCell({
   const [draft, setDraft] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const cursorRef = useRef<number | null>(null);
+  const skipCommitRef = useRef(false);
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -95,6 +96,8 @@ export default function EditableCell({
         : formatIntegerLive;
 
   const startEditing = useCallback(() => {
+    // A cancelled edit may not deliver its blur, so clear the guard on the way in.
+    skipCommitRef.current = false;
     if (typeof value === "string") {
       setDraft(value);
     } else if (value === 0) {
@@ -107,7 +110,17 @@ export default function EditableCell({
     setEditing(true);
   }, [value, formatted, formatLive, type]);
 
+  /** Leave edit mode discarding the draft, without letting the pending blur commit it. */
+  const cancelEdit = useCallback(() => {
+    skipCommitRef.current = true;
+    setEditing(false);
+  }, []);
+
   const commit = useCallback(() => {
+    if (skipCommitRef.current) {
+      skipCommitRef.current = false;
+      return;
+    }
     if (allowText && draft.trim() !== "" && !isNumericWeightDraft(draft)) {
       onChange(draft.trim());
       setEditing(false);
@@ -123,6 +136,16 @@ export default function EditableCell({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      const isUndoRedo =
+        (e.ctrlKey || e.metaKey) &&
+        !e.altKey &&
+        (e.key.toLowerCase() === "z" || e.key.toLowerCase() === "y");
+      if (isUndoRedo) {
+        // Drop the in-progress draft and let the event reach the app-level
+        // handler; committing it afterwards would overwrite the undo.
+        cancelEdit();
+        return;
+      }
       if (e.key === "Enter") {
         commit();
         if (onNavigate && tabIndex !== undefined && tabIndex !== -1) {
@@ -136,10 +159,10 @@ export default function EditableCell({
           onNavigate(e.shiftKey ? "prev" : "next", tabIndex);
         }
       } else if (e.key === "Escape") {
-        setEditing(false);
+        cancelEdit();
       }
     },
-    [commit, onNavigate, tabIndex, maxTabIndex]
+    [commit, cancelEdit, onNavigate, tabIndex]
   );
 
   const handleChange = useCallback(

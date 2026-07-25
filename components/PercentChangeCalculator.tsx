@@ -62,7 +62,7 @@ export default function PercentChangeCalculator({ compact = false }: PercentChan
 
   if (compact) {
     return (
-      <div className="flex items-end gap-1.5" data-exclude-export>
+      <div className="flex items-end gap-1.5" data-exclude-export data-native-undo>
         <label className="text-[10px] text-slate-600 font-medium">
           Start
           <input
@@ -97,6 +97,7 @@ export default function PercentChangeCalculator({ compact = false }: PercentChan
     <div
       className="mt-3 w-fit max-w-full self-center border border-neutral-300 bg-white p-0"
       data-exclude-export
+      data-native-undo
     >
       <div className="appraisal-section-header">% Change Calculator</div>
       <div className="px-3 py-3">
