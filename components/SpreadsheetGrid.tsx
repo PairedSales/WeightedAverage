@@ -274,7 +274,7 @@ function VerticalGrid({
               Comparable
             </th>
             <th className={`px-3 py-1.5 text-right text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} min-w-[10rem]`}>
-              Sale Price
+              Adj. Sale Price
             </th>
             <th className={`px-3 py-1.5 text-right text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} w-32`}>
               Weight
@@ -468,10 +468,10 @@ function HorizontalGrid({
           </tr>
         </thead>
         <tbody>
-          {/* Sale Price Row */}
+          {/* Adj. Sale Price Row */}
           <tr className="group">
             <td className={`px-3 py-1.5 font-bold text-slate-700 text-xs border ${theme.borderColor} ${theme.labelBg}`}>
-              Sale Price
+              Adj. Sale Price
             </td>
             {comps.map((comp, i) => (
               <td key={comp.id} className={`p-0 min-w-[7rem] border ${theme.borderColor} ${theme.hoverBg} transition-colors`}>
