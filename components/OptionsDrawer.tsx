@@ -11,6 +11,7 @@ import type {
   WeightVizRow,
 } from "@/lib/types";
 import { GRID_THEME_LIST } from "@/lib/themes";
+import { PAGE_SKIN_LIST, type PageSkin, type PageSkinId } from "@/lib/skins";
 import { WEIGHT_VIZ_OPTIONS } from "./WeightViz";
 import TemplateManager from "./TemplateManager";
 
@@ -74,6 +75,30 @@ function WeightVizIcon({ mode }: { mode: WeightVizMode }) {
   }
 }
 
+/** Miniature page (top bar, accent button, white grid card) drawn in a skin's own colors. */
+function SkinPreview({ swatch }: { swatch: PageSkin["swatch"] }) {
+  return (
+    <span
+      className="relative block w-12 h-7 overflow-hidden"
+      style={{ background: swatch.page, border: `1px solid ${swatch.line}`, borderRadius: swatch.radius }}
+      aria-hidden="true"
+    >
+      <span
+        className="absolute inset-x-0 top-0 h-1.5"
+        style={{ background: swatch.bar, borderBottom: `1px solid ${swatch.line}` }}
+      />
+      <span
+        className="absolute left-1 top-[9px] h-1.5 w-3"
+        style={{ background: swatch.accent, borderRadius: swatch.radius }}
+      />
+      <span
+        className="absolute left-1 right-1 bottom-1 top-[18px] bg-white"
+        style={{ border: `1px solid ${swatch.line}`, borderRadius: swatch.radius }}
+      />
+    </span>
+  );
+}
+
 interface OptionsDrawerProps {
   decimals: DecimalPrecision;
   layout: LayoutMode;
@@ -88,6 +113,8 @@ interface OptionsDrawerProps {
   onShowTitleChange: (show: boolean) => void;
   onWeightDisplayFormatChange: (f: WeightDisplayFormat) => void;
   onThemeChange: (t: GridThemeId) => void;
+  skin: PageSkinId;
+  onSkinChange: (s: PageSkinId) => void;
   onWeightVizChange: (v: WeightVizMode) => void;
   onShowResultVizChange: (show: boolean) => void;
   onBarFillRowChange: (row: WeightVizRow) => void;
@@ -112,6 +139,8 @@ export default function OptionsDrawer({
   onShowTitleChange,
   onWeightDisplayFormatChange,
   onThemeChange,
+  skin,
+  onSkinChange,
   onWeightVizChange,
   onShowResultVizChange,
   onBarFillRowChange,
@@ -123,24 +152,21 @@ export default function OptionsDrawer({
 }: OptionsDrawerProps) {
   return (
     <div data-exclude-export>
-      <div className="bg-white border border-neutral-300 p-0 mt-1">
+      <div className="ui-panel p-0 mt-1">
         <div className="p-4 flex flex-wrap gap-x-8 gap-y-4">
           <div className="min-w-[140px]">
-            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
+            <p className="ui-label mb-2">
               Decimal Places
             </p>
-            <div className="flex border border-neutral-300">
+            <div className="ui-seg">
               {([0, 1, 2] as DecimalPrecision[]).map((d) => (
                 <button
                   key={d}
                   type="button"
                   tabIndex={-1}
                   onClick={() => onDecimalsChange(d)}
-                  className={`flex-1 py-1 px-4 text-sm font-medium transition-all duration-150 cursor-pointer border-r border-neutral-300 last:border-r-0 ${
-                    decimals === d
-                      ? "bg-neutral-800 text-white"
-                      : "bg-white text-slate-600 hover:bg-slate-50"
-                  }`}
+                  aria-pressed={decimals === d}
+                  className="ui-seg-item px-4"
                 >
                   {d}
                 </button>
@@ -149,19 +175,16 @@ export default function OptionsDrawer({
           </div>
 
           <div className="min-w-[220px]">
-            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
+            <p className="ui-label mb-2">
               Layout
             </p>
-            <div className="flex border border-neutral-300">
+            <div className="ui-seg">
               <button
                 type="button"
                 tabIndex={-1}
                 onClick={() => onLayoutChange("vertical")}
-                className={`flex-1 py-1 text-sm font-medium transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer border-r border-neutral-300 ${
-                  layout === "vertical"
-                    ? "bg-neutral-800 text-white"
-                    : "bg-white text-slate-600 hover:bg-slate-50"
-                }`}
+                aria-pressed={layout === "vertical"}
+                className="ui-seg-item px-0"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -177,11 +200,8 @@ export default function OptionsDrawer({
                 type="button"
                 tabIndex={-1}
                 onClick={() => onLayoutChange("horizontal")}
-                className={`flex-1 py-1 text-sm font-medium transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer ${
-                  layout === "horizontal"
-                    ? "bg-neutral-800 text-white"
-                    : "bg-white text-slate-600 hover:bg-slate-50"
-                }`}
+                aria-pressed={layout === "horizontal"}
+                className="ui-seg-item px-0"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -197,37 +217,34 @@ export default function OptionsDrawer({
           </div>
 
           <div className="min-w-[180px]">
-            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
+            <p className="ui-label mb-2">
               Title
             </p>
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer select-none">
+            <label className="ui-check-label flex items-center gap-2 text-sm cursor-pointer select-none">
               <input
                 type="checkbox"
                 tabIndex={-1}
                 checked={showTitle}
                 onChange={(e) => onShowTitleChange(e.target.checked)}
-                className="border-slate-400 text-neutral-800 focus:ring-slate-500 w-4 h-4 cursor-pointer"
+                className="ui-check w-4 h-4 cursor-pointer"
               />
               Show title
             </label>
           </div>
 
           <div className="min-w-[180px]">
-            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
+            <p className="ui-label mb-2">
               Weight Format
             </p>
-            <div className="flex border border-neutral-300">
+            <div className="ui-seg">
               {(["decimal", "fraction"] as WeightDisplayFormat[]).map((f) => (
                 <button
                   key={f}
                   type="button"
                   tabIndex={-1}
                   onClick={() => onWeightDisplayFormatChange(f)}
-                  className={`flex-1 py-1 px-3 text-sm font-medium transition-all duration-150 cursor-pointer border-r border-neutral-300 last:border-r-0 ${
-                    weightDisplayFormat === f
-                      ? "bg-neutral-800 text-white"
-                      : "bg-white text-slate-600 hover:bg-slate-50"
-                  }`}
+                  aria-pressed={weightDisplayFormat === f}
+                  className="ui-seg-item"
                 >
                   {f === "decimal" ? "Decimal" : "Fraction"}
                 </button>
@@ -237,11 +254,11 @@ export default function OptionsDrawer({
 
           <div className="min-w-[200px]">
             <div className="flex items-center justify-between gap-3 mb-2">
-              <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+              <p className="ui-label">
                 Weight Style
               </p>
               <label
-                className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer select-none"
+                className="ui-check-label flex items-center gap-1.5 text-xs cursor-pointer select-none"
                 title="Also draw the visualization in the result cells"
               >
                 <input
@@ -249,12 +266,12 @@ export default function OptionsDrawer({
                   tabIndex={-1}
                   checked={showResultViz}
                   onChange={(e) => onShowResultVizChange(e.target.checked)}
-                  className="border-slate-400 text-neutral-800 focus:ring-slate-500 w-3.5 h-3.5 cursor-pointer"
+                  className="ui-check w-3.5 h-3.5 cursor-pointer"
                 />
                 Results
               </label>
             </div>
-            <div className="grid grid-cols-3 gap-0 border border-neutral-300">
+            <div className="ui-seg-grid">
               {WEIGHT_VIZ_OPTIONS.map((opt, i) => {
                 const row = Math.floor(i / 3);
                 const col = i % 3;
@@ -269,13 +286,9 @@ export default function OptionsDrawer({
                     onClick={() => onWeightVizChange(opt.id)}
                     title={opt.title}
                     aria-pressed={weightViz === opt.id}
-                    className={`py-1 px-2 text-xs font-medium transition-all duration-150 flex items-center justify-center gap-1 cursor-pointer flex-col ${
-                      !isLastCol ? "border-r border-neutral-300" : ""
-                    } ${!isLastRow ? "border-b border-neutral-300" : ""} ${
-                      weightViz === opt.id
-                        ? "bg-neutral-800 text-white"
-                        : "bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
+                    data-edge-r={isLastCol}
+                    data-edge-b={isLastRow}
+                    className="ui-seg-item ui-seg-sm flex-col gap-1 px-2"
                   >
                     <WeightVizIcon mode={opt.id} />
                     {opt.label}
@@ -285,19 +298,16 @@ export default function OptionsDrawer({
             </div>
             {weightViz === "bar-fill" && (
               <div className="flex items-center gap-2 mt-2">
-                <p className="text-[11px] text-slate-500">Row:</p>
-                <div className="flex border border-neutral-300">
+                <p className="ui-subtext">Row:</p>
+                <div className="ui-seg">
                   {(["weight", "contribution"] as WeightVizRow[]).map((row) => (
                     <button
                       key={row}
                       type="button"
                       tabIndex={-1}
                       onClick={() => onBarFillRowChange(row)}
-                      className={`py-1 px-2.5 text-xs font-medium transition-all duration-150 cursor-pointer border-r border-neutral-300 last:border-r-0 ${
-                        barFillRow === row
-                          ? "bg-neutral-800 text-white"
-                          : "bg-white text-slate-600 hover:bg-slate-50"
-                      }`}
+                      aria-pressed={barFillRow === row}
+                      className="ui-seg-item ui-seg-sm px-2.5"
                     >
                       {row === "weight" ? "Weight" : "Contribution"}
                     </button>
@@ -308,8 +318,30 @@ export default function OptionsDrawer({
           </div>
 
           <div className="min-w-[280px]">
-            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
-              Theme
+            <p className="ui-label mb-2">
+              Page Style
+            </p>
+            <div className="flex gap-1.5">
+              {PAGE_SKIN_LIST.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => onSkinChange(s.id)}
+                  title={s.description}
+                  aria-pressed={skin === s.id}
+                  className="ui-swatch flex flex-col items-center gap-1 px-2 pt-1.5 pb-1"
+                >
+                  <SkinPreview swatch={s.swatch} />
+                  <span className="ui-swatch-name">{s.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="min-w-[280px]">
+            <p className="ui-label mb-2">
+              Grid Theme
             </p>
             <div className="flex gap-1.5">
               {GRID_THEME_LIST.map((t) => {
@@ -322,11 +354,7 @@ export default function OptionsDrawer({
                     onClick={() => onThemeChange(t.id)}
                     title={t.name}
                     aria-pressed={selected}
-                    className={`flex flex-col items-center gap-1 px-2 pt-1.5 pb-1 border transition-all duration-150 cursor-pointer ${
-                      selected
-                        ? "border-neutral-800 bg-slate-50"
-                        : "border-neutral-300 bg-white hover:border-neutral-500"
-                    }`}
+                    className="ui-swatch flex flex-col items-center gap-1 px-2 pt-1.5 pb-1"
                   >
                     <span
                       className="block w-12 h-7 border border-neutral-300 overflow-hidden"
@@ -336,9 +364,7 @@ export default function OptionsDrawer({
                       <span className="block h-2 bg-white" />
                       <span className="block h-2" style={{ backgroundColor: t.swatch.body }} />
                     </span>
-                    <span className={`text-[10px] leading-tight ${selected ? "font-semibold text-slate-800" : "text-slate-500"}`}>
-                      {t.name}
-                    </span>
+                    <span className="ui-swatch-name">{t.name}</span>
                   </button>
                 );
               })}

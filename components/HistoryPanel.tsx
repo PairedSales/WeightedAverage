@@ -111,10 +111,10 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
           -ms-overflow-style: none;
         }
       `}</style>
-      <div className="mt-4 mx-auto w-fit" data-exclude-export>
-        <div className="appraisal-section-header text-center">History</div>
+      <div className="ui-history mt-4 mx-auto w-fit" data-exclude-export>
+        <div className="ui-section-header text-center">History</div>
         <div
-          className="overflow-y-auto bg-white p-3 history-scroll"
+          className="ui-history-body overflow-y-auto p-3 history-scroll"
           style={{ height }}
         >
         <div className="flex flex-wrap justify-center gap-3">
@@ -127,7 +127,7 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
                 tabIndex={-1}
                 onClick={() => onLoad(entry)}
                 title="Load this snapshot"
-                className="flex shrink-0 items-center gap-2 border border-neutral-300 bg-white p-2 transition-all duration-150 cursor-pointer hover:border-neutral-800 hover:shadow-md"
+                className="ui-thumb flex shrink-0 items-center gap-2"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -135,8 +135,8 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
                   alt="Copied grid snapshot"
                   className="block h-28 w-auto max-w-none"
                 />
-                <div className="flex flex-col text-left text-[10px] leading-tight text-slate-600">
-                  <span className="font-semibold text-slate-800">{weekday}</span>
+                <div className="flex flex-col text-left text-[10px] leading-tight text-[color:var(--ui-ink-3)]">
+                  <span className="font-semibold text-[color:var(--ui-ink)]">{weekday}</span>
                   <span>{date}</span>
                   <span>{time}</span>
                 </div>
@@ -147,10 +147,10 @@ export default function HistoryPanel({ history, onLoad }: HistoryPanelProps) {
       </div>
       <div
         onPointerDown={handlePointerDown}
-        className="flex h-2.5 cursor-row-resize items-center justify-center bg-neutral-50 hover:bg-neutral-100"
+        className="ui-resize flex h-2.5 cursor-row-resize items-center justify-center"
         title="Drag to resize"
       >
-        <div className="h-0.5 w-8 rounded-full bg-neutral-300" />
+        <div className="ui-resize-grip h-0.5 w-8 rounded-full" />
       </div>
     </div>
     </>

@@ -16,22 +16,918 @@
   --color-accent-900: #1E3A8A;
 }
 
-html {
-  font-family: var(--font-sans);
-  --wa-bg-start: #f8f8f8;
-  --wa-bg-mid: #f8f8f8;
-  --wa-bg-end: #f8f8f8;
-  --wa-surface: #ffffff;
-  --wa-surface-muted: #f5f5f5;
-  --wa-surface-strong: #eeeeee;
-  --wa-border: #d4d4d4;
-  --wa-border-soft: #e5e5e5;
-  --wa-text-primary: #111111;
-  --wa-text-secondary: #333333;
-  --wa-text-muted: #888888;
-  --wa-danger-hover-bg: #fef2f2;
-  --wa-danger-hover-text: #ef4444;
-  --wa-selection-ring: #ffffff;
+/* ══════════════════════════════════════════════════════════════════
+   Design tokens — page chrome only.
+
+   Every `--ui-*` token below is the Classic skin (the original look).
+   Other skins (lib/skins.ts) override tokens under :root[data-skin=…].
+   The exported grid never reads these: `.ui-card` pins its own font
+   and the grid's colors come from GridTheme (lib/themes.ts).
+   ══════════════════════════════════════════════════════════════════ */
+:root {
+  /* Type */
+  --ui-font: var(--font-sans);
+  --ui-font-label: var(--font-sans);
+  --ui-font-num: var(--font-sans);
+  --ui-label-size: 0.75rem;
+  --ui-label-weight: 700;
+  --ui-label-case: uppercase;
+  --ui-label-caps: normal;
+  --ui-label-track: 0.025em;
+  --ui-label-ink: #334155;
+  --ui-sub-style: normal;
+  --ui-mini-size: 9px;
+
+  /* Surfaces & ink */
+  --ui-page: #ffffff;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #f8fafc;
+  --ui-input-bg: #ffffff;
+  --ui-ink: #1e293b;
+  --ui-ink-2: #334155;
+  --ui-ink-3: #475569;
+  --ui-muted: #64748b;
+  --ui-faint: #94a3b8;
+  --ui-disabled: #cbd5e1;
+  --ui-skeleton: rgb(226 232 240 / 0.6);
+
+  /* Lines */
+  --ui-bw: 1px;
+  --ui-line: #d4d4d4;
+  --ui-line-soft: #e5e5e5;
+  --ui-line-hover: #737373;
+  --ui-line-strong: #262626;
+
+  /* Solid (primary) fill */
+  --ui-solid: #262626;
+  --ui-solid-hover: #404040;
+  --ui-on-solid: #ffffff;
+
+  /* Default button */
+  --ui-btn-size: 0.75rem;
+  --ui-btn-size-md: 0.875rem;
+  --ui-btn-weight: 600;
+  --ui-btn-case: none;
+  --ui-btn-caps: normal;
+  --ui-btn-track: normal;
+  --ui-btn-bg: #ffffff;
+  --ui-btn-ink: #334155;
+  --ui-btn-line: #d4d4d4;
+  --ui-btn-hover-bg: #262626;
+  --ui-btn-hover-ink: #ffffff;
+  --ui-btn-hover-line: #262626;
+  --ui-btn-disabled-bg: #f8fafc;
+  --ui-chip-sub-hover: #d4d4d4;
+
+  /* Segmented control */
+  --ui-seg-size: 0.875rem;
+  --ui-seg-size-sm: 0.75rem;
+  --ui-seg-border: var(--ui-bw) solid var(--ui-line);
+  --ui-seg-divider: var(--ui-bw) solid var(--ui-line);
+  --ui-seg-radius: var(--ui-radius);
+  --ui-seg-track: transparent;
+  --ui-seg-pad: 0px;
+  --ui-seg-gap: 0px;
+  --ui-seg-item-bg: var(--ui-surface);
+  --ui-seg-item-radius: 0px;
+  --ui-seg-ink: #475569;
+  --ui-seg-hover: #f8fafc;
+  --ui-sel-bg: #262626;
+  --ui-sel-ink: #ffffff;
+  --ui-sel-shadow: none;
+  --ui-sel-weight: 500;
+
+  /* Shape & depth */
+  --ui-radius: 0px;
+  --ui-radius-lg: 0px;
+  --ui-radius-card: 0px;
+  --ui-shadow-btn: none;
+  --ui-shadow-bar: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --ui-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --ui-shadow-panel: none;
+  --ui-shadow-pop: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --ui-shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --ui-card-line: #d4d4d4;
+
+  /* Top bar */
+  --ui-bar-bg: var(--ui-surface);
+  --ui-bar-border: 1px solid var(--ui-line);
+  --ui-bar-blur: none;
+  --ui-tile-bg: #f5f5f5;
+  --ui-tile-ink: #404040;
+
+  /* Section header */
+  --ui-section-bg: #262626;
+  --ui-section-ink: #ffffff;
+
+  /* Focus & status */
+  --ui-focus: #64748b;
+  --ui-focus-ring: none;
+  --ui-check: auto;
+  --ui-success: #059669;
+  --ui-danger: #dc2626;
+  --ui-danger-ink: #dc2626;
+  --ui-pos: #047857;
+  --ui-neg: #be123c;
+  --ui-warn: #b45309;
 }
 
+/* ── Paper: printed appraisal report ─────────────────────────────── */
+:root[data-skin="paper"] {
+  --ui-font: "Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --ui-font-label: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  --ui-font-num: "Source Serif 4", Georgia, serif;
+  --ui-label-size: 0.9375rem;
+  --ui-label-weight: 600;
+  --ui-label-case: none;
+  --ui-label-caps: all-small-caps;
+  --ui-label-track: 0.08em;
+  --ui-label-ink: #3d362d;
+  --ui-sub-style: italic;
+  --ui-mini-size: 11px;
 
+  --ui-page: #f3efe6;
+  --ui-surface: #fbf8f1;
+  --ui-surface-2: #f1ece0;
+  --ui-input-bg: #fffdf8;
+  --ui-ink: #1f1b16;
+  --ui-ink-2: #3d362d;
+  --ui-ink-3: #5a5145;
+  --ui-muted: #7d7366;
+  --ui-faint: #a59b8c;
+  --ui-disabled: #c9c0b1;
+  --ui-skeleton: #e6dfd1;
+
+  --ui-line: #d8cfbe;
+  --ui-line-soft: #e6dfd1;
+  --ui-line-hover: #8f8471;
+  --ui-line-strong: #1f1b16;
+
+  --ui-solid: #24324f;
+  --ui-solid-hover: #33456a;
+  --ui-on-solid: #fbf8f1;
+
+  --ui-btn-size: 0.9375rem;
+  --ui-btn-size-md: 0.9375rem;
+  --ui-btn-caps: all-small-caps;
+  --ui-btn-track: 0.06em;
+  --ui-btn-bg: transparent;
+  --ui-btn-ink: #2b251e;
+  --ui-btn-line: #bfb5a2;
+  --ui-btn-hover-bg: #ece5d6;
+  --ui-btn-hover-ink: #1f1b16;
+  --ui-btn-hover-line: #8f8471;
+  --ui-btn-disabled-bg: transparent;
+  --ui-chip-sub-hover: #5a5145;
+
+  --ui-seg-size: 0.9375rem;
+  --ui-seg-size-sm: 0.875rem;
+  --ui-seg-item-bg: transparent;
+  --ui-seg-ink: #5a5145;
+  --ui-seg-hover: #f1ece0;
+  --ui-sel-bg: #f1ece0;
+  --ui-sel-ink: #1f1b16;
+  --ui-sel-shadow: inset 0 -2px 0 #24324f;
+  --ui-sel-weight: 600;
+
+  --ui-shadow-bar: none;
+  --ui-shadow-card: 0 1px 1px rgb(60 40 10 / 0.05), 0 18px 40px -18px rgb(60 40 10 / 0.3);
+  --ui-shadow-pop: 0 8px 24px -8px rgb(60 40 10 / 0.25);
+  --ui-shadow-hover: 0 10px 24px -12px rgb(60 40 10 / 0.35);
+  --ui-card-line: #e2dacb;
+
+  --ui-bar-bg: #fbf8f1;
+  --ui-bar-border: 3px double #cfc5b2;
+  --ui-tile-bg: transparent;
+  --ui-tile-ink: #24324f;
+
+  --ui-section-bg: transparent;
+  --ui-section-ink: #1f1b16;
+
+  --ui-focus: #24324f;
+  --ui-check: #24324f;
+  --ui-pos: #2f6b3f;
+  --ui-neg: #8e2b2b;
+  --ui-warn: #8a5a12;
+  --ui-danger-ink: #8e2b2b;
+}
+
+/* ── Swiss: bold grotesk, heavy rules, one signal red ────────────── */
+:root[data-skin="swiss"] {
+  --ui-font: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --ui-font-label: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --ui-font-num: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --ui-label-size: 0.6875rem;
+  --ui-label-weight: 800;
+  --ui-label-track: 0.14em;
+  --ui-label-ink: #0a0a0a;
+
+  --ui-page: #f2f2f0;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #f2f2f0;
+  --ui-ink: #0a0a0a;
+  --ui-ink-2: #0a0a0a;
+  --ui-ink-3: #262626;
+  --ui-muted: #5c5c5c;
+  --ui-faint: #8f8f8f;
+  --ui-disabled: #bdbdbd;
+  --ui-skeleton: #e0e0de;
+
+  --ui-bw: 2px;
+  --ui-line: #0a0a0a;
+  --ui-line-soft: #d4d4d4;
+  --ui-line-hover: #e30613;
+  --ui-line-strong: #0a0a0a;
+
+  --ui-solid: #e30613;
+  --ui-solid-hover: #0a0a0a;
+  --ui-on-solid: #ffffff;
+
+  --ui-btn-size: 0.6875rem;
+  --ui-btn-size-md: 0.75rem;
+  --ui-btn-weight: 700;
+  --ui-btn-case: uppercase;
+  --ui-btn-track: 0.08em;
+  --ui-btn-bg: #ffffff;
+  --ui-btn-ink: #0a0a0a;
+  --ui-btn-line: #0a0a0a;
+  --ui-btn-hover-bg: #0a0a0a;
+  --ui-btn-hover-ink: #ffffff;
+  --ui-btn-hover-line: #0a0a0a;
+  --ui-btn-disabled-bg: #ffffff;
+  --ui-chip-sub-hover: #bdbdbd;
+
+  --ui-seg-size: 0.75rem;
+  --ui-seg-size-sm: 0.6875rem;
+  --ui-seg-ink: #0a0a0a;
+  --ui-seg-hover: #f2f2f0;
+  --ui-sel-bg: #0a0a0a;
+  --ui-sel-ink: #ffffff;
+  --ui-sel-weight: 700;
+
+  --ui-shadow-bar: none;
+  --ui-shadow-card: none;
+  --ui-shadow-pop: none;
+  --ui-shadow-hover: none;
+  --ui-card-line: #0a0a0a;
+
+  --ui-bar-border: 4px solid #0a0a0a;
+  --ui-tile-bg: #e30613;
+  --ui-tile-ink: #ffffff;
+
+  --ui-section-bg: transparent;
+  --ui-section-ink: #0a0a0a;
+
+  --ui-focus: #e30613;
+  --ui-check: #e30613;
+  --ui-pos: #0a7a32;
+  --ui-neg: #e30613;
+  --ui-warn: #b45309;
+  --ui-danger-ink: #e30613;
+}
+
+/* ── Soft: rounded cards, soft depth, indigo ─────────────────────── */
+:root[data-skin="soft"] {
+  --ui-font: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --ui-font-label: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --ui-font-num: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --ui-label-size: 0.8125rem;
+  --ui-label-weight: 600;
+  --ui-label-case: none;
+  --ui-label-track: 0;
+  --ui-label-ink: #344054;
+  --ui-mini-size: 10px;
+
+  --ui-page: linear-gradient(180deg, #f6f8fd 0%, #ecf0f8 100%) fixed;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #f7f8fb;
+  --ui-ink: #101828;
+  --ui-ink-2: #344054;
+  --ui-ink-3: #475467;
+  --ui-muted: #667085;
+  --ui-faint: #98a2b3;
+  --ui-disabled: #d0d5dd;
+  --ui-skeleton: #e4e7ec;
+
+  --ui-line: #e4e7ec;
+  --ui-line-soft: #eef0f4;
+  --ui-line-hover: #a5b4fc;
+  --ui-line-strong: #6366f1;
+
+  --ui-solid: #4f46e5;
+  --ui-solid-hover: #4338ca;
+  --ui-on-solid: #ffffff;
+
+  --ui-btn-size: 0.8125rem;
+  --ui-btn-size-md: 0.875rem;
+  --ui-btn-bg: #ffffff;
+  --ui-btn-ink: #344054;
+  --ui-btn-line: #d0d5dd;
+  --ui-btn-hover-bg: #f5f5ff;
+  --ui-btn-hover-ink: #3730a3;
+  --ui-btn-hover-line: #a5b4fc;
+  --ui-btn-disabled-bg: #f9fafb;
+  --ui-chip-sub-hover: #6366f1;
+
+  --ui-seg-size: 0.8125rem;
+  --ui-seg-size-sm: 0.75rem;
+  --ui-seg-border: 0 solid transparent;
+  --ui-seg-divider: 0 solid transparent;
+  --ui-seg-radius: 10px;
+  --ui-seg-track: #f2f4f7;
+  --ui-seg-pad: 3px;
+  --ui-seg-gap: 2px;
+  --ui-seg-item-bg: transparent;
+  --ui-seg-item-radius: 7px;
+  --ui-seg-ink: #475467;
+  --ui-seg-hover: rgb(255 255 255 / 0.7);
+  --ui-sel-bg: #ffffff;
+  --ui-sel-ink: #101828;
+  --ui-sel-shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 1px 3px rgb(16 24 40 / 0.1);
+  --ui-sel-weight: 600;
+
+  --ui-radius: 8px;
+  --ui-radius-lg: 14px;
+  --ui-radius-card: 16px;
+  --ui-shadow-btn: 0 1px 2px rgb(16 24 40 / 0.05);
+  --ui-shadow-bar: 0 1px 0 rgb(16 24 40 / 0.03), 0 6px 24px -10px rgb(16 24 40 / 0.12);
+  --ui-shadow-card: 0 1px 3px rgb(16 24 40 / 0.06), 0 16px 40px -12px rgb(16 24 40 / 0.16);
+  --ui-shadow-panel: 0 1px 3px rgb(16 24 40 / 0.05), 0 6px 16px -6px rgb(16 24 40 / 0.08);
+  --ui-shadow-pop: 0 12px 24px -6px rgb(16 24 40 / 0.14), 0 2px 6px rgb(16 24 40 / 0.06);
+  --ui-shadow-hover: 0 12px 24px -8px rgb(79 70 229 / 0.25);
+  --ui-card-line: #eaecf0;
+
+  --ui-bar-bg: rgb(255 255 255 / 0.82);
+  --ui-bar-border: 1px solid #eaecf0;
+  --ui-bar-blur: saturate(1.4) blur(12px);
+  --ui-tile-bg: #eef2ff;
+  --ui-tile-ink: #4f46e5;
+
+  --ui-section-bg: transparent;
+  --ui-section-ink: #101828;
+
+  --ui-focus: #6366f1;
+  --ui-focus-ring: 0 0 0 4px rgb(99 102 241 / 0.15);
+  --ui-check: #4f46e5;
+  --ui-pos: #027a48;
+  --ui-neg: #c01048;
+  --ui-warn: #b54708;
+  --ui-danger-ink: #d92d20;
+}
+
+/* ── Midnight: dark desk, mono labels, amber ─────────────────────── */
+:root[data-skin="midnight"] {
+  color-scheme: dark;
+
+  --ui-font: "IBM Plex Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --ui-font-label: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --ui-font-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --ui-label-size: 0.6875rem;
+  --ui-label-weight: 500;
+  --ui-label-track: 0.1em;
+  --ui-label-ink: #8c96a8;
+  --ui-mini-size: 9px;
+
+  --ui-page: radial-gradient(1200px 640px at 50% -12%, #1b2438 0%, #0b0f17 62%) fixed #0b0f17;
+  --ui-surface: #121826;
+  --ui-surface-2: #182032;
+  --ui-input-bg: #0e1420;
+  --ui-ink: #e7ebf3;
+  --ui-ink-2: #c3cad8;
+  --ui-ink-3: #a3acbd;
+  --ui-muted: #7f899c;
+  --ui-faint: #5b6579;
+  --ui-disabled: #3f4859;
+  --ui-skeleton: #1a2234;
+
+  --ui-line: #273145;
+  --ui-line-soft: #1d2537;
+  --ui-line-hover: #f2b544;
+  --ui-line-strong: #f2b544;
+
+  --ui-solid: #f2b544;
+  --ui-solid-hover: #f7c566;
+  --ui-on-solid: #1a1305;
+
+  --ui-btn-bg: #151c2b;
+  --ui-btn-ink: #c3cad8;
+  --ui-btn-line: #2a3449;
+  --ui-btn-hover-bg: #1c2538;
+  --ui-btn-hover-ink: #ffffff;
+  --ui-btn-hover-line: rgb(242 181 68 / 0.7);
+  --ui-btn-disabled-bg: #111725;
+  --ui-chip-sub-hover: #f2b544;
+
+  --ui-seg-size: 0.8125rem;
+  --ui-seg-size-sm: 0.75rem;
+  --ui-seg-item-bg: #121826;
+  --ui-seg-ink: #a3acbd;
+  --ui-seg-hover: #1a2234;
+  --ui-sel-bg: rgb(242 181 68 / 0.14);
+  --ui-sel-ink: #f5c25c;
+  --ui-sel-shadow: inset 0 0 0 1px rgb(242 181 68 / 0.55);
+
+  --ui-radius: 6px;
+  --ui-radius-lg: 10px;
+  --ui-radius-card: 8px;
+  --ui-shadow-bar: 0 10px 30px -14px rgb(0 0 0 / 0.7);
+  --ui-shadow-card: 0 0 0 1px rgb(255 255 255 / 0.06), 0 28px 60px -24px rgb(0 0 0 / 0.9), 0 0 90px -30px rgb(242 181 68 / 0.22);
+  --ui-shadow-panel: none;
+  --ui-shadow-pop: 0 16px 32px -12px rgb(0 0 0 / 0.8);
+  --ui-shadow-hover: 0 0 0 1px rgb(242 181 68 / 0.4), 0 12px 28px -12px rgb(0 0 0 / 0.9);
+  --ui-card-line: transparent;
+
+  --ui-bar-bg: rgb(13 18 28 / 0.86);
+  --ui-bar-border: 1px solid #1f2839;
+  --ui-bar-blur: blur(10px);
+  --ui-tile-bg: rgb(242 181 68 / 0.12);
+  --ui-tile-ink: #f2b544;
+
+  --ui-section-bg: transparent;
+  --ui-section-ink: #8c96a8;
+
+  --ui-focus: #f2b544;
+  --ui-focus-ring: 0 0 0 3px rgb(242 181 68 / 0.18);
+  --ui-check: #f2b544;
+  --ui-success: #16a34a;
+  --ui-danger: #dc2626;
+  --ui-danger-ink: #fb7185;
+  --ui-pos: #4ade80;
+  --ui-neg: #fb7185;
+  --ui-warn: #fbbf24;
+}
+
+html {
+  font-family: var(--ui-font);
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--ui-page);
+  color: var(--ui-ink);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Components — built only from the tokens above. Tailwind utilities
+   sit in a later layer, so a utility on the element still wins for
+   one-off spacing or layout.
+   ══════════════════════════════════════════════════════════════════ */
+@layer components {
+  /* ── Type ── */
+  .ui-heading,
+  .ui-label {
+    font-family: var(--ui-font-label);
+    font-size: var(--ui-label-size);
+    line-height: 1rem;
+    font-weight: var(--ui-label-weight);
+    text-transform: var(--ui-label-case);
+    font-variant-caps: var(--ui-label-caps);
+    letter-spacing: var(--ui-label-track);
+    color: var(--ui-label-ink);
+  }
+  .ui-heading {
+    color: var(--ui-ink);
+  }
+  .ui-subtext {
+    font-size: 11px;
+    line-height: 1rem;
+    font-style: var(--ui-sub-style);
+    color: var(--ui-muted);
+  }
+  .ui-mini-label {
+    font-family: var(--ui-font-label);
+    font-size: var(--ui-mini-size);
+    line-height: 1.2;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    color: var(--ui-muted);
+  }
+  .ui-field-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ui-ink-3);
+  }
+
+  /* ── Top bar ── */
+  .ui-appbar {
+    background: var(--ui-bar-bg);
+    border-bottom: var(--ui-bar-border);
+    box-shadow: var(--ui-shadow-bar);
+    -webkit-backdrop-filter: var(--ui-bar-blur);
+    backdrop-filter: var(--ui-bar-blur);
+  }
+  .ui-icon-tile {
+    padding: 0.25rem;
+    background: var(--ui-tile-bg);
+    color: var(--ui-tile-ink);
+    border-radius: var(--ui-radius);
+  }
+  .ui-divider {
+    background: var(--ui-line);
+  }
+
+  /* ── Buttons ── */
+  .ui-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    font-size: var(--ui-btn-size);
+    line-height: 1rem;
+    font-weight: var(--ui-btn-weight);
+    text-transform: var(--ui-btn-case);
+    font-variant-caps: var(--ui-btn-caps);
+    letter-spacing: var(--ui-btn-track);
+    color: var(--ui-btn-ink);
+    background: var(--ui-btn-bg);
+    border: var(--ui-bw) solid var(--ui-btn-line);
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-shadow-btn);
+    cursor: pointer;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .ui-btn:hover:not(:disabled) {
+    color: var(--ui-btn-hover-ink);
+    background: var(--ui-btn-hover-bg);
+    border-color: var(--ui-btn-hover-line);
+  }
+  .ui-btn:disabled {
+    color: var(--ui-disabled);
+    background: var(--ui-btn-disabled-bg);
+    border-color: var(--ui-line-soft);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  /* Copy stays in its normal colors while the capture runs. */
+  .ui-btn[data-status="copying"]:disabled {
+    color: var(--ui-btn-ink);
+    background: var(--ui-btn-bg);
+    border-color: var(--ui-btn-line);
+    box-shadow: var(--ui-shadow-btn);
+    cursor: progress;
+  }
+  .ui-btn:focus-visible,
+  .ui-split button:focus-visible,
+  .ui-seg-item:focus-visible,
+  .ui-swatch:focus-visible {
+    outline: 2px solid var(--ui-focus);
+    outline-offset: 2px;
+  }
+  .ui-btn-md {
+    font-size: var(--ui-btn-size-md);
+    line-height: 1.25rem;
+  }
+  .ui-btn-primary,
+  .ui-btn-primary:hover:not(:disabled) {
+    color: var(--ui-on-solid);
+    background: var(--ui-solid);
+    border-color: var(--ui-solid);
+  }
+  .ui-btn-primary:hover:not(:disabled) {
+    background: var(--ui-solid-hover);
+    border-color: var(--ui-solid-hover);
+  }
+  .ui-btn-primary:disabled {
+    color: var(--ui-on-solid);
+    background: var(--ui-solid);
+    border-color: var(--ui-solid);
+    opacity: 0.4;
+  }
+  .ui-btn[data-status="done"],
+  .ui-split[data-status="done"] {
+    color: #ffffff;
+    background: var(--ui-success);
+    border-color: var(--ui-success);
+  }
+  .ui-btn[data-status="error"],
+  .ui-split[data-status="error"] {
+    color: #ffffff;
+    background: var(--ui-danger);
+    border-color: var(--ui-danger);
+  }
+
+  /* Two-line blank-template chip */
+  .ui-chip {
+    flex-direction: column;
+    gap: 0;
+    min-width: 68px;
+    padding: 0.25rem 0.625rem;
+  }
+  .ui-chip-sub {
+    font-size: 9px;
+    line-height: 1.2;
+    font-weight: 400;
+    text-transform: none;
+    font-variant-caps: normal;
+    letter-spacing: normal;
+    color: var(--ui-faint);
+    transition: color 150ms;
+  }
+  .ui-chip:hover .ui-chip-sub {
+    color: var(--ui-chip-sub-hover);
+  }
+
+  /* Split button (Save + options caret) */
+  .ui-split {
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    font-size: var(--ui-btn-size);
+    line-height: 1rem;
+    font-weight: var(--ui-btn-weight);
+    text-transform: var(--ui-btn-case);
+    font-variant-caps: var(--ui-btn-caps);
+    letter-spacing: var(--ui-btn-track);
+    color: var(--ui-on-solid);
+    background: var(--ui-solid);
+    border: var(--ui-bw) solid var(--ui-solid);
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-shadow-btn);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .ui-split:not([data-status="done"]):not([data-status="error"]):hover {
+    background: var(--ui-solid-hover);
+    border-color: var(--ui-solid-hover);
+  }
+  .ui-split-toggle {
+    padding: 0 0.5rem;
+    border-left: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  }
+  .ui-split-toggle:hover {
+    background: color-mix(in srgb, currentColor 10%, transparent);
+  }
+
+  /* Popover menu */
+  .ui-menu {
+    color: var(--ui-ink-2);
+    background: var(--ui-surface);
+    border: var(--ui-bw) solid var(--ui-line);
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-shadow-pop);
+  }
+
+  /* ── Containers ── */
+  /* The grid's card is always white paper and pins the original font, so
+     exported images look identical no matter which skin is active. */
+  .ui-card {
+    color-scheme: light;
+    font-family: var(--font-sans);
+    background: #ffffff;
+    border: 1px solid var(--ui-card-line);
+    border-radius: var(--ui-radius-card);
+    box-shadow: var(--ui-shadow-card);
+  }
+  .ui-panel {
+    background: var(--ui-surface);
+    border: var(--ui-bw) solid var(--ui-line);
+    border-radius: var(--ui-radius-lg);
+    box-shadow: var(--ui-shadow-panel);
+  }
+  .ui-section-header {
+    padding: 0.375rem 0.75rem;
+    font-family: var(--ui-font-label);
+    font-size: var(--ui-label-size);
+    line-height: 1rem;
+    font-weight: var(--ui-label-weight);
+    text-transform: var(--ui-label-case);
+    font-variant-caps: var(--ui-label-caps);
+    letter-spacing: var(--ui-label-track);
+    color: var(--ui-section-ink);
+    background: var(--ui-section-bg);
+  }
+  .ui-skeleton {
+    background: var(--ui-skeleton);
+    border-radius: var(--ui-radius);
+  }
+
+  /* ── Segmented controls ── */
+  .ui-seg,
+  .ui-seg-grid {
+    gap: var(--ui-seg-gap);
+    padding: var(--ui-seg-pad);
+    background: var(--ui-seg-track);
+    border: var(--ui-seg-border);
+    border-radius: var(--ui-seg-radius);
+    overflow: hidden;
+  }
+  .ui-seg {
+    display: flex;
+  }
+  .ui-seg-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .ui-seg-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    font-size: var(--ui-seg-size);
+    line-height: 1.25rem;
+    font-weight: 500;
+    color: var(--ui-seg-ink);
+    background: var(--ui-seg-item-bg);
+    border-radius: var(--ui-seg-item-radius);
+    cursor: pointer;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .ui-seg-sm {
+    font-size: var(--ui-seg-size-sm);
+    line-height: 1rem;
+  }
+  .ui-seg > .ui-seg-item + .ui-seg-item {
+    border-left: var(--ui-seg-divider);
+  }
+  .ui-seg-grid > .ui-seg-item[data-edge-r="false"] {
+    border-right: var(--ui-seg-divider);
+  }
+  .ui-seg-grid > .ui-seg-item[data-edge-b="false"] {
+    border-bottom: var(--ui-seg-divider);
+  }
+  .ui-seg-item:hover {
+    background: var(--ui-seg-hover);
+  }
+  .ui-seg-item[aria-pressed="true"] {
+    font-weight: var(--ui-sel-weight);
+    color: var(--ui-sel-ink);
+    background: var(--ui-sel-bg);
+    box-shadow: var(--ui-sel-shadow);
+  }
+
+  /* ── Form fields ── */
+  .ui-input {
+    color: var(--ui-ink);
+    background: var(--ui-input-bg);
+    border: var(--ui-bw) solid var(--ui-line);
+    border-radius: var(--ui-radius);
+    transition: border-color 150ms, box-shadow 150ms;
+  }
+  .ui-input::placeholder {
+    color: var(--ui-faint);
+  }
+  .ui-input:focus {
+    outline: none;
+    border-color: var(--ui-focus);
+    box-shadow: var(--ui-focus-ring);
+  }
+  .ui-check {
+    accent-color: var(--ui-check);
+  }
+  .ui-check-label {
+    color: var(--ui-ink-2);
+  }
+  .ui-readout {
+    background: var(--ui-surface-2);
+    border: var(--ui-bw) solid var(--ui-line);
+    border-radius: var(--ui-radius);
+  }
+  .ui-readout-value {
+    font-family: var(--ui-font-num);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Pickers & lists ── */
+  .ui-swatch {
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-line);
+    border-radius: var(--ui-radius);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  .ui-swatch:hover {
+    border-color: var(--ui-line-hover);
+  }
+  .ui-swatch[aria-pressed="true"] {
+    background: var(--ui-surface-2);
+    border-color: var(--ui-line-strong);
+  }
+  .ui-swatch-name {
+    font-size: 10px;
+    line-height: 1.25;
+    color: var(--ui-muted);
+  }
+  .ui-swatch[aria-pressed="true"] .ui-swatch-name {
+    font-weight: 600;
+    color: var(--ui-ink);
+  }
+  .ui-list-item {
+    border: 1px solid transparent;
+    border-radius: var(--ui-radius);
+    transition: all 150ms;
+  }
+  .ui-list-item:hover {
+    background: var(--ui-surface-2);
+    border-color: var(--ui-line-soft);
+  }
+
+  /* ── History ── */
+  .ui-history-body {
+    background: var(--ui-surface);
+  }
+  .ui-thumb {
+    padding: 0.5rem;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-line);
+    border-radius: var(--ui-radius);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  .ui-thumb:hover {
+    border-color: var(--ui-line-strong);
+    box-shadow: var(--ui-shadow-hover);
+  }
+  .ui-thumb img {
+    border-radius: calc(var(--ui-radius) / 2);
+  }
+  .ui-resize {
+    background: var(--ui-surface-2);
+  }
+  .ui-resize:hover {
+    background: var(--ui-line-soft);
+  }
+  .ui-resize-grip {
+    background: var(--ui-line);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Skin structure — the few differences tokens alone can't express.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Paper: section headers set as a centred italic caption between rules. */
+:root[data-skin="paper"] .ui-section-header {
+  padding: 0.375rem 1.5rem;
+  border-top: 1px solid var(--ui-ink);
+  border-bottom: 1px solid var(--ui-ink);
+  font-size: 1rem;
+  font-weight: 400;
+  font-style: italic;
+  font-variant-caps: normal;
+  letter-spacing: 0.02em;
+}
+:root[data-skin="paper"] .ui-icon-tile {
+  border: 1px solid var(--ui-line);
+}
+:root[data-skin="paper"] .ui-panel {
+  border-top: 3px double var(--ui-line-hover);
+  border-bottom: 3px double var(--ui-line-hover);
+}
+
+/* Swiss: panels lose their box and hang from a heavy top rule; section
+   headers carry a red square. */
+:root[data-skin="swiss"] .ui-panel {
+  border: 0;
+  border-top: 6px solid var(--ui-ink);
+}
+:root[data-skin="swiss"] .ui-card {
+  border-width: 2px;
+}
+:root[data-skin="swiss"] .ui-section-header {
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--ui-ink);
+}
+:root[data-skin="swiss"] .ui-section-header::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.5rem;
+  background: var(--ui-solid);
+  vertical-align: 0.05em;
+}
+:root[data-skin="swiss"] .ui-heading {
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+}
+:root[data-skin="swiss"] .ui-swatch,
+:root[data-skin="swiss"] .ui-thumb {
+  border-width: 2px;
+  border-color: var(--ui-line-soft);
+}
+:root[data-skin="swiss"] .ui-swatch[aria-pressed="true"],
+:root[data-skin="swiss"] .ui-thumb:hover {
+  border-color: var(--ui-ink);
+}
+
+/* Soft and Midnight: History becomes its own rounded card. */
+:root[data-skin="soft"] .ui-history,
+:root[data-skin="midnight"] .ui-history {
+  overflow: hidden;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-shadow-panel);
+}
+:root[data-skin="soft"] .ui-section-header,
+:root[data-skin="midnight"] .ui-section-header {
+  padding: 0.625rem 1rem;
+  background: var(--ui-surface);
+  border-bottom: 1px solid var(--ui-line-soft);
+}
+:root[data-skin="midnight"] .ui-heading {
+  font-family: var(--ui-font-label);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}

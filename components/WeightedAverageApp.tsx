@@ -11,6 +11,7 @@ import { useAutoSave, loadSavedState } from "@/hooks/useAutoSave";
 import { useTemplates } from "@/hooks/useTemplates";
 import { useHistory } from "@/hooks/useHistory";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
+import { usePageSkin } from "@/hooks/usePageSkin";
 
 import SpreadsheetGrid from "./SpreadsheetGrid";
 import OptionsDrawer from "./OptionsDrawer";
@@ -177,6 +178,7 @@ export default function WeightedAverageApp() {
 
   const { templates, saveTemplate, deleteTemplate, getTemplate } = useTemplates();
   const { history, addSnapshot } = useHistory();
+  const { skin, setSkin } = usePageSkin();
 
   const updateComp = useCallback(
     (id: string, field: "salePrice" | "weight", value: number | string) => {
@@ -467,8 +469,8 @@ export default function WeightedAverageApp() {
   if (!hydrated) {
     return (
       <div className="w-full max-w-4xl mx-auto animate-pulse">
-        <div className="h-8 bg-slate-200/60 w-72 mx-auto mb-6" />
-        <div className="h-56 bg-slate-200/60" />
+        <div className="ui-skeleton h-8 w-72 mx-auto mb-6" />
+        <div className="ui-skeleton h-56" />
       </div>
     );
   }
@@ -481,17 +483,17 @@ export default function WeightedAverageApp() {
       {/* Template Bar */}
       <div
         ref={templateBarRef}
-        className="fixed top-0 left-0 right-0 bg-white border-b border-neutral-300 shadow-sm z-50 flex flex-col md:flex-row md:items-center justify-between gap-2 px-4 py-2.5"
+        className="ui-appbar fixed top-0 left-0 right-0 z-50 flex flex-col md:flex-row md:items-center justify-between gap-2 px-4 py-2.5"
       >
         <div className="flex items-center gap-2">
-          <div className="p-1 bg-neutral-100 text-neutral-700">
+          <div className="ui-icon-tile">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
               <path fillRule="evenodd" d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3Zm2 1h8v1.5H4V4Zm8 3H4v1.5h8V7Zm-8 3h8v1.5H4V10Z" clipRule="evenodd" />
             </svg>
           </div>
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wide text-slate-800">Blank Templates</h4>
-            <p className="text-[11px] text-slate-500">Weights are divided evenly (using fractions for decimals)</p>
+            <h4 className="ui-heading">Blank Templates</h4>
+            <p className="ui-subtext">Weights are divided evenly (using fractions for decimals)</p>
           </div>
         </div>
         
@@ -504,16 +506,16 @@ export default function WeightedAverageApp() {
                 key={count}
                 type="button"
                 onClick={() => handleSelectBlankTemplate(count)}
-                className="group px-2.5 py-1 text-xs font-semibold border border-neutral-300 text-slate-700 bg-white hover:bg-neutral-800 hover:text-white hover:border-neutral-800 transition-all duration-150 cursor-pointer flex flex-col items-center min-w-[68px]"
+                className="ui-btn ui-chip"
               >
                 <span>{count} Comps</span>
-                <span className="text-[9px] text-slate-400 group-hover:text-neutral-300 font-normal">{displayLabel} each</span>
+                <span className="ui-chip-sub">{displayLabel} each</span>
               </button>
             );
           })}
         </div>
 
-        <div className="hidden md:block w-px self-stretch bg-neutral-300 mx-1" aria-hidden="true" />
+        <div className="ui-divider hidden md:block w-px self-stretch mx-1" aria-hidden="true" />
 
         <PercentChangeCalculator compact />
       </div>
@@ -530,11 +532,7 @@ export default function WeightedAverageApp() {
               type="button"
               onClick={undo}
               disabled={!canUndo}
-              className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer border ${
-                canUndo
-                  ? "bg-white text-slate-700 border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
-                  : "bg-slate-50 text-slate-300 border-neutral-200 cursor-not-allowed"
-              }`}
+              className="ui-btn"
               title="Undo last change (Ctrl+Z)"
             >
               <svg
@@ -552,11 +550,7 @@ export default function WeightedAverageApp() {
               type="button"
               onClick={redo}
               disabled={!canRedo}
-              className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer border ${
-                canRedo
-                  ? "bg-white text-slate-700 border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
-                  : "bg-slate-50 text-slate-300 border-neutral-200 cursor-not-allowed"
-              }`}
+              className="ui-btn"
               title="Redo last change (Ctrl+Y)"
             >
               <svg
@@ -576,13 +570,8 @@ export default function WeightedAverageApp() {
               onClick={handleCopy}
               disabled={copyStatus === "copying"}
               title={copyDetail || undefined}
-              className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer border ${
-                copyStatus === "done"
-                  ? "bg-emerald-600 text-white border-emerald-600"
-                  : copyStatus === "error"
-                  ? "bg-red-600 text-white border-red-600"
-                  : "bg-white text-slate-700 border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
-              }`}
+              data-status={copyStatus}
+              className="ui-btn"
             >
               {copyStatus === "copying" ? (
                 <>
@@ -613,22 +602,14 @@ export default function WeightedAverageApp() {
             </button>
 
             <div className="relative" ref={saveMenuRef}>
-              <div
-                className={`flex items-stretch overflow-hidden transition-all duration-150 ${
-                  saveStatus === "done"
-                    ? "bg-emerald-600 text-white border border-emerald-600"
-                    : saveStatus === "error"
-                    ? "bg-red-600 text-white border border-red-600"
-                    : "bg-neutral-800 text-white border border-neutral-800 hover:bg-neutral-700"
-                }`}
-              >
+              <div className="ui-split" data-status={saveStatus}>
                 <button
                   type="button"
                   tabIndex={-1}
                   onClick={handleSave}
                   disabled={saveStatus === "saving"}
                   title={saveDetail || saveInfo || undefined}
-                  className="flex items-center gap-1 text-xs font-semibold pl-3 pr-2.5 py-1.5 cursor-pointer disabled:cursor-not-allowed"
+                  className="flex items-center gap-1 pl-3 pr-2.5 py-1.5 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {saveStatus === "saving" ? (
                     <>
@@ -664,7 +645,7 @@ export default function WeightedAverageApp() {
                   aria-label="Save options"
                   aria-expanded={isSaveMenuOpen}
                   onClick={() => setIsSaveMenuOpen((open) => !open)}
-                  className="px-2 border-l border-white/25 hover:bg-white/10"
+                  className="ui-split-toggle cursor-pointer"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
                     <path fillRule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
@@ -673,14 +654,14 @@ export default function WeightedAverageApp() {
               </div>
 
               {isSaveMenuOpen && (
-                <div className="absolute right-0 top-[calc(100%+0.25rem)] min-w-48 border border-neutral-300 bg-white px-3 py-2 shadow-sm z-20">
-                  <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
+                <div className="ui-menu absolute right-0 top-[calc(100%+0.25rem)] min-w-48 px-3 py-2 z-20">
+                  <label className="ui-check-label flex items-center gap-2 text-xs cursor-pointer select-none">
                     <input
                       type="checkbox"
                       tabIndex={-1}
                       checked={rememberLocation}
                       onChange={(e) => toggleRemember(e.target.checked)}
-                      className="border-slate-400 text-neutral-800 focus:ring-slate-500 w-3.5 h-3.5 cursor-pointer"
+                      className="ui-check w-3.5 h-3.5 cursor-pointer"
                     />
                     Remember directory
                   </label>
@@ -692,7 +673,7 @@ export default function WeightedAverageApp() {
               type="button"
               tabIndex={-1}
               onClick={handleClear}
-              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 transition-all duration-150 cursor-pointer bg-white text-slate-700 border border-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-800"
+              className="ui-btn"
               title="Clear table data"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
@@ -708,26 +689,26 @@ export default function WeightedAverageApp() {
           </div>
 
           {copyDetail && copyStatus === "error" && (
-            <p className="mt-1 text-center text-xs text-red-600 max-w-lg mx-auto px-2" role="alert">
+            <p className="mt-1 text-center text-xs text-[color:var(--ui-danger-ink)] max-w-lg mx-auto px-2" role="alert">
               {copyDetail}
             </p>
           )}
           {saveDetail && saveStatus === "error" && (
-            <p className="mt-1 text-center text-xs text-red-600 max-w-lg mx-auto px-2" role="alert">
+            <p className="mt-1 text-center text-xs text-[color:var(--ui-danger-ink)] max-w-lg mx-auto px-2" role="alert">
               {saveDetail}
             </p>
           )}
           {saveInfo && saveStatus === "done" && (
-            <p className="mt-1 text-center text-xs text-slate-600 max-w-lg mx-auto px-2" role="status">
+            <p className="mt-1 text-center text-xs text-[color:var(--ui-ink-3)] max-w-lg mx-auto px-2" role="status">
               {saveInfo}
             </p>
           )}
 
           <div className="flex w-full flex-col items-center gap-10">
             <section className="flex w-full flex-col items-center">
-              <div className="mx-auto w-fit border border-neutral-300 bg-white shadow-sm">
+              <div className="ui-card mx-auto w-fit">
                 {/* Exportable area */}
-                <div className="bg-white px-4 py-3 flex flex-col gap-2">
+                <div className="px-4 py-3 flex flex-col gap-2">
                   {state.showTitle && (
                     <input
                       type="text"
@@ -773,6 +754,8 @@ export default function WeightedAverageApp() {
                   onShowTitleChange={setShowTitle}
                   onWeightDisplayFormatChange={setWeightDisplayFormat}
                   onThemeChange={setTheme}
+                  skin={skin}
+                  onSkinChange={setSkin}
                   onWeightVizChange={setWeightViz}
                   onShowResultVizChange={setShowResultViz}
                   onBarFillRowChange={setBarFillRow}

@@ -30,7 +30,7 @@ export default function TemplateManager({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+      <p className="ui-label">
         Templates
       </p>
 
@@ -42,38 +42,38 @@ export default function TemplateManager({
           onChange={(e) => setSaveName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSave()}
           placeholder="Template name..."
-          className="flex-1 min-w-0 text-sm bg-white border border-neutral-300 px-2 py-1.5 focus:outline-none focus:border-slate-500 transition-colors placeholder:text-slate-400"
+          className="ui-input flex-1 min-w-0 text-sm px-2 py-1.5"
         />
         <button
           type="button"
           tabIndex={-1}
           onClick={handleSave}
           disabled={!saveName.trim()}
-          className="text-sm font-semibold px-3 py-1.5 bg-neutral-800 text-white hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          className="ui-btn ui-btn-primary ui-btn-md"
         >
           Save
         </button>
       </div>
 
       {templates.length === 0 ? (
-        <p className="text-xs text-slate-400 italic py-1">No saved templates</p>
+        <p className="text-xs text-[color:var(--ui-faint)] italic py-1">No saved templates</p>
       ) : (
         <ul className="space-y-0.5 max-h-48 overflow-y-auto">
           {templates.map((t) => (
             <li
               key={t.id}
-              className="flex items-center gap-2 text-sm px-2 py-1.5 hover:bg-slate-50 group transition-colors border border-transparent hover:border-neutral-200"
+              className="ui-list-item group flex items-center gap-2 text-sm px-2 py-1.5"
             >
               <button
                 type="button"
                 tabIndex={-1}
                 onClick={() => onLoad(t)}
-                className="flex-1 text-left text-slate-700 truncate hover:text-slate-900 transition-colors cursor-pointer"
+                className="flex-1 text-left text-[color:var(--ui-ink-2)] truncate hover:text-[color:var(--ui-ink)] transition-colors cursor-pointer"
                 title={`Load "${t.name}"`}
               >
                 {t.name}
               </button>
-              <span className="text-[10px] text-slate-400 shrink-0 tabular-nums">
+              <span className="text-[10px] text-[color:var(--ui-faint)] shrink-0 tabular-nums">
                 {new Date(t.createdAt).toLocaleDateString()}
               </span>
               {confirmDeleteId === t.id ? (
@@ -93,7 +93,7 @@ export default function TemplateManager({
                     type="button"
                     tabIndex={-1}
                     onClick={() => setConfirmDeleteId(null)}
-                    className="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                    className="ui-btn text-[10px] px-2 py-0.5"
                   >
                     No
                   </button>
@@ -103,7 +103,7 @@ export default function TemplateManager({
                   type="button"
                   tabIndex={-1}
                   onClick={() => setConfirmDeleteId(t.id)}
-                  className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shrink-0 cursor-pointer"
+                  className="opacity-0 group-hover:opacity-100 p-0.5 text-[color:var(--ui-faint)] hover:text-red-500 hover:bg-red-500/10 transition-all shrink-0 cursor-pointer"
                   title="Delete"
                 >
                   <svg
