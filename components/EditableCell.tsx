@@ -199,7 +199,7 @@ export default function EditableCell({
         onBlur={commit}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className={`${widthClass} outline-none tabular-nums font-medium px-2 py-1.5 ${textAlign} bg-blue-50 ring-1 ring-slate-400 ${className}`}
+        className={`g-field g-field-editing ${widthClass} outline-none ${textAlign} ${className}`}
       />
     );
   }
@@ -210,9 +210,7 @@ export default function EditableCell({
       onFocus={startEditing}
       tabIndex={tabIndex}
       role="textbox"
-      className={`${widthClass} outline-none focus-visible:ring-1 focus-visible:ring-slate-400 focus-visible:ring-inset tabular-nums font-medium px-2 py-1.5 cursor-text ${textAlign} ${
-        isEmpty ? "text-slate-400 italic" : "text-slate-800"
-      } ${className}`}
+      className={`g-field ${isEmpty ? "g-field-empty" : ""} ${widthClass} outline-none cursor-text ${textAlign} ${className}`}
     >
       {isEmpty ? placeholder : formatted}
     </div>

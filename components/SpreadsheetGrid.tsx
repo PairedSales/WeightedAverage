@@ -3,7 +3,8 @@
 import { useCallback, useState } from "react";
 import type { DragEvent, RefObject } from "react";
 import type { CompSale, DecimalPrecision, GridThemeId, LayoutMode, WeightDisplayFormat, WeightVizMode, WeightVizRow } from "@/lib/types";
-import { getGridTheme, type GridTheme } from "@/lib/themes";
+import { getGridTheme, gridThemeStyle, type GridTheme } from "@/lib/themes";
+import { SKIN_BAR_RGB, type PageSkinId } from "@/lib/skins";
 import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/calculations";
 import { formatCurrency, formatPercent, formatWeight } from "@/lib/formatting";
 import EditableCell from "./EditableCell";
@@ -16,6 +17,7 @@ interface SpreadsheetGridProps {
   layout: LayoutMode;
   weightDisplayFormat: WeightDisplayFormat;
   theme: GridThemeId;
+  skin: PageSkinId;
   weightViz: WeightVizMode;
   showResultViz: boolean;
   barFillRow: WeightVizRow;
@@ -33,6 +35,7 @@ export default function SpreadsheetGrid({
   layout,
   weightDisplayFormat,
   theme,
+  skin,
   weightViz,
   showResultViz,
   barFillRow,
@@ -43,7 +46,9 @@ export default function SpreadsheetGrid({
   onMoveComp,
   onWeightDisplayFormatChange,
 }: SpreadsheetGridProps) {
-  const resolvedTheme = getGridTheme(theme);
+  const baseTheme = getGridTheme(theme);
+  const skinBarRGB = SKIN_BAR_RGB[skin];
+  const resolvedTheme = skinBarRGB ? { ...baseTheme, weightBarRGB: skinBarRGB } : baseTheme;
   const totalWeight = sumWeights(comps);
   const avg = weightedAverage(comps);
   const maxWeight = Math.max(...comps.map((c) => numericWeight(c)), 1);
@@ -265,7 +270,7 @@ function AddButton({ onClick }: { onClick: () => void }) {
         type="button"
         tabIndex={-1}
         onClick={onClick}
-        className="text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-100 px-2.5 py-1 transition-colors flex items-center gap-1 cursor-pointer border border-transparent hover:border-slate-300"
+        className="text-xs text-[color:var(--ui-muted)] hover:text-[color:var(--ui-ink)] hover:bg-[color:var(--ui-surface-2)] px-2.5 py-1 transition-colors flex items-center gap-1 cursor-pointer border border-transparent hover:border-[color:var(--ui-line)] rounded-[var(--ui-radius)]"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
           <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
@@ -303,21 +308,21 @@ function VerticalGrid({
   const n = comps.length;
   const dragging = useCompDrag(onMoveComp);
   return (
-    <div className="w-fit">
-      <div ref={gridExportRef} className="w-fit" data-chart-export>
-      <table className="border-collapse text-sm whitespace-nowrap">
+    <div className="w-fit" style={gridThemeStyle(theme)}>
+      <div ref={gridExportRef} className="g-sheet w-fit" data-chart-export>
+      <table className="g-table">
         <thead>
           <tr>
-            <th className={`px-3 py-1.5 text-left text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} w-28`}>
+            <th className="g-th text-left w-28">
               Comparable
             </th>
-            <th className={`px-3 py-1.5 text-right text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} min-w-[10rem]`}>
+            <th className="g-th text-right min-w-[10rem]">
               Adj. Sale Price
             </th>
-            <th className={`px-3 py-1.5 text-right text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} w-32`}>
+            <th className="g-th text-right w-32">
               Weight
             </th>
-            <th className={`px-3 py-1.5 text-right text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} min-w-[10rem]`}>
+            <th className="g-th text-right min-w-[10rem]">
               Contribution
             </th>
             <th className="w-7 border-none bg-transparent" data-exclude-export />
@@ -331,7 +336,7 @@ function VerticalGrid({
             return (
               <tr
                 key={comp.id}
-                className={`group ${theme.hoverBg} transition-colors ${dragging.overId === comp.id && dragging.id !== comp.id ? "outline outline-2 -outline-offset-2 outline-sky-500" : ""}`}
+                className={`g-row group ${dragging.overId === comp.id && dragging.id !== comp.id ? "outline outline-2 -outline-offset-2 outline-sky-500" : ""}`}
                 onDragOver={(e) => dragging.onOver(e, comp.id)}
                 onDrop={(e) => dragging.onDrop(e, comp.id)}
               >
@@ -344,11 +349,11 @@ function VerticalGrid({
                   }}
                   onDragEnd={dragging.onEnd}
                   title="Drag to reorder"
-                  className={`px-3 py-1.5 font-medium text-slate-700 text-center text-[13px] border ${theme.borderColor} cursor-grab active:cursor-grabbing`}
+                  className="g-comp cursor-grab active:cursor-grabbing"
                 >
                   {comp.label}
                 </td>
-                <td className={`p-0 border ${theme.borderColor}`}>
+                <td className="p-0">
                   <EditableCell
                     value={comp.salePrice}
                     formatted={formatCurrency(comp.salePrice)}
@@ -360,7 +365,7 @@ function VerticalGrid({
                     onNavigate={onNavigate}
                   />
                 </td>
-                <td className={`p-0 relative border ${theme.borderColor}`}>
+                <td className="p-0 relative">
                   {weightViz === "shade" && (
                     <WeightBar ratio={weightRatio} direction="horizontal" colorRGB={theme.weightBarRGB} />
                   )}
@@ -399,7 +404,7 @@ function VerticalGrid({
                     )}
                   </div>
                 </td>
-                <td className={`px-2 py-1.5 text-right tabular-nums font-medium text-slate-700 relative border ${theme.borderColor}`}>
+                <td className="g-calc">
                   {weightViz === "bar-fill" && barFillRow === "contribution" && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
@@ -422,13 +427,13 @@ function VerticalGrid({
           <tr>
             <td
               colSpan={2}
-              className={`px-3 py-2 font-bold ${theme.footerText} ${theme.footerBg} text-sm border ${theme.borderColor}`}
+              className="g-total-label"
             >
               Weighted Average
               <WeightWarning totalWeight={totalWeight} decimals={decimals} />
             </td>
             <td
-              className={`p-0 relative text-right tabular-nums font-semibold text-slate-700 border ${theme.borderColor} ${theme.resultColBg}`}
+              className="g-result"
             >
               {showResultViz && totalWeight > 0 && (
                 <>
@@ -450,14 +455,14 @@ function VerticalGrid({
                 </>
               )}
               <div className="relative z-10">
-                <div className="px-2 py-1.5">{formatWeight(totalWeight, decimals, weightDisplayFormat)}</div>
+                <div className="g-pad">{formatWeight(totalWeight, decimals, weightDisplayFormat)}</div>
                 {showResultViz && (weightViz === "meter" || weightViz === "scale") && (
                   <WeightCellViz mode={weightViz} pct={totalWeight} colorRGB={theme.weightBarRGB} />
                 )}
               </div>
             </td>
             <td
-              className={`px-2 py-2 relative text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm border ${theme.borderColor}`}
+              className="g-total"
             >
               {showResultViz && weightViz === "bar-fill" && barFillRow === "contribution" && totalWeight > 0 && (
                 <BarFillBackground comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
@@ -502,12 +507,12 @@ function HorizontalGrid({
   const n = comps.length;
   const dragging = useCompDrag(onMoveComp);
   return (
-    <div className="w-fit">
-      <div ref={gridExportRef} className="w-fit" data-chart-export>
-      <table className="border-collapse text-sm whitespace-nowrap">
+    <div className="w-fit" style={gridThemeStyle(theme)}>
+      <div ref={gridExportRef} className="g-sheet w-fit" data-chart-export>
+      <table className="g-table">
         <thead>
           <tr>
-            <th className={`px-3 py-1.5 text-left text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} w-32`}>
+            <th className="g-th text-left w-32">
               &nbsp;
             </th>
             {comps.map((comp) => (
@@ -519,7 +524,7 @@ function HorizontalGrid({
                 onDragOver={(e) => dragging.onOver(e, comp.id)}
                 onDrop={(e) => dragging.onDrop(e, comp.id)}
                 title="Drag to reorder"
-                className={`px-3 py-1.5 text-center text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} group relative cursor-grab active:cursor-grabbing ${dragging.overId === comp.id && dragging.id !== comp.id ? "outline outline-2 -outline-offset-2 outline-sky-400" : ""}`}
+                className={`g-th text-center group relative cursor-grab active:cursor-grabbing ${dragging.overId === comp.id && dragging.id !== comp.id ? "outline outline-2 -outline-offset-2 outline-sky-400" : ""}`}
               >
                 <span>{comp.label}</span>
                 {canRemove && (
@@ -529,7 +534,7 @@ function HorizontalGrid({
                 )}
               </th>
             ))}
-            <th className={`px-3 py-1.5 text-center text-xs font-bold text-white ${theme.headerAccentBg} border ${theme.borderColor}`}>
+            <th className="g-th g-th-accent text-center">
               Result
             </th>
           </tr>
@@ -537,11 +542,11 @@ function HorizontalGrid({
         <tbody>
           {/* Adj. Sale Price Row */}
           <tr className="group">
-            <td className={`px-3 py-1.5 font-bold text-slate-700 text-xs border ${theme.borderColor} ${theme.labelBg}`}>
+            <td className="g-rowhead">
               Adj. Sale Price
             </td>
             {comps.map((comp, i) => (
-              <td key={comp.id} className={`p-0 min-w-[7rem] border ${theme.borderColor} ${theme.hoverBg} transition-colors`}>
+              <td key={comp.id} className="g-edit p-0 min-w-[7rem]">
                 <EditableCell
                   value={comp.salePrice}
                   formatted={formatCurrency(comp.salePrice)}
@@ -554,12 +559,12 @@ function HorizontalGrid({
                 />
               </td>
             ))}
-            <td className={`border ${theme.borderColor} ${theme.resultColBg}`} />
+            <td className="g-result" />
           </tr>
 
           {/* Weight Row */}
           <tr className="group">
-            <td className={`px-3 py-1.5 font-bold text-slate-700 text-xs border ${theme.borderColor} ${theme.labelBg}`}>
+            <td className="g-rowhead">
               Weight
               <WeightWarning totalWeight={totalWeight} decimals={decimals} />
             </td>
@@ -567,7 +572,7 @@ function HorizontalGrid({
               const isTextWeight = typeof comp.weight === "string";
               const weightRatio = numericWeight(comp) / maxWeight;
               return (
-                <td key={comp.id} className={`p-0 min-w-[7rem] relative border ${theme.borderColor} ${theme.hoverBg} transition-colors`}>
+                <td key={comp.id} className="g-edit p-0 min-w-[7rem] relative">
                   {weightViz === "shade" && (
                     <WeightBar ratio={weightRatio} direction="vertical" colorRGB={theme.weightBarRGB} />
                   )}
@@ -608,7 +613,7 @@ function HorizontalGrid({
                 </td>
               );
             })}
-            <td className={`p-0 relative text-right tabular-nums font-semibold text-slate-700 border ${theme.borderColor} ${theme.resultColBg}`}>
+            <td className="g-result">
               {showResultViz && totalWeight > 0 && (
                 <>
                   {weightViz === "shade" && (
@@ -629,7 +634,7 @@ function HorizontalGrid({
                 </>
               )}
               <div className="relative z-10">
-                <div className="px-2 py-1.5">{formatWeight(totalWeight, decimals, weightDisplayFormat)}</div>
+                <div className="g-pad">{formatWeight(totalWeight, decimals, weightDisplayFormat)}</div>
                 {showResultViz && (weightViz === "meter" || weightViz === "scale") && (
                   <WeightCellViz mode={weightViz} pct={totalWeight} colorRGB={theme.weightBarRGB} />
                 )}
@@ -639,7 +644,7 @@ function HorizontalGrid({
 
           {/* Contribution Row */}
           <tr className="group">
-            <td className={`px-3 py-1.5 font-bold text-slate-700 text-xs border ${theme.borderColor} ${theme.labelBg}`}>
+            <td className="g-rowhead">
               Contribution
             </td>
             {comps.map((comp) => {
@@ -648,7 +653,7 @@ function HorizontalGrid({
               return (
                 <td
                   key={comp.id}
-                  className={`px-2 py-1.5 min-w-[7rem] text-right tabular-nums font-medium text-slate-700 relative border ${theme.borderColor}`}
+                  className="g-calc min-w-[7rem]"
                 >
                   {weightViz === "bar-fill" && barFillRow === "contribution" && totalWeight > 0 && numericWeight(comp) > 0 && (
                     <BarFillBackground comps={comps} compId={comp.id} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
@@ -661,7 +666,7 @@ function HorizontalGrid({
                 </td>
               );
             })}
-            <td className={`px-2 py-2 relative text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm ${weightViz === "bar-fill" ? `border ${theme.borderColor}` : theme.resultBorder}`}>
+            <td className={`g-total ${weightViz === "bar-fill" ? "" : "g-total-emph"}`}>
               {showResultViz && weightViz === "bar-fill" && barFillRow === "contribution" && totalWeight > 0 && (
                 <BarFillBackground comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
               )}

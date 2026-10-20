@@ -50,11 +50,11 @@ function BlocksMeter({ pct, colorRGB }: { pct: number; colorRGB: string }) {
 function ScaleAxis({ pct, colorRGB }: { pct: number; colorRGB: string }) {
   return (
     <div className="relative h-[9px]">
-      <div className="absolute inset-x-0 top-1/2 h-px bg-neutral-300" />
+      <div className="absolute inset-x-0 top-1/2 h-px bg-[color:var(--g-viz-line)]" />
       {[0, 25, 50, 75, 100].map((t) => (
         <div
           key={t}
-          className="absolute top-1/2 -translate-y-1/2 w-px h-[7px] bg-neutral-300"
+          className="absolute top-1/2 -translate-y-1/2 w-px h-[7px] bg-[color:var(--g-viz-line)]"
           style={{ left: t === 100 ? "calc(100% - 1px)" : `${t}%` }}
         />
       ))}
@@ -182,7 +182,7 @@ export function PieGlyph({
         return s.frac >= 0.9999 ? (
           <circle key={s.id} cx={c} cy={c} r={r} fill={fill} />
         ) : (
-          <path key={s.id} d={slicePath(c, c, r, s.start, s.end)} fill={fill} stroke="white" strokeWidth="1" />
+          <path key={s.id} d={slicePath(c, c, r, s.start, s.end)} fill={fill} strokeWidth="1" style={{ stroke: "var(--ui-sheet)" }} />
         );
       })}
       <circle cx={c} cy={c} r={r} fill="none" stroke={`rgba(${colorRGB}, 0.45)`} strokeWidth="1" />
@@ -221,7 +221,7 @@ export function BarGlyph({
 }) {
   return (
     <div
-      className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 pointer-events-none flex w-9 h-2.5 gap-px bg-white border"
+      className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 pointer-events-none flex w-9 h-2.5 gap-px bg-[color:var(--ui-sheet)] border"
       style={{ borderColor: `rgba(${colorRGB}, 0.45)` }}
       aria-hidden="true"
     >

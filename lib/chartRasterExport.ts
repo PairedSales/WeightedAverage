@@ -16,11 +16,18 @@ export function exportFilter(node: unknown): boolean {
   return true;
 }
 
+/** The sheet's own background (it follows the page skin, e.g. dark for Midnight), else white. */
+function exportBackground(element?: HTMLElement): string {
+  if (!element) return EXPORT_BG_CSS;
+  const bg = getComputedStyle(element).backgroundColor;
+  return bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)" ? bg : EXPORT_BG_CSS;
+}
+
 /** skipFonts avoids embedding Google Fonts into huge SVG data URLs (common capture failure on static hosts). cacheBust avoids stale CSS/font fetches on GitHub Pages. */
-export function getHtmlToImageExportOptions() {
+export function getHtmlToImageExportOptions(element?: HTMLElement) {
   return {
     pixelRatio: 2,
-    backgroundColor: EXPORT_BG_CSS,
+    backgroundColor: exportBackground(element),
     filter: exportFilter,
     skipFonts: true,
     cacheBust: true,
@@ -29,7 +36,7 @@ export function getHtmlToImageExportOptions() {
 
 export async function captureElementToCanvas(element: HTMLElement): Promise<HTMLCanvasElement> {
   return toCanvas(element, {
-    ...getHtmlToImageExportOptions(),
+    ...getHtmlToImageExportOptions(element),
   });
 }
 

@@ -727,7 +727,7 @@ export default function WeightedAverageApp() {
                       value={state.title}
                       onChange={(e) => setTitle(e.target.value)}
                       tabIndex={-1}
-                      className="block w-full text-center text-lg font-bold leading-tight text-slate-800 bg-transparent outline-none focus:ring-1 focus:ring-slate-400 px-2 py-1 border-0 placeholder:text-slate-300"
+                      className="g-title block w-full text-center text-lg font-bold leading-tight bg-transparent outline-none px-2 py-1 border-0"
                       spellCheck={false}
                       placeholder="Enter title..."
                     />
@@ -740,6 +740,7 @@ export default function WeightedAverageApp() {
                     layout={state.layout}
                     weightDisplayFormat={state.weightDisplayFormat}
                     theme={state.theme}
+                    skin={skin}
                     weightViz={state.weightViz}
                     showResultViz={state.showResultViz}
                     barFillRow={state.barFillRow}

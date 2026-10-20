@@ -26,7 +26,7 @@ async function captureForCopy(element: HTMLElement): Promise<Captured> {
     return { blob, image };
   } catch (first) {
     try {
-      const dataUrl = await toPng(element, { ...getHtmlToImageExportOptions() });
+      const dataUrl = await toPng(element, { ...getHtmlToImageExportOptions(element) });
       const res = await fetch(dataUrl);
       const blob = await res.blob();
       return { blob, image: dataUrl };

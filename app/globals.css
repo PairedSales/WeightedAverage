@@ -21,8 +21,8 @@
 
    Every `--ui-*` token below is the Classic skin (the original look).
    Other skins (lib/skins.ts) override tokens under :root[data-skin=…].
-   The exported grid never reads these: `.ui-card` pins its own font
-   and the grid's colors come from GridTheme (lib/themes.ts).
+   The grid has its own `--g-*` tokens further down; `--ui-sheet*` is
+   the grid's paper (background, font, ink), shared with its card.
    ══════════════════════════════════════════════════════════════════ */
 :root {
   /* Type */
@@ -120,6 +120,12 @@
   --ui-section-bg: #262626;
   --ui-section-ink: #ffffff;
 
+  /* Grid sheet — the exported area and the card around it */
+  --ui-sheet: #ffffff;
+  --ui-sheet-font: var(--font-sans);
+  --ui-sheet-ink: #1e293b;
+  --ui-sheet-faint: #cbd5e1;
+
   /* Focus & status */
   --ui-focus: #64748b;
   --ui-focus-ring: none;
@@ -134,6 +140,11 @@
 
 /* ── Paper: printed appraisal report ─────────────────────────────── */
 :root[data-skin="paper"] {
+  --ui-sheet: #fffdf8;
+  --ui-sheet-font: "Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --ui-sheet-ink: #1f1b16;
+  --ui-sheet-faint: #c9c0b1;
+
   --ui-font: "Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif;
   --ui-font-label: "Source Serif 4", "Iowan Old Style", Georgia, serif;
   --ui-font-num: "Source Serif 4", Georgia, serif;
@@ -214,6 +225,11 @@
 
 /* ── Swiss: bold grotesk, heavy rules, one signal red ────────────── */
 :root[data-skin="swiss"] {
+  --ui-sheet: #ffffff;
+  --ui-sheet-font: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --ui-sheet-ink: #0a0a0a;
+  --ui-sheet-faint: #bdbdbd;
+
   --ui-font: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --ui-font-label: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --ui-font-num: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -288,6 +304,11 @@
 
 /* ── Soft: rounded cards, soft depth, indigo ─────────────────────── */
 :root[data-skin="soft"] {
+  --ui-sheet: #ffffff;
+  --ui-sheet-font: "Plus Jakarta Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --ui-sheet-ink: #101828;
+  --ui-sheet-faint: #d0d5dd;
+
   --ui-font: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
   --ui-font-label: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
   --ui-font-num: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -377,6 +398,11 @@
 
 /* ── Midnight: dark desk, mono labels, amber ─────────────────────── */
 :root[data-skin="midnight"] {
+  --ui-sheet: #0f1522;
+  --ui-sheet-font: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --ui-sheet-ink: #e7ebf3;
+  --ui-sheet-faint: #3f4859;
+
   color-scheme: dark;
 
   --ui-font: "IBM Plex Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -668,12 +694,10 @@ body {
   }
 
   /* ── Containers ── */
-  /* The grid's card is always white paper and pins the original font, so
-     exported images look identical no matter which skin is active. */
+  /* The grid's card shares the sheet's paper so the grid sits flush on it. */
   .ui-card {
-    color-scheme: light;
-    font-family: var(--font-sans);
-    background: #ffffff;
+    font-family: var(--ui-sheet-font);
+    background: var(--ui-sheet);
     border: 1px solid var(--ui-card-line);
     border-radius: var(--ui-radius-card);
     box-shadow: var(--ui-shadow-card);
@@ -930,4 +954,389 @@ body {
   font-family: var(--ui-font-label);
   font-weight: 500;
   letter-spacing: 0.12em;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Grid — the exported sheet.
+
+   The grid theme (lib/themes.ts) hands its palette in as inline `--t-*`
+   variables on the grid wrapper. `.g-sheet` turns those into `--g-*`
+   tokens (Classic below), and each skin re-maps the tokens and adds the
+   few rules it needs. Exports capture the sheet as drawn, including its
+   background (see lib/chartRasterExport.ts). Exported images skip web
+   fonts, so every skin font stack ends in installed system fonts.
+   ══════════════════════════════════════════════════════════════════ */
+@layer components {
+  .g-sheet {
+    --g-size: 0.875rem;
+    --g-py: 0.375rem;
+    --g-px: 0.5rem;
+    --g-label-px: 0.75rem;
+    --g-total-py: 0.5rem;
+    --g-line: var(--t-line);
+
+    --g-head-bg: var(--t-head);
+    --g-head-accent-bg: var(--t-head-accent);
+    --g-head-ink: #ffffff;
+    --g-th-size: 0.75rem;
+    --g-th-weight: 700;
+    --g-th-case: none;
+    --g-th-caps: normal;
+    --g-th-track: normal;
+    --g-th-py: 0.375rem;
+
+    --g-label-bg: var(--t-label);
+    --g-rowhead-ink: #334155;
+    --g-rowhead-size: 0.75rem;
+    --g-rowhead-weight: 700;
+    --g-rowhead-case: none;
+    --g-rowhead-track: normal;
+    --g-rowhead-style: normal;
+
+    --g-comp-ink: var(--g-ink);
+    --g-comp-size: 13px;
+    --g-comp-weight: 500;
+    --g-comp-case: none;
+    --g-comp-track: normal;
+
+    --g-result-bg: color-mix(in srgb, var(--t-label) 60%, transparent);
+    --g-total-bg: var(--t-total-bg);
+    --g-total-ink: var(--t-total-ink);
+    --g-total-size: 0.875rem;
+    --g-total-weight: 700;
+    --g-total-label-bg: var(--t-total-bg);
+    --g-total-label-ink: var(--t-total-ink);
+    --g-total-label-size: 0.875rem;
+    --g-total-label-case: none;
+    --g-total-label-track: normal;
+    --g-emph: 2px solid var(--t-emph);
+
+    --g-hover: var(--t-hover);
+    --g-ink: #334155;
+    --g-value-ink: var(--ui-sheet-ink);
+    --g-value-weight: 500;
+    --g-empty-ink: #94a3b8;
+    --g-edit-bg: #eff6ff;
+    --g-edit-ring: #94a3b8;
+    --g-viz-line: #d4d4d4;
+
+    font-family: var(--ui-sheet-font);
+    color: var(--g-ink);
+    background: var(--ui-sheet);
+  }
+
+  .g-table {
+    border-collapse: collapse;
+    white-space: nowrap;
+    font-size: var(--g-size);
+    line-height: 1.25rem;
+  }
+  .g-table :is(th, td):not([data-exclude-export]) {
+    border: 1px solid var(--g-line);
+  }
+  .g-th {
+    padding: var(--g-th-py) var(--g-label-px);
+    font-size: var(--g-th-size);
+    line-height: 1rem;
+    font-weight: var(--g-th-weight);
+    text-transform: var(--g-th-case);
+    font-variant-caps: var(--g-th-caps);
+    letter-spacing: var(--g-th-track);
+    color: var(--g-head-ink);
+    background: var(--g-head-bg);
+  }
+  .g-th-accent {
+    background: var(--g-head-accent-bg);
+  }
+  .g-rowhead {
+    padding: var(--g-py) var(--g-label-px);
+    font-size: var(--g-rowhead-size);
+    line-height: 1rem;
+    font-weight: var(--g-rowhead-weight);
+    font-style: var(--g-rowhead-style);
+    text-transform: var(--g-rowhead-case);
+    letter-spacing: var(--g-rowhead-track);
+    color: var(--g-rowhead-ink);
+    background: var(--g-label-bg);
+  }
+  .g-comp {
+    padding: var(--g-py) var(--g-label-px);
+    text-align: center;
+    font-size: var(--g-comp-size);
+    font-weight: var(--g-comp-weight);
+    text-transform: var(--g-comp-case);
+    letter-spacing: var(--g-comp-track);
+    color: var(--g-comp-ink);
+  }
+  .g-edit,
+  .g-row {
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .g-edit:hover,
+  .g-row:hover {
+    background: var(--g-hover);
+  }
+  .g-calc {
+    position: relative;
+    padding: var(--g-py) var(--g-px);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .g-result {
+    position: relative;
+    padding: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--g-ink);
+    background: var(--g-result-bg);
+  }
+  .g-pad {
+    padding: var(--g-py) var(--g-px);
+  }
+  .g-total-label {
+    padding: var(--g-total-py) var(--g-label-px);
+    font-size: var(--g-total-label-size);
+    font-weight: 700;
+    text-transform: var(--g-total-label-case);
+    letter-spacing: var(--g-total-label-track);
+    color: var(--g-total-label-ink);
+    background: var(--g-total-label-bg);
+  }
+  .g-total {
+    position: relative;
+    padding: var(--g-total-py) var(--g-px);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-size: var(--g-total-size);
+    font-weight: var(--g-total-weight);
+    color: var(--g-total-ink);
+    background: var(--g-total-bg);
+  }
+  .g-table td.g-total-emph {
+    border: var(--g-emph);
+  }
+
+  /* EditableCell */
+  .g-field {
+    padding: var(--g-py) var(--g-px);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--g-value-weight);
+    color: var(--g-value-ink);
+  }
+  .g-field-empty {
+    font-style: italic;
+    color: var(--g-empty-ink);
+  }
+  .g-field-editing {
+    background: var(--g-edit-bg);
+    box-shadow: 0 0 0 1px var(--g-edit-ring);
+  }
+  .g-field:not(.g-field-editing):focus-visible {
+    box-shadow: inset 0 0 0 1px var(--g-edit-ring);
+  }
+
+  /* Title above the grid (on the card, outside the export) */
+  .g-title {
+    color: var(--ui-sheet-ink);
+  }
+  .g-title::placeholder {
+    color: var(--ui-sheet-faint);
+  }
+  .g-title:focus {
+    box-shadow: 0 0 0 1px var(--ui-focus);
+  }
+
+  /* ── Paper: a ruled table set in serif, like a printed report. No fills;
+     the theme color draws the rules and header, and the total is
+     double-underlined the way accountants mark a final figure. ── */
+  :root[data-skin="paper"] .g-sheet {
+    --g-size: 0.9375rem;
+    --g-line: #e4dccb;
+    --g-head-bg: transparent;
+    --g-head-accent-bg: transparent;
+    --g-head-ink: var(--t-head);
+    --g-th-size: 0.9375rem;
+    --g-th-weight: 600;
+    --g-th-caps: all-small-caps;
+    --g-th-track: 0.06em;
+    --g-label-bg: transparent;
+    --g-rowhead-ink: #3d362d;
+    --g-rowhead-size: 0.875rem;
+    --g-rowhead-weight: 400;
+    --g-rowhead-style: italic;
+    --g-comp-weight: 600;
+    --g-result-bg: transparent;
+    --g-total-bg: transparent;
+    --g-total-ink: #1f1b16;
+    --g-total-size: 1rem;
+    --g-total-label-bg: transparent;
+    --g-total-label-ink: #1f1b16;
+    --g-emph: 1px solid var(--g-line);
+    --g-hover: #f7f1e3;
+    --g-ink: #3d362d;
+    --g-value-weight: 400;
+    --g-empty-ink: #b3a996;
+    --g-edit-bg: #f8f0dc;
+    --g-edit-ring: var(--t-head);
+    --g-viz-line: #d8cfbe;
+  }
+  :root[data-skin="paper"] .g-table :is(th, td):not([data-exclude-export]) {
+    border-width: 0 0 1px;
+  }
+  :root[data-skin="paper"] .g-table thead th:not([data-exclude-export]) {
+    border-top: 2px solid var(--t-head);
+    border-bottom: 1px solid var(--t-head);
+  }
+  :root[data-skin="paper"] .g-table > :last-child > tr:last-child > :not([data-exclude-export]) {
+    border-bottom: 2px solid var(--t-head);
+  }
+  :root[data-skin="paper"] .g-total > span {
+    text-decoration: underline double;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+  }
+
+  /* ── Swiss: horizontal rules only, uppercase grotesk labels, a heavy
+     closing rule, and the weighted average in signal red. ── */
+  :root[data-skin="swiss"] .g-sheet {
+    --g-py: 0.5rem;
+    --g-px: 0.625rem;
+    --g-line: var(--t-head);
+    --g-th-size: 0.6875rem;
+    --g-th-weight: 800;
+    --g-th-case: uppercase;
+    --g-th-track: 0.12em;
+    --g-th-py: 0.5rem;
+    --g-label-bg: transparent;
+    --g-rowhead-ink: #0a0a0a;
+    --g-rowhead-size: 0.6875rem;
+    --g-rowhead-weight: 800;
+    --g-rowhead-case: uppercase;
+    --g-rowhead-track: 0.12em;
+    --g-comp-ink: #0a0a0a;
+    --g-comp-size: 0.6875rem;
+    --g-comp-weight: 800;
+    --g-comp-case: uppercase;
+    --g-comp-track: 0.12em;
+    --g-result-bg: #f2f2f0;
+    --g-total-bg: #e30613;
+    --g-total-ink: #ffffff;
+    --g-total-size: 1.0625rem;
+    --g-total-weight: 800;
+    --g-total-label-bg: transparent;
+    --g-total-label-ink: #0a0a0a;
+    --g-total-label-size: 0.6875rem;
+    --g-total-label-case: uppercase;
+    --g-total-label-track: 0.12em;
+    --g-emph: 1px solid var(--g-line);
+    --g-hover: #f4f4f2;
+    --g-ink: #0a0a0a;
+    --g-value-weight: 600;
+    --g-empty-ink: #a3a3a3;
+    --g-edit-bg: #fff1f1;
+    --g-edit-ring: #e30613;
+    --g-viz-line: #bdbdbd;
+  }
+  :root[data-skin="swiss"] .g-table :is(th, td):not([data-exclude-export]) {
+    border-width: 0 0 1px;
+  }
+  :root[data-skin="swiss"] .g-table > :last-child > tr:last-child > :not([data-exclude-export]) {
+    border-bottom-width: 4px;
+  }
+
+  /* ── Soft: open rows on white, a tinted rounded header band in the
+     theme color, and the weighted average as a solid pill. ── */
+  :root[data-skin="soft"] .g-sheet {
+    --g-py: 0.5rem;
+    --g-px: 0.75rem;
+    --g-label-px: 0.875rem;
+    --g-total-py: 0.625rem;
+    --g-line: #eaecf0;
+    --g-head-bg: color-mix(in srgb, var(--t-head) 8%, #ffffff);
+    --g-head-accent-bg: color-mix(in srgb, var(--t-head) 15%, #ffffff);
+    --g-head-ink: var(--t-head);
+    --g-th-weight: 600;
+    --g-th-py: 0.625rem;
+    --g-label-bg: transparent;
+    --g-rowhead-ink: #667085;
+    --g-rowhead-weight: 600;
+    --g-comp-ink: #475467;
+    --g-comp-weight: 600;
+    --g-result-bg: color-mix(in srgb, var(--t-head) 4%, #ffffff);
+    --g-total-bg: var(--t-head);
+    --g-total-ink: #ffffff;
+    --g-total-size: 0.9375rem;
+    --g-total-label-bg: transparent;
+    --g-total-label-ink: #101828;
+    --g-emph: 1px solid var(--g-line);
+    --g-hover: color-mix(in srgb, var(--t-head) 4%, #ffffff);
+    --g-ink: #475467;
+    --g-empty-ink: #98a2b3;
+    --g-edit-bg: #eef2ff;
+    --g-edit-ring: #6366f1;
+    --g-viz-line: #d0d5dd;
+  }
+  :root[data-skin="soft"] .g-table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  :root[data-skin="soft"] .g-table :is(th, td):not([data-exclude-export]) {
+    border-width: 0 0 1px;
+  }
+  :root[data-skin="soft"] .g-table thead th:not([data-exclude-export]) {
+    border-bottom-width: 0;
+  }
+  :root[data-skin="soft"] .g-table thead th:first-child {
+    border-radius: 10px 0 0 10px;
+  }
+  :root[data-skin="soft"] .g-table thead th:nth-last-child(1 of :not([data-exclude-export])) {
+    border-radius: 0 10px 10px 0;
+  }
+  :root[data-skin="soft"] .g-table > :last-child > tr:last-child > :not([data-exclude-export]) {
+    border-bottom-width: 0;
+  }
+  :root[data-skin="soft"] .g-total {
+    border-radius: 10px;
+  }
+
+  /* ── Midnight: a dark sheet in mono type; header bands keep the theme
+     color, and the weighted average glows amber. ── */
+  :root[data-skin="midnight"] .g-sheet {
+    --g-size: 0.8125rem;
+    --g-line: #263045;
+    --g-head-ink: #eef1f7;
+    --g-th-size: 0.6875rem;
+    --g-th-weight: 500;
+    --g-th-case: uppercase;
+    --g-th-track: 0.08em;
+    --g-label-bg: #131a29;
+    --g-rowhead-ink: #8c96a8;
+    --g-rowhead-size: 0.6875rem;
+    --g-rowhead-weight: 500;
+    --g-rowhead-case: uppercase;
+    --g-rowhead-track: 0.08em;
+    --g-comp-ink: #8c96a8;
+    --g-comp-size: 0.75rem;
+    --g-comp-case: uppercase;
+    --g-comp-track: 0.06em;
+    --g-result-bg: #131a29;
+    --g-total-bg: rgb(242 181 68 / 0.12);
+    --g-total-ink: #f5c25c;
+    --g-total-weight: 600;
+    --g-total-label-bg: #131a29;
+    --g-total-label-ink: #e7ebf3;
+    --g-total-label-size: 0.75rem;
+    --g-total-label-case: uppercase;
+    --g-total-label-track: 0.08em;
+    --g-emph: 2px solid #c79a3f;
+    --g-hover: #151d2d;
+    --g-ink: #c3cad8;
+    --g-empty-ink: #4a5468;
+    --g-edit-bg: #1b2335;
+    --g-edit-ring: #f2b544;
+    --g-viz-line: #3a465e;
+  }
 }

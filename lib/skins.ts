@@ -1,10 +1,11 @@
 /**
- * Page skins restyle the app chrome (top bar, toolbar, options, history)
- * by swapping the `--ui-*` design tokens defined in app/globals.css. The
- * active skin is the `data-skin` attribute on <html>.
+ * Page skins restyle the whole page, grid included, by swapping the `--ui-*`
+ * and `--g-*` design tokens defined in app/globals.css. The active skin is
+ * the `data-skin` attribute on <html>.
  *
- * Skins never touch the exported grid: the card around it pins its own
- * font and colors, and the grid's colors come from GridTheme (lib/themes.ts).
+ * A skin decides how the grid is drawn (type, rules, header and total
+ * treatment); the grid theme (lib/themes.ts) still supplies its colors.
+ * Exported images capture the grid as drawn, so they follow the skin.
  *
  * The skin is a per-browser display preference, not document state, so it
  * lives in its own localStorage key instead of AppState (no undo, not saved
@@ -33,28 +34,33 @@ export const PAGE_SKIN_LIST: PageSkin[] = [
   {
     id: "paper",
     name: "Paper",
-    description: "Printed report: warm stock, serif small caps, hairline rules",
+    description: "Printed report: serif small caps, ruled table, double-underlined total",
     swatch: { page: "#F3EFE6", bar: "#FBF8F1", accent: "#24324F", line: "#CFC5B2", radius: 0 },
   },
   {
     id: "swiss",
     name: "Swiss",
-    description: "Bold grotesk, heavy black rules, one signal red",
+    description: "Bold grotesk, heavy rules, red total",
     swatch: { page: "#F2F2F0", bar: "#ffffff", accent: "#E30613", line: "#0A0A0A", radius: 0 },
   },
   {
     id: "soft",
     name: "Soft",
-    description: "Rounded cards, soft shadows, indigo accents",
+    description: "Rounded cards, tinted header band, pill total",
     swatch: { page: "#EEF1F8", bar: "#ffffff", accent: "#4F46E5", line: "#E4E7EC", radius: 4 },
   },
   {
     id: "midnight",
     name: "Midnight",
-    description: "Dark desk with mono labels; the grid stays on white paper",
+    description: "Dark grid in mono type with an amber total",
     swatch: { page: "#0B0F17", bar: "#121826", accent: "#F2B544", line: "#273145", radius: 3 },
   },
 ];
+
+/** Weight-visualization color a skin forces over the grid theme's (e.g. so shading shows on a dark grid). */
+export const SKIN_BAR_RGB: Partial<Record<PageSkinId, string>> = {
+  midnight: "242, 181, 68",
+};
 
 export function isPageSkin(value: unknown): value is PageSkinId {
   return typeof value === "string" && (PAGE_SKINS as readonly string[]).includes(value);
