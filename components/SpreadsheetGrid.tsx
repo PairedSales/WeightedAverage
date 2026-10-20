@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
-import type { RefObject } from "react";
+import { useCallback, useState } from "react";
+import type { DragEvent, RefObject } from "react";
 import type { CompSale, DecimalPrecision, GridThemeId, LayoutMode, WeightDisplayFormat, WeightVizMode, WeightVizRow } from "@/lib/types";
 import { getGridTheme, type GridTheme } from "@/lib/themes";
 import { sumWeights, contribution, weightedAverage, numericWeight } from "@/lib/calculations";
@@ -23,6 +23,7 @@ interface SpreadsheetGridProps {
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number | string) => void;
   onAddComp: () => void;
   onRemoveComp: (id: string) => void;
+  onMoveComp: (fromId: string, toId: string) => void;
   onWeightDisplayFormatChange?: (format: WeightDisplayFormat) => void;
 }
 
@@ -39,6 +40,7 @@ export default function SpreadsheetGrid({
   onUpdateComp,
   onAddComp,
   onRemoveComp,
+  onMoveComp,
   onWeightDisplayFormatChange,
 }: SpreadsheetGridProps) {
   const resolvedTheme = getGridTheme(theme);
@@ -138,6 +140,7 @@ export default function SpreadsheetGrid({
         onUpdateComp={onUpdateComp}
         onAddComp={onAddComp}
         onRemoveComp={onRemoveComp}
+        onMoveComp={onMoveComp}
         onWeightDisplayFormatChange={onWeightDisplayFormatChange}
         onNavigate={handleNavigate}
       />
@@ -163,6 +166,7 @@ export default function SpreadsheetGrid({
       onUpdateComp={onUpdateComp}
       onAddComp={onAddComp}
       onRemoveComp={onRemoveComp}
+      onMoveComp={onMoveComp}
       onWeightDisplayFormatChange={onWeightDisplayFormatChange}
       onNavigate={handleNavigate}
     />
@@ -187,8 +191,40 @@ interface GridInternalProps {
   onUpdateComp: (id: string, field: "salePrice" | "weight", value: number | string) => void;
   onAddComp: () => void;
   onRemoveComp: (id: string) => void;
+  onMoveComp: (fromId: string, toId: string) => void;
   onWeightDisplayFormatChange?: (format: WeightDisplayFormat) => void;
   onNavigate: (direction: "up" | "down" | "next" | "prev", currentTabIndex: number) => void;
+}
+
+function useCompDrag(onMoveComp: (fromId: string, toId: string) => void) {
+  const [id, setId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  return {
+    id,
+    overId,
+    onStart: (e: DragEvent<HTMLElement>, compId: string) => {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", compId);
+      setId(compId);
+    },
+    onOver: (e: DragEvent<HTMLElement>, compId: string) => {
+      if (!id) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (overId !== compId) setOverId(compId);
+    },
+    onDrop: (e: DragEvent<HTMLElement>, compId: string) => {
+      if (!id) return;
+      e.preventDefault();
+      if (id !== compId) onMoveComp(id, compId);
+      setId(null);
+      setOverId(null);
+    },
+    onEnd: () => {
+      setId(null);
+      setOverId(null);
+    },
+  };
 }
 
 function WeightWarning({ totalWeight, decimals }: { totalWeight: number; decimals: DecimalPrecision }) {
@@ -260,10 +296,12 @@ function VerticalGrid({
   onUpdateComp,
   onAddComp,
   onRemoveComp,
+  onMoveComp,
   onWeightDisplayFormatChange,
   onNavigate,
 }: GridInternalProps) {
   const n = comps.length;
+  const dragging = useCompDrag(onMoveComp);
   return (
     <div className="w-fit">
       <div ref={gridExportRef} className="w-fit" data-chart-export>
@@ -293,9 +331,21 @@ function VerticalGrid({
             return (
               <tr
                 key={comp.id}
-                className={`group ${theme.hoverBg} transition-colors`}
+                className={`group ${theme.hoverBg} transition-colors ${dragging.overId === comp.id && dragging.id !== comp.id ? "outline outline-2 -outline-offset-2 outline-sky-500" : ""}`}
+                onDragOver={(e) => dragging.onOver(e, comp.id)}
+                onDrop={(e) => dragging.onDrop(e, comp.id)}
               >
-                <td className={`px-3 py-1.5 font-medium text-slate-700 text-center text-[13px] border ${theme.borderColor}`}>
+                <td
+                  draggable
+                  onDragStart={(e) => {
+                    dragging.onStart(e, comp.id);
+                    const row = e.currentTarget.parentElement;
+                    if (row) e.dataTransfer.setDragImage(row, 0, 0);
+                  }}
+                  onDragEnd={dragging.onEnd}
+                  title="Drag to reorder"
+                  className={`px-3 py-1.5 font-medium text-slate-700 text-center text-[13px] border ${theme.borderColor} cursor-grab active:cursor-grabbing`}
+                >
                   {comp.label}
                 </td>
                 <td className={`p-0 border ${theme.borderColor}`}>
@@ -378,16 +428,12 @@ function VerticalGrid({
               <WeightWarning totalWeight={totalWeight} decimals={decimals} />
             </td>
             <td
-              colSpan={2}
-              className={`px-2 py-2 relative text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm border ${theme.borderColor}`}
+              className={`p-0 relative text-right tabular-nums font-semibold text-slate-700 border ${theme.borderColor} ${theme.resultColBg}`}
             >
               {showResultViz && totalWeight > 0 && (
                 <>
                   {weightViz === "shade" && (
                     <WeightBar ratio={totalWeight / 100} direction="horizontal" colorRGB={theme.weightBarRGB} />
-                  )}
-                  {(weightViz === "meter" || weightViz === "scale") && (
-                    <ResultStrip mode={weightViz} pct={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
                   {(weightViz === "pie" || weightViz === "pie-large") && (
                     <PieGlyph comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} size={weightViz === "pie-large" ? 26 : 18} />
@@ -398,10 +444,23 @@ function VerticalGrid({
                   {weightViz === "bar" && (
                     <BarGlyph comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
-                  {weightViz === "bar-fill" && (
+                  {weightViz === "bar-fill" && barFillRow === "weight" && (
                     <BarFillBackground comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
                   )}
                 </>
+              )}
+              <div className="relative z-10">
+                <div className="px-2 py-1.5">{formatWeight(totalWeight, decimals, weightDisplayFormat)}</div>
+                {showResultViz && (weightViz === "meter" || weightViz === "scale") && (
+                  <WeightCellViz mode={weightViz} pct={totalWeight} colorRGB={theme.weightBarRGB} />
+                )}
+              </div>
+            </td>
+            <td
+              className={`px-2 py-2 relative text-right tabular-nums font-bold ${theme.footerText} ${theme.footerBg} text-sm border ${theme.borderColor}`}
+            >
+              {showResultViz && weightViz === "bar-fill" && barFillRow === "contribution" && totalWeight > 0 && (
+                <BarFillBackground comps={comps} totalWeight={totalWeight} colorRGB={theme.weightBarRGB} />
               )}
               <span className="relative z-10">{weightsValid ? formatCurrency(avg) : "\u2014"}</span>
             </td>
@@ -436,10 +495,12 @@ function HorizontalGrid({
   onUpdateComp,
   onAddComp,
   onRemoveComp,
+  onMoveComp,
   onWeightDisplayFormatChange,
   onNavigate,
 }: GridInternalProps) {
   const n = comps.length;
+  const dragging = useCompDrag(onMoveComp);
   return (
     <div className="w-fit">
       <div ref={gridExportRef} className="w-fit" data-chart-export>
@@ -452,7 +513,13 @@ function HorizontalGrid({
             {comps.map((comp) => (
               <th
                 key={comp.id}
-                className={`px-3 py-1.5 text-center text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} group relative`}
+                draggable
+                onDragStart={(e) => dragging.onStart(e, comp.id)}
+                onDragEnd={dragging.onEnd}
+                onDragOver={(e) => dragging.onOver(e, comp.id)}
+                onDrop={(e) => dragging.onDrop(e, comp.id)}
+                title="Drag to reorder"
+                className={`px-3 py-1.5 text-center text-xs font-bold text-white ${theme.headerBg} border ${theme.borderColor} group relative cursor-grab active:cursor-grabbing ${dragging.overId === comp.id && dragging.id !== comp.id ? "outline outline-2 -outline-offset-2 outline-sky-400" : ""}`}
               >
                 <span>{comp.label}</span>
                 {canRemove && (
