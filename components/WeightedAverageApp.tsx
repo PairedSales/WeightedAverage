@@ -266,6 +266,18 @@ export default function WeightedAverageApp() {
     });
   }, [setState]);
 
+  const moveComp = useCallback((fromId: string, toId: string) => {
+    setState((prev) => {
+      const from = prev.comps.findIndex((c) => c.id === fromId);
+      const to = prev.comps.findIndex((c) => c.id === toId);
+      if (from < 0 || to < 0 || from === to) return prev;
+      const next = [...prev.comps];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return { ...prev, comps: next.map((c, i) => ({ ...c, label: `Sale ${i + 1}` })) };
+    });
+  }, [setState]);
+
   const setDecimals = useCallback((d: DecimalPrecision) => {
     setState((prev) => ({ ...prev, decimals: d }));
   }, [setState]);
@@ -734,6 +746,7 @@ export default function WeightedAverageApp() {
                     onUpdateComp={updateComp}
                     onAddComp={addComp}
                     onRemoveComp={removeComp}
+                    onMoveComp={moveComp}
                     onWeightDisplayFormatChange={setWeightDisplayFormat}
                   />
                 </div>
